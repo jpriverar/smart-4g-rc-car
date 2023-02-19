@@ -10,56 +10,56 @@ uint8_t PAN_CENTER = 100;
 uint8_t TILT_MIN = 40;
 uint8_t TILT_MAX = 100;
 uint8_t TILT_CENTER = 50;
-uint8_t cam_pan = PAN_CENTER;
-uint8_t cam_tilt = TILT_CENTER;
+uint8_t camPan = PAN_CENTER;
+uint8_t camTilt = TILT_CENTER;
 
-Servo pan_servo;
-Servo tilt_servo;
+Servo panServo;
+Servo tiltServo;
 
-void camera_init(){
+void cameraInit(){
   pinMode(CAM_PAN_PIN, OUTPUT);
   pinMode(CAM_TILT_PIN, OUTPUT);
 
-  pan_servo.attach(CAM_PAN_PIN);
-  tilt_servo.attach(CAM_TILT_PIN);
+  panServo.attach(CAM_PAN_PIN);
+  tiltServo.attach(CAM_TILT_PIN);
 
-  change_pan_angle(cam_pan);
-  change_tilt_angle(cam_tilt);
+  changePanAngle(camPan);
+  changeTiltAngle(camTilt);
 }
 
-void change_pan_angle(uint8_t angle){
+void changePanAngle(uint8_t angle){
     if (angle > PAN_MAX){angle = PAN_MAX;}
     else if (angle < PAN_MIN){angle = PAN_MIN;}
 
     // Saving the angle in the cam_pan variable
-    cam_pan = angle;
+    camPan = angle;
 
     // Updating the angle
-    pan_servo.write(cam_pan);
+    panServo.write(camPan);
 }
 
-void increment_pan_angle(uint8_t inc_angle){
-  uint8_t input_value = cam_pan + inc_angle;
-  change_pan_angle(input_value);
+void incrementPanAngle(uint8_t incAngle){
+  uint8_t inputValue = camPan + incAngle;
+  changePanAngle(inputValue);
 }
 
-void change_tilt_angle(uint8_t angle){
+void changeTiltAngle(uint8_t angle){
     if (angle > TILT_MAX){angle = TILT_MAX;}
     else if (angle < TILT_MIN){angle = TILT_MIN;}
     
     // Saving the angle in the cam_tilt variable
-    cam_tilt = angle;
+    camTilt = angle;
 
     // Updating the angle
-    tilt_servo.write(cam_tilt);
+    tiltServo.write(camTilt);
 }
 
-void increment_tilt_angle(uint8_t inc_angle){
-  uint8_t input_value = cam_tilt + inc_angle;
-  change_tilt_angle(input_value);
+void incrementTiltAngle(uint8_t incAngle){
+  uint8_t inputValue = camTilt + incAngle;
+  changeTiltAngle(inputValue);
 }
 
-void camera_config(String param, int16_t value = -1){
+void cameraConfig(String param, int16_t value = -1){
   // GET parameter values
   if (value == -1){
     if (param == "pan min") Serial.println(PAN_MIN);

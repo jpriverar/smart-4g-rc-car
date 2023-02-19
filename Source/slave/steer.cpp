@@ -5,27 +5,31 @@
 uint8_t STEER_MIN = 35;
 uint8_t STEER_MAX = 130;
 uint8_t STEER_CENTER = 80;
-uint8_t steer_angle = STEER_CENTER;
+uint8_t steerAngle = STEER_CENTER;
 
-Servo steer_servo;
+Servo steerServo;
 
-void change_steer_angle(uint8_t angle){
+void changeSteerAngle(uint8_t angle){
     if (angle > STEER_MAX){angle = STEER_MAX;}
     else if (angle < STEER_MIN){angle = STEER_MIN;}
 
     // Saving the angle in the steer_angle variable
-    steer_angle = angle;
+    steerAngle = angle;
 
     // Updating the angle
-    steer_servo.write(angle);
+    steerServo.write(angle);
 }
 
-void increment_steer_angle(uint8_t inc_angle){
-  uint8_t input_value = steer_angle + inc_angle;
-  change_steer_angle(input_value);
+void incrementSteerAngle(uint8_t incAngle){
+  uint8_t inputValue = steerAngle + incAngle;
+  changeSteerAngle(inputValue);
 }
 
-void steer_config(String param, int16_t value = -1){
+void centerSteerAngle(){
+  changeSteerAngle(STEER_CENTER);
+}
+
+void steerConfig(String param, int16_t value = -1){
   // GET parameter value
   if (value == -1){
     if (param == "min") Serial.println(STEER_MIN);
@@ -65,8 +69,8 @@ void steer_config(String param, int16_t value = -1){
   }
 }
 
-void steer_init(){
+void steerInit(){
   pinMode(STEER_PIN, OUTPUT);
-  steer_servo.attach(STEER_PIN);
-  change_steer_angle(steer_angle);
+  steerServo.attach(STEER_PIN);
+  centerSteerAngle();
 }

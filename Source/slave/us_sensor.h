@@ -2,8 +2,12 @@
 #define US_SENSOR_H_
 #include <Arduino.h>
 
-void us_sensor_init();
-double measure_distance(String sensor);
-void send_trigger(String sensor);
+void usSensorInit();
+double measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeout);
+double measureFrontDistance();
+double measureBackDistance();
+void sendTrigger(uint8_t triggerPin);
+void sendFrontTrigger();
+void sendBackTrigger();
 
 #endif /*US_SENSOR_H_*/

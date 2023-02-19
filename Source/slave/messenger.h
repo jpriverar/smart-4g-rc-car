@@ -3,6 +3,6 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 
-void wait_for_connection();
+void waitForConnection();
 
 #endif /*MESSENGER_H_*/

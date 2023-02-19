@@ -3,11 +3,11 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-void camera_init();
-void camera_config(String param, int16_t value);
-void change_pan_angle(uint8_t angle);
-void increment_pan_angle(uint8_t inc_angle);
-void change_tilt_angle(uint8_t angle);
-void increment_tilt_angle(uint8_t inc_angle);
+void cameraInit();
+void cameraConfig(String param, int16_t value);
+void changePanAngle(uint8_t angle);
+void incrementPanAngle(uint8_t incAngle);
+void changeTiltAngle(uint8_t angle);
+void incrementTiltAngle(uint8_t incAngle);
 
 #endif /*CAMERA_H_*/

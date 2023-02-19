@@ -9,24 +9,30 @@
 String msg;
 
 // Ultrasonic sensor readings
-bool front_us_reading = false;
-bool front_collision = false;
-float front_stop_dist = 10; //cm
-bool back_us_reading = false;
-bool back_collision = false;
-float back_stop_dist = 10; //cm
+bool frontUsReading = false;
+bool frontCollision = false;
+float frontStopDist = 10; //cm
+bool backUsReading = false;
+bool backCollision = false;
+float backStopDist = 10; //cm
+
+// IMU Variables
+bool readImu = false;  // To start continuous imu readings
+double imuReadTime = 100; // 100ms between readings
+double imuStartTime;
+double imuCurrTime;
 
 void setup() {
   // Waiting to stablish connection with master
-  Serial.begin(9600);
-  wait_for_connection();
+  Serial.begin(115200);
+  waitForConnection();
 
   // Initializing all car components
-  us_sensor_init();
-  camera_init();
-  drive_init();
-  steer_init();
-  //imu_init();
+  usSensorInit();
+  cameraInit();
+  driveInit();
+  steerInit();
+  imuInit();
 }
 
 void loop() {
@@ -38,35 +44,35 @@ void loop() {
     parse_message(msg);
   }
 
-  if (front_us_reading){
-    double dist = measure_distance("front");
+  if (frontUsReading){
+    double dist = measureFrontDistance();
     
     Serial.print("front distance: ");
     Serial.println(dist);
 
-    if (front_collision){
-      if (dist < front_stop_dist) stop_drive();
+    if (frontCollision){
+      if (dist < frontStopDist) stopDrive();
     }
   }
 
-  if (back_us_reading){
-    double dist = measure_distance("back");
+  if (backUsReading){
+    double dist = measureBackDistance();
     
     Serial.print("back distance: ");
     Serial.println(dist);
 
-    if (back_collision){
-      if (dist < back_stop_dist) stop_drive();
+    if (backCollision){
+      if (dist < backStopDist) stopDrive();
     }
   }
 
-  /*if (read_imu){
-    if (imu_curr_time - imu_start_time >= imu_read_time){
-      compute_6dof();
-      imu_start_time = millis();
+  if (readImu){
+    if (imuCurrTime - imuStartTime >= imuReadTime){
+      compute6dof();
+      imuStartTime = millis();
     }
-    imu_curr_time = millis();
-  }*/
+    imuCurrTime = millis();
+  }
 }
 
 void help(){
@@ -135,45 +141,52 @@ void parse_message(String msg){
   //Serial.println(input_value);
   
   if (msg == "help"){help();}
-  else if (command ==  "SC"){change_steer_angle(input_value);}
-  else if (command == "SI"){increment_steer_angle(input_value);}
-  else if (command == "SD"){increment_steer_angle(-input_value);}
-  else if (command == "SM"){steer_config("max", input_value);}
-  else if (command == "Sm"){steer_config("min", input_value);}
-  else if (command == "Sc"){steer_config("center", input_value);}
+  else if (command ==  "SC"){changeSteerAngle(input_value);}
+  else if (command == "SI"){incrementSteerAngle(input_value);}
+  else if (command == "SD"){incrementSteerAngle(-input_value);}
+  else if (command == "SM"){steerConfig("max", input_value);}
+  else if (command == "Sm"){steerConfig("min", input_value);}
+  else if (command == "Sc"){steerConfig("center", input_value);}
 
-  else if (command == "PC"){change_pan_angle(input_value);}
-  else if (command == "PI"){increment_pan_angle(input_value);}
-  else if (command == "PD"){increment_pan_angle(-input_value);}
-  else if (command == "PM"){camera_config("pan max", input_value);}
-  else if (command == "Pm"){camera_config("pan min", input_value);}
-  else if (command == "Pc"){camera_config("pan center", input_value);}
+  else if (command == "PC"){changePanAngle(input_value);}
+  else if (command == "PI"){incrementPanAngle(input_value);}
+  else if (command == "PD"){incrementPanAngle(-input_value);}
+  else if (command == "PM"){cameraConfig("pan max", input_value);}
+  else if (command == "Pm"){cameraConfig("pan min", input_value);}
+  else if (command == "Pc"){cameraConfig("pan center", input_value);}
   
-  else if (command == "TC"){change_tilt_angle(input_value);}
-  else if (command == "TI"){increment_tilt_angle(input_value);}
-  else if (command == "TD"){increment_tilt_angle(-input_value);}
-  else if (command == "TM"){camera_config("tilt max", input_value);}
-  else if (command == "Tm"){camera_config("tilt min", input_value);}
-  else if (command == "Tc"){camera_config("tilt center", input_value);}
+  else if (command == "TC"){changeTiltAngle(input_value);}
+  else if (command == "TI"){incrementTiltAngle(input_value);}
+  else if (command == "TD"){incrementTiltAngle(-input_value);}
+  else if (command == "TM"){cameraConfig("tilt max", input_value);}
+  else if (command == "Tm"){cameraConfig("tilt min", input_value);}
+  else if (command == "Tc"){cameraConfig("tilt center", input_value);}
 
-  else if (command == "DP"){change_drive_power(input_value);}
-  else if (command == "DI"){increment_drive_power(input_value);}
-  else if (command == "DD"){increment_drive_power(-input_value);}
-  else if (command == "DS"){stop_drive();}
-  else if (command == "DC"){change_drive_direction(input_value);}
-  else if (command == "DM"){drive_config("max", input_value);}
+  else if (command == "DP"){changeDrivePower(input_value);}
+  else if (command == "DI"){incrementDrivePower(input_value);}
+  else if (command == "DD"){incrementDrivePower(-input_value);}
+  else if (command == "DS"){stopDrive();}
+  else if (command == "DC"){changeDriveDirection(input_value);}
+  else if (command == "DM"){driveConfig("max", input_value);}
   
-  else if (command == "FO"){Serial.println(measure_distance("front"));}
-  else if (command == "FC"){front_us_reading=true;}
-  else if (command == "FS"){front_us_reading=false;}
-  else if (command == "BO"){Serial.println(measure_distance("back"));}
-  else if (command == "BC"){back_us_reading=true;}
-  else if (command == "BS"){back_us_reading=false;}
+  else if (command == "FO"){Serial.println(measureFrontDistance());}
+  else if (command == "FC"){frontUsReading=true;}
+  else if (command == "FS"){frontUsReading=false;}
+  else if (command == "BO"){Serial.println(measureBackDistance());}
+  else if (command == "BC"){backUsReading=true;}
+  else if (command == "BS"){backUsReading=false;}
 
   else if (command == "Ic"){Serial.println("Calibration function not implemented yet...");}
-  //else if (command == "IC"){read_imu = true;}
-  //else if (command == "IS"){read_imu = false;}
-  //else if (command == "IT"){imu_read_time = input_value; imu_start_time = millis();}
+  else if (command == "IC"){readImu = true;}
+  else if (command == "IS"){readImu = false;}
+  else if (command == "IT"){imuReadTime = input_value; imuStartTime = millis();}
+
+  else if (command == "FE"){frontCollision=true;}
+  else if (command == "FD"){frontCollision=false;}
+  else if (command == "F!"){frontStopDist = input_value;}
+  else if (command == "BE"){backCollision=true;}
+  else if (command == "BD"){backCollision=false;}
+  else if (command == "B!"){backStopDist = input_value;}
   
   else {Serial.println("Unknown command, try again...");}
 }

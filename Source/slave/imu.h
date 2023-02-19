@@ -7,8 +7,8 @@
     #include "Wire.h"
 #endif
 
-void imu_init();
+void imuInit();
 void dmpDataReady();
-void compute_6dof();
+void compute6dof();
 
 #endif /*IMU_H_*/

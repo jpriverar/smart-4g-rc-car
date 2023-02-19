@@ -3,9 +3,10 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-void steer_init();
-void steer_config(String param, int16_t value);
-void change_steer_angle(uint8_t angle);
-void increment_steer_angle(uint8_t inc_angle);
+void steerInit();
+void steerConfig(String param, int16_t value);
+void changeSteerAngle(uint8_t angle);
+void incrementSteerAngle(uint8_t incAngle);
+void centerSteerAngle();
 
 #endif /*STEER_H_*/

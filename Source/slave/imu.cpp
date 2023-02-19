@@ -12,10 +12,6 @@ uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
 uint16_t fifoCount;     // count of all bytes currently in FIFO
 uint8_t fifoBuffer[64]; // FIFO storage buffer
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
-bool read_imu = false;  // To start continuous imu readings
-double imu_read_time = 100; // 100ms between readings
-double imu_start_time;
-double imu_curr_time;
 
 // orientation/motion vars
 Quaternion q;           // [w, x, y, z]         quaternion container
@@ -26,7 +22,7 @@ VectorFloat gravity;    // [x, y, z]            gravity vector
 float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 
-void imu_init(){
+void imuInit(){
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
       Wire.begin();
       Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
@@ -34,7 +30,6 @@ void imu_init(){
       Fastwire::setup(400, true);
   #endif
   
-  Serial.begin(115200);
   while (!Serial); 
 
   // initialize MPU device
@@ -95,7 +90,7 @@ void dmpDataReady() {
     mpuInterrupt = true;
 }
 
-void compute_6dof(){
+void compute6dof(){
   if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     mpu.dmpGetGravity(&gravity, &q);

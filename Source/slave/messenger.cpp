@@ -2,7 +2,7 @@
 
 String command;
 
-void wait_for_connection(){
+void waitForConnection(){
   while(1){
     Serial.println("ready");
     if (Serial.available() > 0){

@@ -6,63 +6,52 @@
 #define BACK_ECHO 12
 
 const double VelSon = 34000.0;
+unsigned long defaultTimeout = 10000; //0.008 sec, approx 1 meter go and 1 meter back
 
-void us_sensor_init(){
+void usSensorInit(){
   pinMode(FRONT_TRIG, OUTPUT);
   pinMode(FRONT_ECHO, INPUT);
   pinMode(BACK_TRIG, OUTPUT);
   pinMode(BACK_ECHO, INPUT);
 }
 
-double measure_distance(String sensor){
-  // Check which echo pin
-  char echo;
-  
-  if (sensor == "front"){
-    echo = FRONT_ECHO;
-  } 
-  else if (sensor == "back"){
-    echo = BACK_ECHO;
-  }
-  else {
-    Serial.println("Unvalid echo pin...");
-    return -1;
-  }
-
+double measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeout=defaultTimeout){
   // Sending a trigger pulse
-  send_trigger(sensor);
+  sendTrigger(triggerPin);
   
   // Measuring pulse lenght in us
-  unsigned long pulse_time = pulseIn(echo, HIGH);
+  unsigned long pulseTime = pulseIn(echoPin, HIGH, timeout);
   
   // Calculating distance from sound speed and pulse time
-  double distance = pulse_time * 0.000001 * VelSon / 2.0;
+  double distance = pulseTime * 0.000001 * VelSon / 2.0;
   return distance;
 }
 
-void send_trigger(String sensor){
-  // Check which trigger pin
-  char trigger;
+double measureFrontDistance(){
+  return measureDistance(FRONT_ECHO, FRONT_TRIG);
+}
 
-  if (sensor == "front"){
-    trigger = FRONT_TRIG;
-  } 
-  else if (sensor == "back"){
-    trigger = BACK_TRIG;
-  }
-  else {
-    Serial.println("Unvalid trigger pin...");
-    return;
-  }
-  
+double measureBackDistance(){
+  return measureDistance(BACK_ECHO, BACK_TRIG);
+}
+
+void sendTrigger(uint8_t triggerPin){
   // Set trigger pin in low state and wait for 2 us
-  digitalWrite(trigger, LOW);
+  digitalWrite(triggerPin, LOW);
   delayMicroseconds(2);
   
   // Set trigger pin in low state and wait for 10 us
-  digitalWrite(trigger, HIGH);
+  digitalWrite(triggerPin, HIGH);
   delayMicroseconds(10);
   
   // Comenzamos poniendo el pin Trigger en estado bajo Reset trigger pin
-  digitalWrite(trigger, LOW);
+  digitalWrite(triggerPin, LOW);
+}
+
+void sendFrontTrigger(){
+  sendTrigger(FRONT_TRIG);
+}
+
+void sendBackTrigger(){
+  sendTrigger(BACK_TRIG);
 }
