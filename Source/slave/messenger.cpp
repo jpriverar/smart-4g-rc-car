@@ -1,7 +1,5 @@
 #include "messenger.h"
 
-String command;
-
 void waitForConnection(){
   while(1){
     Serial.println("ready");
@@ -10,5 +8,13 @@ void waitForConnection(){
       if (msg == "OK") break;
     }
     delay(500);
+  }
+}
+
+void sendMsg(Message* msg) {
+  byte* ptr = (byte*)msg;
+  for (int i = 0; i < sizeof(msg); i++) {
+    Serial.write(*ptr);
+    ptr++;
   }
 }

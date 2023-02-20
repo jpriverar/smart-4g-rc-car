@@ -7,8 +7,17 @@
     #include "Wire.h"
 #endif
 
+struct IMUData{
+  float yaw;
+  float pitch;
+  float roll;
+  float ax;
+  float ay;
+  float az;
+};
+
 void imuInit();
 void dmpDataReady();
-void compute6dof();
+IMUData compute6dof();
 
 #endif /*IMU_H_*/

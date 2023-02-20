@@ -25,7 +25,7 @@ double imuCurrTime;
 void setup() {
   // Waiting to stablish connection with master
   Serial.begin(115200);
-  waitForConnection();
+  //waitForConnection();
 
   // Initializing all car components
   usSensorInit();
@@ -45,30 +45,45 @@ void loop() {
   }
 
   if (frontUsReading){
-    double dist = measureFrontDistance();
+    USSensorData data = measureFrontDistance();
     
-    Serial.print("front distance: ");
-    Serial.println(dist);
+    Serial.print(data.side);
+    Serial.println(data.distance);
 
     if (frontCollision){
-      if (dist < frontStopDist) stopDrive();
+      if (data.distance < frontStopDist) stopDrive();
     }
   }
 
   if (backUsReading){
-    double dist = measureBackDistance();
+    USSensorData data = measureBackDistance();
     
-    Serial.print("back distance: ");
-    Serial.println(dist);
+    Serial.print(data.side);
+    Serial.println(data.distance);
 
     if (backCollision){
-      if (dist < backStopDist) stopDrive();
+      if (data.distance < backStopDist) stopDrive();
     }
   }
 
   if (readImu){
     if (imuCurrTime - imuStartTime >= imuReadTime){
-      compute6dof();
+      IMUData data = compute6dof();
+
+      Serial.print(data.yaw);
+      Serial.print("\t");
+      Serial.print(data.pitch);
+      Serial.print("\t");
+      Serial.print(data.roll);
+      Serial.print("\t");
+    
+      // Acceleration values
+      Serial.print(data.ax);
+      Serial.print("\t");
+      Serial.print(data.ay);
+      Serial.print("\t");
+      Serial.println(data.az);
+
       imuStartTime = millis();
     }
     imuCurrTime = millis();
@@ -76,28 +91,34 @@ void loop() {
 }
 
 void help(){
-  Serial.println(F("|---------------------COMMAND SYNTAX----------------------"));
+  Serial.println(F("|---------------------COMMAND SYNTAX---------------------|"));
   Serial.println(F("  {COMMAND}{NUMERICAL VALUE TO PASS THE COMMAND}          "));
-  Serial.println(F("  SC130 - Will set the steer direction value to 130°   "));
+  Serial.println(F("  SS130 - Will set the steer direction value to 130°      "));
   Serial.println();
   Serial.println(F("|------------------DIRECTION COMMANDS--------------------|"));
+  Serial.println(F("  SG - Get the current steer direction                    "));
   Serial.println(F("  SC - Change steer direcion in a range between 0-255     "));
   Serial.println(F("  SI - Increase the steer direction                       "));
   Serial.println(F("  SD - Decrease the steer direction                       "));
+  Serial.println(F("  SC - Center the steer direction                         "));
   Serial.println(F("  SM - Set steer direction max endstop                    "));
   Serial.println(F("  Sm - Set steer direction min endstop                    "));
   Serial.println(F("  Sc - Set steer direction center                         "));
   Serial.println();
   Serial.println(F("|-------------------CAMERA COMMANDS----------------------|"));
-  Serial.println(F("  PC - Change camera pan angle in a range between 0-255   "));
+  Serial.println(F("  PG - Get the current cam pan angle                      "));
+  Serial.println(F("  PS - Set camera pan angle in a range between 0-255      "));
   Serial.println(F("  PI - Increase camera pan angle                          "));
   Serial.println(F("  PD - Decrease camera pan angle                          "));
+  Serial.println(F("  PC - Center the camera pan angle                        "));
   Serial.println(F("  PM - Set camera pan angle max endstop                   "));
   Serial.println(F("  Pm - Set camera pan angle min endstop                   "));
   Serial.println(F("  Pc - Set camera pan angle center                        "));
-  Serial.println(F("  TC - Change camera tilt angle in a range between 0-255  "));
+  Serial.println(F("  TG - Get the current cam tilt angle                     "));
+  Serial.println(F("  TS - Set camera tilt angle in a range between 0-255     "));
   Serial.println(F("  TI - Increase camera tilt angle                         "));
   Serial.println(F("  TD - Decrease camera tilt angle                         "));
+  Serial.println(F("  TC - Center the camera tilt angle                       "));
   Serial.println(F("  TM - Set camera tilt angle max endstop                  "));
   Serial.println(F("  Tm - Set camera tilt angle min endstop                  "));
   Serial.println(F("  Tc - Set camera tilt angle center                       "));
@@ -141,23 +162,29 @@ void parse_message(String msg){
   //Serial.println(input_value);
   
   if (msg == "help"){help();}
-  else if (command ==  "SC"){changeSteerAngle(input_value);}
+  else if (command == "SG"){Serial.println(getSteer());}
+  else if (command == "SS"){setSteerAngle(input_value);}
   else if (command == "SI"){incrementSteerAngle(input_value);}
   else if (command == "SD"){incrementSteerAngle(-input_value);}
+  else if (command == "SC"){centerSteerAngle();}
   else if (command == "SM"){steerConfig("max", input_value);}
   else if (command == "Sm"){steerConfig("min", input_value);}
   else if (command == "Sc"){steerConfig("center", input_value);}
 
-  else if (command == "PC"){changePanAngle(input_value);}
+  else if (command == "PG"){Serial.println(getPan());}
+  else if (command == "PS"){setPanAngle(input_value);}
   else if (command == "PI"){incrementPanAngle(input_value);}
   else if (command == "PD"){incrementPanAngle(-input_value);}
+  else if (command == "PC"){centerPanAngle();}
   else if (command == "PM"){cameraConfig("pan max", input_value);}
   else if (command == "Pm"){cameraConfig("pan min", input_value);}
   else if (command == "Pc"){cameraConfig("pan center", input_value);}
   
-  else if (command == "TC"){changeTiltAngle(input_value);}
+  else if (command == "TG"){Serial.println(getTilt());}
+  else if (command == "TS"){setTiltAngle(input_value);}
   else if (command == "TI"){incrementTiltAngle(input_value);}
   else if (command == "TD"){incrementTiltAngle(-input_value);}
+  else if (command == "TC"){centerTiltAngle();}
   else if (command == "TM"){cameraConfig("tilt max", input_value);}
   else if (command == "Tm"){cameraConfig("tilt min", input_value);}
   else if (command == "Tc"){cameraConfig("tilt center", input_value);}
@@ -169,10 +196,10 @@ void parse_message(String msg){
   else if (command == "DC"){changeDriveDirection(input_value);}
   else if (command == "DM"){driveConfig("max", input_value);}
   
-  else if (command == "FO"){Serial.println(measureFrontDistance());}
+  else if (command == "FO"){Serial.println(measureFrontDistance().distance);}
   else if (command == "FC"){frontUsReading=true;}
   else if (command == "FS"){frontUsReading=false;}
-  else if (command == "BO"){Serial.println(measureBackDistance());}
+  else if (command == "BO"){Serial.println(measureBackDistance().distance);}
   else if (command == "BC"){backUsReading=true;}
   else if (command == "BS"){backUsReading=false;}
 

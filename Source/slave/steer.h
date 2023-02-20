@@ -4,8 +4,9 @@
 #include <Servo.h>
 
 void steerInit();
+uint8_t getSteer();
 void steerConfig(String param, int16_t value);
-void changeSteerAngle(uint8_t angle);
+void setSteerAngle(uint8_t angle);
 void incrementSteerAngle(uint8_t incAngle);
 void centerSteerAngle();
 
