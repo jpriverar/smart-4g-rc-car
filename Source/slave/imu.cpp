@@ -90,7 +90,8 @@ void dmpDataReady() {
     mpuInterrupt = true;
 }
 
-void compute6dof(){
+IMUData compute6dof(){
+  IMUData data;
   if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
     mpu.dmpGetQuaternion(&q, fifoBuffer);
     mpu.dmpGetGravity(&gravity, &q);
@@ -98,22 +99,13 @@ void compute6dof(){
     mpu.dmpGetAccel(&aa, fifoBuffer);
     mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
 
-    // Gyroscope values
-    Serial.print("ypr\t");
-    Serial.print(ypr[0] * 180/M_PI);
-    Serial.print("\t");
-    Serial.print(ypr[1] * 180/M_PI);
-    Serial.print("\t");
-    Serial.print(ypr[2] * 180/M_PI);
-    Serial.print("\t");
-  
-    // Acceleration values
-    Serial.print("areal\t");
-    Serial.print(aaReal.x);
-    Serial.print("\t");
-    Serial.print(aaReal.y);
-    Serial.print("\t");
-    Serial.println(aaReal.z);
+    data.yaw = ypr[0] * 180/M_PI;
+    data.pitch = ypr[1] * 180/M_PI;
+    data.roll = ypr[2] * 180/M_PI;
+    data.ax = aaReal.x;
+    data.ay = aaReal.y;
+    data.az = aaReal.z;
+  return data;
   }
 }
 

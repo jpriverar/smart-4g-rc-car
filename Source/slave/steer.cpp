@@ -9,7 +9,11 @@ uint8_t steerAngle = STEER_CENTER;
 
 Servo steerServo;
 
-void changeSteerAngle(uint8_t angle){
+uint8_t getSteer(){
+  return steerAngle;
+}
+
+void setSteerAngle(uint8_t angle){
     if (angle > STEER_MAX){angle = STEER_MAX;}
     else if (angle < STEER_MIN){angle = STEER_MIN;}
 
@@ -22,11 +26,12 @@ void changeSteerAngle(uint8_t angle){
 
 void incrementSteerAngle(uint8_t incAngle){
   uint8_t inputValue = steerAngle + incAngle;
-  changeSteerAngle(inputValue);
+  setSteerAngle(inputValue);
 }
 
 void centerSteerAngle(){
-  changeSteerAngle(STEER_CENTER);
+  steerAngle = STEER_CENTER;
+  steerServo.write(steerAngle);
 }
 
 void steerConfig(String param, int16_t value = -1){

@@ -23,11 +23,15 @@ void cameraInit(){
   panServo.attach(CAM_PAN_PIN);
   tiltServo.attach(CAM_TILT_PIN);
 
-  changePanAngle(camPan);
-  changeTiltAngle(camTilt);
+  setPanAngle(camPan);
+  setTiltAngle(camTilt);
 }
 
-void changePanAngle(uint8_t angle){
+uint8_t getPan(){
+  return camPan;
+}
+
+void setPanAngle(uint8_t angle){
     if (angle > PAN_MAX){angle = PAN_MAX;}
     else if (angle < PAN_MIN){angle = PAN_MIN;}
 
@@ -40,10 +44,19 @@ void changePanAngle(uint8_t angle){
 
 void incrementPanAngle(uint8_t incAngle){
   uint8_t inputValue = camPan + incAngle;
-  changePanAngle(inputValue);
+  setPanAngle(inputValue);
 }
 
-void changeTiltAngle(uint8_t angle){
+void centerPanAngle(){
+  camPan = PAN_CENTER;
+  panServo.write(camPan);
+}
+
+uint8_t getTilt(){
+  return camTilt;
+}
+
+void setTiltAngle(uint8_t angle){
     if (angle > TILT_MAX){angle = TILT_MAX;}
     else if (angle < TILT_MIN){angle = TILT_MIN;}
     
@@ -56,7 +69,12 @@ void changeTiltAngle(uint8_t angle){
 
 void incrementTiltAngle(uint8_t incAngle){
   uint8_t inputValue = camTilt + incAngle;
-  changeTiltAngle(inputValue);
+  setTiltAngle(inputValue);
+}
+
+void centerTiltAngle(){
+  camTilt = TILT_CENTER;
+  tiltServo.write(camTilt);
 }
 
 void cameraConfig(String param, int16_t value = -1){

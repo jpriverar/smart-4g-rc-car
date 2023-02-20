@@ -15,7 +15,7 @@ void usSensorInit(){
   pinMode(BACK_ECHO, INPUT);
 }
 
-double measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeout=defaultTimeout){
+float measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeout=defaultTimeout){
   // Sending a trigger pulse
   sendTrigger(triggerPin);
   
@@ -27,12 +27,18 @@ double measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeou
   return distance;
 }
 
-double measureFrontDistance(){
-  return measureDistance(FRONT_ECHO, FRONT_TRIG);
+USSensorData measureFrontDistance(){
+  USSensorData data;
+  data.side = 1;
+  data.distance = measureDistance(FRONT_ECHO, FRONT_TRIG);
+  return data;
 }
 
-double measureBackDistance(){
-  return measureDistance(BACK_ECHO, BACK_TRIG);
+USSensorData measureBackDistance(){
+  USSensorData data;
+  data.side = 0;
+  data.distance = measureDistance(BACK_ECHO, BACK_TRIG);
+  return data;
 }
 
 void sendTrigger(uint8_t triggerPin){

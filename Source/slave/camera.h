@@ -5,9 +5,13 @@
 
 void cameraInit();
 void cameraConfig(String param, int16_t value);
-void changePanAngle(uint8_t angle);
+uint8_t getPan();
+void setPanAngle(uint8_t angle);
 void incrementPanAngle(uint8_t incAngle);
-void changeTiltAngle(uint8_t angle);
+void centerPanAngle();
+uint8_t getTilt();
+void setTiltAngle(uint8_t angle);
 void incrementTiltAngle(uint8_t incAngle);
+void centerTiltAngle();
 
 #endif /*CAMERA_H_*/
