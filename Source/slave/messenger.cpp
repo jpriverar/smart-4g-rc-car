@@ -2,7 +2,7 @@
 
 void waitForConnection(){
   while(1){
-    Serial.println("ready");
+    Serial.println("available");
     if (Serial.available() > 0){
       String msg = Serial.readStringUntil('\n');
       if (msg == "OK") break;
@@ -12,9 +12,17 @@ void waitForConnection(){
 }
 
 void sendMsg(Message* msg) {
+  // Sending the header
   byte* ptr = (byte*)msg;
-  for (int i = 0; i < sizeof(msg); i++) {
+  for (int i = 0; i < 3; i++) {
     Serial.write(*ptr);
     ptr++;
+  }
+
+  // Sending the actual payload
+  byte* ptrPayload = (byte*)msg->payload;
+  for (int i = 0; i < msg->payloadLength; i++){
+    Serial.write(*ptrPayload);
+    ptrPayload++;
   }
 }

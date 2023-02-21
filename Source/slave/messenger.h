@@ -8,10 +8,7 @@
 struct Message{
   uint8_t messageType;
   uint16_t payloadLength;
-  union{
-    IMUData imuData;
-    USSensorData usSensorData;
-  } payload;
+  void *payload;
 };
 
 void waitForConnection();

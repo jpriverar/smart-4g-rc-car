@@ -15,7 +15,7 @@ void usSensorInit(){
   pinMode(BACK_ECHO, INPUT);
 }
 
-float measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeout=defaultTimeout){
+double measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeout=defaultTimeout){
   // Sending a trigger pulse
   sendTrigger(triggerPin);
   

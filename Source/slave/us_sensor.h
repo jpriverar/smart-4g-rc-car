@@ -8,7 +8,7 @@ struct USSensorData{
 };
 
 void usSensorInit();
-float measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeout);
+double measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeout);
 USSensorData measureFrontDistance();
 USSensorData measureBackDistance();
 void sendTrigger(uint8_t triggerPin);

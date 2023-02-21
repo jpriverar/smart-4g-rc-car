@@ -22,33 +22,50 @@ double imuReadTime = 100; // 100ms between readings
 double imuStartTime;
 double imuCurrTime;
 
+void sendUSData(USSensorData data){
+  Message msg;
+  msg.messageType = 0x01;
+  msg.payloadLength = sizeof(data);
+  msg.payload = &data;
+  sendMsg(&msg);
+}
+
+void sendImuData(IMUData data){
+  Message msg;
+  msg.messageType = 0x02;
+  msg.payloadLength = sizeof(data);
+  msg.payload = &data;
+  sendMsg(&msg);
+}
+
 void setup() {
   // Waiting to stablish connection with master
   Serial.begin(115200);
-  //waitForConnection();
+  waitForConnection();
 
   // Initializing all car components
-  usSensorInit();
-  cameraInit();
   driveInit();
   steerInit();
+  cameraInit();
+  usSensorInit();
   imuInit();
+
+  // Sending signal that all components all initialized
+  Serial.println("ready");  
 }
 
 void loop() {
   // If there are any incoming messages
-  if(Serial.available()){
+  if(Serial.available() >= 3){  //All commands are at least 2 bytes + '\n'
     msg = Serial.readStringUntil('\n');
-    Serial.print("New message received: ");
-    Serial.println(msg);
+    //Serial.print("New message received: ");
+    //Serial.println(msg);
     parse_message(msg);
   }
 
   if (frontUsReading){
     USSensorData data = measureFrontDistance();
-    
-    Serial.print(data.side);
-    Serial.println(data.distance);
+    sendUSData(data);
 
     if (frontCollision){
       if (data.distance < frontStopDist) stopDrive();
@@ -57,9 +74,7 @@ void loop() {
 
   if (backUsReading){
     USSensorData data = measureBackDistance();
-    
-    Serial.print(data.side);
-    Serial.println(data.distance);
+    sendUSData(data);
 
     if (backCollision){
       if (data.distance < backStopDist) stopDrive();
@@ -69,20 +84,7 @@ void loop() {
   if (readImu){
     if (imuCurrTime - imuStartTime >= imuReadTime){
       IMUData data = compute6dof();
-
-      Serial.print(data.yaw);
-      Serial.print("\t");
-      Serial.print(data.pitch);
-      Serial.print("\t");
-      Serial.print(data.roll);
-      Serial.print("\t");
-    
-      // Acceleration values
-      Serial.print(data.ax);
-      Serial.print("\t");
-      Serial.print(data.ay);
-      Serial.print("\t");
-      Serial.println(data.az);
+      sendImuData(data);
 
       imuStartTime = millis();
     }
@@ -203,7 +205,7 @@ void parse_message(String msg){
   else if (command == "BC"){backUsReading=true;}
   else if (command == "BS"){backUsReading=false;}
 
-  else if (command == "Ic"){Serial.println("Calibration function not implemented yet...");}
+  else if (command == "Ic"){}//Serial.println("Calibration function not implemented yet...");}
   else if (command == "IC"){readImu = true;}
   else if (command == "IS"){readImu = false;}
   else if (command == "IT"){imuReadTime = input_value; imuStartTime = millis();}
