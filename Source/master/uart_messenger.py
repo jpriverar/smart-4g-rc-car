@@ -39,7 +39,6 @@ class UART_Messenger(serial.Serial):
         if self.in_waiting > 0: #Header for each message is 3 bytes
             msg_header = self.read(3)
             msg_type, payload_length = struct.unpack("<BH", msg_header)
-            print(hex(msg_type), hex(payload_length))
             
             if msg_type == 0x01: # Ultrasonic sensor measurement
                 sensor_data = struct.unpack("<Bf", self.read(payload_length))
