@@ -118,5 +118,5 @@ class RemoteController(InputDevice):
 
 
 
-controller = RemoteController('/dev/input/event25')
+controller = RemoteController('/dev/input/event8')
 controller.read_loop()
