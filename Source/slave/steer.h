@@ -6,8 +6,8 @@
 void steerInit();
 uint8_t getSteer();
 void steerConfig(String param, int16_t value);
-void setSteerAngle(uint8_t angle);
-void incrementSteerAngle(uint8_t incAngle);
+void setSteerAngle(int16_t value);
+void incrementSteerAngle(int16_t incValue);
 void centerSteerAngle();
 
 #endif /*STEER_H_*/

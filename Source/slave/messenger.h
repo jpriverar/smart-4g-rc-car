@@ -12,6 +12,15 @@ struct Message{
 };
 
 void waitForConnection();
+bool isValidCommand(String command);
+bool isInteger(String input_value);
 void sendMsg(Message *msg);
+void sendText(uint8_t type, String text);
+void sendError(String error);
+void sendLog(String logText);
+void sendDebug(String debugText);
+void sendResponse(uint8_t data);
+void sendUSSensorData(USSensorData data);
+void sendIMUData(IMUData data);
 
 #endif /*MESSENGER_H_*/

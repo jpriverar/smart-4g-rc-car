@@ -9,9 +9,14 @@
 String msg;
 
 // Ultrasonic sensor readings
+double frontUSReadTime = 50; //50 ms between readings
+double frontUSStartTime;
 bool frontUsReading = false;
 bool frontCollision = false;
 float frontStopDist = 10; //cm
+
+double backUSReadTime = 50; // 50 ms between readings
+double backUSStartTime;
 bool backUsReading = false;
 bool backCollision = false;
 float backStopDist = 10; //cm
@@ -20,23 +25,9 @@ float backStopDist = 10; //cm
 bool readImu = false;  // To start continuous imu readings
 double imuReadTime = 100; // 100ms between readings
 double imuStartTime;
-double imuCurrTime;
 
-void sendUSData(USSensorData data){
-  Message msg;
-  msg.messageType = 0x01;
-  msg.payloadLength = sizeof(data);
-  msg.payload = &data;
-  sendMsg(&msg);
-}
-
-void sendImuData(IMUData data){
-  Message msg;
-  msg.messageType = 0x02;
-  msg.payloadLength = sizeof(data);
-  msg.payload = &data;
-  sendMsg(&msg);
-}
+// To measure the current time
+double currTime;
 
 void setup() {
   // Waiting to stablish connection with master
@@ -58,48 +49,50 @@ void loop() {
   // If there are any incoming messages
   if(Serial.available() >= 3){  //All commands are at least 2 bytes + '\n'
     msg = Serial.readStringUntil('\n');
-    //Serial.print("New message received: ");
-    //Serial.println(msg);
     parse_message(msg);
   }
 
-  if (frontUsReading){
+  // Updating the current time
+  currTime = millis();
+
+  if ((frontUsReading) && (currTime - frontUSStartTime >= frontUSReadTime)){
     USSensorData data = measureFrontDistance();
-    sendUSData(data);
+    sendUSSensorData(data);
 
     if (frontCollision){
       if (data.distance < frontStopDist) stopDrive();
     }
+
+    frontUSReadTime = millis();
   }
 
-  if (backUsReading){
+  if ((backUsReading) && (currTime - backUSStartTime >= backUSReadTime)){
     USSensorData data = measureBackDistance();
-    sendUSData(data);
+    sendUSSensorData(data);
 
     if (backCollision){
       if (data.distance < backStopDist) stopDrive();
     }
+
+    backUSStartTime = millis();
   }
 
-  if (readImu){
-    if (imuCurrTime - imuStartTime >= imuReadTime){
-      IMUData data = compute6dof();
-      sendImuData(data);
+  if ((readImu) && (currTime - imuStartTime >= imuReadTime)){
+    IMUData data = compute6dof();
+    sendIMUData(data);
 
-      imuStartTime = millis();
-    }
-    imuCurrTime = millis();
+    imuStartTime = millis();
   }
 }
 
 void help(){
-  Serial.println(F("|---------------------COMMAND SYNTAX---------------------|"));
+  /*Serial.println(F("|---------------------COMMAND SYNTAX---------------------|"));
   Serial.println(F("  {COMMAND}{NUMERICAL VALUE TO PASS THE COMMAND}          "));
   Serial.println(F("  SS130 - Will set the steer direction value to 130°      "));
   Serial.println();
   Serial.println(F("|------------------DIRECTION COMMANDS--------------------|"));
   Serial.println(F("  SG - Get the current steer direction                    "));
-  Serial.println(F("  SC - Change steer direcion in a range between 0-255     "));
+  Serial.println(F("  SC - Change steer direcion in a range between 0-180     "));
   Serial.println(F("  SI - Increase the steer direction                       "));
   Serial.println(F("  SD - Decrease the steer direction                       "));
   Serial.println(F("  SC - Center the steer direction                         "));
@@ -109,7 +102,7 @@ void help(){
   Serial.println();
   Serial.println(F("|-------------------CAMERA COMMANDS----------------------|"));
   Serial.println(F("  PG - Get the current cam pan angle                      "));
-  Serial.println(F("  PS - Set camera pan angle in a range between 0-255      "));
+  Serial.println(F("  PS - Set camera pan angle in a range between 0-180      "));
   Serial.println(F("  PI - Increase camera pan angle                          "));
   Serial.println(F("  PD - Decrease camera pan angle                          "));
   Serial.println(F("  PC - Center the camera pan angle                        "));
@@ -117,7 +110,7 @@ void help(){
   Serial.println(F("  Pm - Set camera pan angle min endstop                   "));
   Serial.println(F("  Pc - Set camera pan angle center                        "));
   Serial.println(F("  TG - Get the current cam tilt angle                     "));
-  Serial.println(F("  TS - Set camera tilt angle in a range between 0-255     "));
+  Serial.println(F("  TS - Set camera tilt angle in a range between 0-180     "));
   Serial.println(F("  TI - Increase camera tilt angle                         "));
   Serial.println(F("  TD - Decrease camera tilt angle                         "));
   Serial.println(F("  TC - Center the camera tilt angle                       "));
@@ -126,7 +119,7 @@ void help(){
   Serial.println(F("  Tc - Set camera tilt angle center                       "));
   Serial.println();
   Serial.println(F("|--------------------DRIVE COMMANDS----------------------|"));
-  Serial.println(F("  DP - Drive the motor forward in a range between 0-255   "));
+  Serial.println(F("  DP - Drive the motor forward in a range between 0-180   "));
   Serial.println(F("  DI - Increase the drive power                           "));
   Serial.println(F("  DD - Decrease the drive power                           "));
   Serial.println(F("  DC - Change the drive direction 1-forward, 0-backward   "));
@@ -137,12 +130,15 @@ void help(){
   Serial.println(F("  FO - Front ultrasonic sensor one shot reading           "));
   Serial.println(F("  FC - Front ultrasonic sensor continuous reading         "));
   Serial.println(F("  FS - Stop front ultrasonic sensor reading               "));
+  Serial.println(F("  FT - Change minimum time between sensor readings        "));
   Serial.println(F("  BO - Back ultrasonic sensor one shot reading            "));
   Serial.println(F("  BC - Back ultrasonic sensor continuous reading          "));
   Serial.println(F("  BS - Stop back ultrasonic sensor reading                "));
+  Serial.println(F("  BT - Change minimum time between sensor readings        "));
   Serial.println();
   Serial.println(F("|----------------------IMU COMMANDS----------------------|"));
   Serial.println(F("  Ic - Calibrate offset values for the imu, takes 5-10m   "));
+  Serial.println(F("  IO - IMU one shot reading                               "));
   Serial.println(F("  IC - Read IMU computed values continuously              "));
   Serial.println(F("  IS - Stop continuous IMU readings                       "));
   Serial.println(F("  IT - Change time between continuous IMU readings        "));
@@ -153,18 +149,23 @@ void help(){
   Serial.println(F("  F! - Set front emergecy stop threshold distance         "));
   Serial.println(F("  BE - Back side collision detection enabled              "));
   Serial.println(F("  BD - Back side collision detection disabled             "));
-  Serial.println(F("  B! - Set back emergecy stop threshold distance          "));
+  Serial.println(F("  B! - Set back emergecy stop threshold distance          "));*/
 }
 
 void parse_message(String msg){
   int16_t input_value = -1;
   String command = msg.substring(0,2);
-
-  if (msg.length() > 2) input_value = msg.substring(2).toInt();
-  //Serial.println(input_value);
+  if (!isValidCommand(command)) {sendError("Bad commmand"); return;}
+  
+  if (msg.length() > 2){
+    String value = msg.substring(2);
+    if (!isInteger(value)) {sendError("Bad value"); return;}
+    input_value = value.toInt();
+    sendDebug((String)input_value);
+  }
   
   if (msg == "help"){help();}
-  else if (command == "SG"){Serial.println(getSteer());}
+  else if (command == "SG"){sendResponse(getSteer());}
   else if (command == "SS"){setSteerAngle(input_value);}
   else if (command == "SI"){incrementSteerAngle(input_value);}
   else if (command == "SD"){incrementSteerAngle(-input_value);}
@@ -173,7 +174,7 @@ void parse_message(String msg){
   else if (command == "Sm"){steerConfig("min", input_value);}
   else if (command == "Sc"){steerConfig("center", input_value);}
 
-  else if (command == "PG"){Serial.println(getPan());}
+  else if (command == "PG"){sendResponse(getPan());}
   else if (command == "PS"){setPanAngle(input_value);}
   else if (command == "PI"){incrementPanAngle(input_value);}
   else if (command == "PD"){incrementPanAngle(-input_value);}
@@ -182,7 +183,7 @@ void parse_message(String msg){
   else if (command == "Pm"){cameraConfig("pan min", input_value);}
   else if (command == "Pc"){cameraConfig("pan center", input_value);}
   
-  else if (command == "TG"){Serial.println(getTilt());}
+  else if (command == "TG"){sendResponse(getTilt());}
   else if (command == "TS"){setTiltAngle(input_value);}
   else if (command == "TI"){incrementTiltAngle(input_value);}
   else if (command == "TD"){incrementTiltAngle(-input_value);}
@@ -198,14 +199,17 @@ void parse_message(String msg){
   else if (command == "DC"){changeDriveDirection(input_value);}
   else if (command == "DM"){driveConfig("max", input_value);}
   
-  else if (command == "FO"){Serial.println(measureFrontDistance().distance);}
+  else if (command == "FO"){USSensorData data = measureFrontDistance(); sendUSSensorData(data);}
   else if (command == "FC"){frontUsReading=true;}
   else if (command == "FS"){frontUsReading=false;}
-  else if (command == "BO"){Serial.println(measureBackDistance().distance);}
+  else if (command == "FT"){frontUSReadTime = input_value; frontUSStartTime = millis();}
+  else if (command == "BO"){USSensorData data = measureBackDistance(); sendUSSensorData(data);}
   else if (command == "BC"){backUsReading=true;}
   else if (command == "BS"){backUsReading=false;}
+  else if (command == "BT"){backUSReadTime = input_value; backUSStartTime = millis();}
 
-  else if (command == "Ic"){}//Serial.println("Calibration function not implemented yet...");}
+  else if (command == "Ic"){sendLog("Calibration function not implemented yet...");}
+  else if (command == "IO"){IMUData data = compute6dof(); sendIMUData(data);}
   else if (command == "IC"){readImu = true;}
   else if (command == "IS"){readImu = false;}
   else if (command == "IT"){imuReadTime = input_value; imuStartTime = millis();}
@@ -217,5 +221,5 @@ void parse_message(String msg){
   else if (command == "BD"){backCollision=false;}
   else if (command == "B!"){backStopDist = input_value;}
   
-  else {Serial.println("Unknown command, try again...");}
+  else {sendLog("Unknown command");}
 }

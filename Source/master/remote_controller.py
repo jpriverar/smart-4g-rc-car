@@ -1,12 +1,29 @@
 from evdev import InputDevice, categorize, ecodes
+import subprocess
+import os
 
 #devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
 #for device in devices:
 #    print(device.fn, device.name, device.phys)
 
 class RemoteController(InputDevice):
-    def __init__(self, dev_path):
+    def __init__(self, dev_path="auto", uart_messenger=None):
+        if dev_path == "auto":
+            event_dev = subprocess.run(["ls /dev/input/ | grep event | sort -V | tail -n1"], capture_output=True, text=True, shell=True)
+            dev_path = os.path.join("/dev/input", event_dev.stdout.split("\n")[0])
+            print(dev_path)
+            
         super().__init__(dev_path)
+        
+        self.messenger = uart_messenger
+        self.mode = "drive"
+        
+        self.state_values = {"left_xjoy": 0,
+                             "left_yjoy": 0,
+                             "left_trig": 0,
+                             "right_xjoy": 0,
+                             "right_yjoy": 0,
+                             "right_trig": 0}
         
         # Handler functions for all buttons
         self.event_handlers = {(ecodes.EV_KEY, ecodes.BTN_A): self.a_btn_handler,
@@ -18,6 +35,8 @@ class RemoteController(InputDevice):
                                (ecodes.EV_KEY, ecodes.KEY_RECORD): self.record_btn_handler,
                                (ecodes.EV_KEY, ecodes.BTN_TL): self.left_btn_handler,
                                (ecodes.EV_KEY, ecodes.BTN_TR): self.right_btn_handler,
+                               (ecodes.EV_KEY, ecodes.BTN_THUMBR): self.right_joyBtn_handler,
+                               (ecodes.EV_KEY, ecodes.BTN_THUMBL): self.left_joyBtn_handler,
                                (ecodes.EV_ABS, ecodes.ABS_X): self.left_xjoy_handler,
                                (ecodes.EV_ABS, ecodes.ABS_Y): self.left_yjoy_handler,
                                (ecodes.EV_ABS, ecodes.ABS_Z): self.left_trig_handler,
@@ -46,77 +65,86 @@ class RemoteController(InputDevice):
 
     def b_btn_handler(self, value):
         if value:
-            print("You pressed down B")
+            self.messenger.send_msg("IO")
         else:
             print("You lifted up B")
 
     def x_btn_handler(self, value):
         if value:
-            print("You pressed down X")
+            self.messenger.send_msg("FO")
         else:
             print("You lifted up X")
 
     def y_btn_handler(self, value):
-        if value:
-            print("You pressed down Y")
-        else:
-            print("You lifted up Y")
+        pass
 
     def start_btn_handler(self, value):
-        if value:
-            print("You pressed down START")
-        else:
-            print("You lifted up START")
+        pass
 
     def select_btn_handler(self, value):
-        if value:
-            print("You pressed down SELECT")
-        else:
-            print("You lifted up SELECT")
+        pass
 
     def record_btn_handler(self, value):
-        if value:
-            print("You pressed down RECORD")
-        else:
-            print("You lifted up RECORD")
+        pass
 
     def left_btn_handler(self, value):
-        if value:
-            print("You pressed down LB")
-        else:
-            print("You lifted up LB")
+        pass
             
     def right_btn_handler(self, value):
-        if value:
-            print("You pressed down RB")
-        else:
-            print("You lifted up RB")
+        pass
+            
+    def left_joyBtn_handler(self, value):
+        pass
+    
+    def right_joyBtn_handler(self, value):
+        pass
 
     def left_xjoy_handler(self, value):
-        print(f"left xjoy: {value}")
+        if abs(value - self.state_values["left_xjoy"]) >= 100:
+            value /= 32768
+            input_val = int(-value*1024)
+            self.messenger.send_msg(f"SS{input_val}")
+            self.state_values["left_xjoy"] = value # Updating value
 
     def left_yjoy_handler(self, value):
-        print(f"left yjoy: {value}")
+        pass
 
     def left_trig_handler(self, value):
-        print(f"left trigger: {value}")
+        pass
 
     def right_xjoy_handler(self, value):
-        print(f"right xjoy: {value}")
-
+        if abs(value - self.state_values["right_xjoy"]) >= 100:
+            value /= 32768
+            input_val = int(-value*1024)
+            self.messenger.send_msg(f"PS{input_val}")
+            self.state_values["right_xjoy"] = value # Updating value
+        
+        
     def right_yjoy_handler(self, value):
-        print(f"right yjoy: {value}")
+        if abs(value - self.state_values["right_xjoy"]) >= 100:
+            value /= 32768
+            input_val = int(-value*1024)
+            self.messenger.send_msg(f"TS{input_val}")
+            self.state_values["right_yjoy"] = value # Updating value
 
     def right_trig_handler(self, value):
-        print(f"right trigger: {value}")
+        value /= 1024
+        power_val = int(value*50)
+        #self.messenger.send_msg(f"DP{power_val}")
 
     def x_arrow_handler(self, value):
-        print(f"x arrow: {value}")
-
+        if value == 1:
+            self.messenger.send_msg("PD1024")
+        elif value == -1:
+            self.messenger.send_msg("PI1024")
+        
     def y_arrow_handler(self, value):
-        print(f"y arrow: {value}")
+        if value == 1:
+            self.messenger.send_msg("TI1024")
+        elif value == -1:
+            self.messenger.send_msg("TD1024")
 
 
-
-controller = RemoteController('/dev/input/event8')
-controller.read_loop()
+if __name__ == "__main__":
+    controller = RemoteController('auto')
+    controller.read_loop()

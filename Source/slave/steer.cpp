@@ -1,4 +1,5 @@
 #include "steer.h"
+#include "messenger.h"
 
 #define STEER_PIN 11
 
@@ -13,9 +14,14 @@ uint8_t getSteer(){
   return steerAngle;
 }
 
-void setSteerAngle(uint8_t angle){
-    if (angle > STEER_MAX){angle = STEER_MAX;}
-    else if (angle < STEER_MIN){angle = STEER_MIN;}
+void setSteerAngle(int16_t value){
+    // Mapping the input value to the angle range
+    if (value > 1024) value = 1024;
+    if (value < -1024) value = -1024;
+
+    uint8_t angle = steerAngle;
+    if (value >= 0) angle = map(value, 0, 1024, STEER_CENTER, STEER_MAX);
+    else angle = map(value, -1024, 0, STEER_MIN, STEER_CENTER);
 
     // Saving the angle in the steer_angle variable
     steerAngle = angle;
@@ -24,8 +30,8 @@ void setSteerAngle(uint8_t angle){
     steerServo.write(angle);
 }
 
-void incrementSteerAngle(uint8_t incAngle){
-  uint8_t inputValue = steerAngle + incAngle;
+void incrementSteerAngle(int16_t incValue){
+  uint8_t inputValue = steerAngle + map(incValue, -1024, 1024, -5, 5);
   setSteerAngle(inputValue);
 }
 
@@ -37,41 +43,31 @@ void centerSteerAngle(){
 void steerConfig(String param, int16_t value = -1){
   // GET parameter value
   if (value == -1){
-    if (param == "min") Serial.println(STEER_MIN);
-    else if (param == "max") Serial.println(STEER_MAX);
-    else if (param == "center") Serial.println(STEER_CENTER);
-    else Serial.println(F("Unknown steer configuration parameter..."));
-    
-  } else {
+    if (param == "min") sendResponse(STEER_MIN);
+    else if (param == "max") sendResponse(STEER_MAX);
+    else if (param == "center") sendResponse(STEER_CENTER);
+    else sendError("Invalid steer parameter");
+    return;
+  } 
   // SET parameter values
-    if (param == "min"){
-      if (value >= 0){
-        STEER_MIN = value; 
-        Serial.println(F("Steer direction minimum endstop changed..."));
-      } else {
-        STEER_MIN = 0;
-        Serial.println(F("Unvalid value for steer minimum endstop, setting to absolute minimum"));
-      }
-    }
-    else if (param == "max"){
-      if (value >= 180){
-        STEER_MAX = value; 
-        Serial.println(F("Steer direction minimum endstop changed..."));
-      } else {
-        STEER_MAX = 180;
-        Serial.println(F("Unvalid value for steer maximum endstop, setting to absolute maximum"));
-      }
-    }
-    else if (param == "center"){
-      if (value >= STEER_MIN && value <= STEER_MAX){
-        STEER_CENTER = value; 
-        Serial.println(F("Steer direction center value changed..."));
-      } else {
-        Serial.println(F("Unvalid center value, value must be between STEER_MIN and STEER_MAX"));
-      }
-    }
-    else Serial.println(F("Unknown steer configuration parameter..."));
+  if (value < 0) {value = 0; sendError(F("Steer param invalid, below min"));}
+  if (value > 180) {value = 180; sendError(F("Steer param invalid, above max"));}
+
+  if (param == "min"){
+    STEER_MIN = value; 
+    sendLog(F("Steer min endstop changed"));
   }
+  else if (param == "max"){
+    STEER_MAX = value; 
+    sendLog(F("Steer max endstop changed"));
+  }
+  else if (param == "center"){
+    if (value >= STEER_MIN && value <= STEER_MAX){
+      STEER_CENTER = value; 
+      sendLog(F("Steer center val changed"));
+    } else sendError(F("Steer center val out of bounds"));
+  }
+  else sendError(F("Invalid steer parameter"));
 }
 
 void steerInit(){

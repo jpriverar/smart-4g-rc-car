@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import utils
 from uart_messenger import UART_Messenger
+from remote_controller import RemoteController
 import threading
 import time
 
@@ -40,13 +41,15 @@ GPIO.setup(reset_pin, GPIO.OUT)
 slave = UART_Messenger('/dev/ttyAMA1', 115200, timeout=1, reset_pin=reset_pin)
 if not car_setup(): exit()
     
-#slave.send_msg("SS0")
-#time.sleep(2)
-#slave.send_msg("SS200")
-#time.sleep(2)
-#slave.send_msg("SC")
-#time.sleep(2)
-slave.send_msg("FC")
+# Remote controller thread
+print("Starting connection with remote controller")
+controller = RemoteController("/dev/input/event0", slave)
+control_thread = threading.Thread(target=controller.read_loop, daemon=True)
+control_thread.start()
+print("Remote controller active")
 
 while True:
-    slave.fetch_msg()
+    try:
+        slave.fetch_msg()
+    except Exception as e:
+        print("Could not fetch message: " + str(e))

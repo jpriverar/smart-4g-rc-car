@@ -105,7 +105,6 @@ IMUData compute6dof(){
     data.ax = aaReal.x;
     data.ay = aaReal.y;
     data.az = aaReal.z;
-  return data;
+    return data;
   }
 }
-

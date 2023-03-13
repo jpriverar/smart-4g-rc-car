@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "messenger.h"
 
 #define CAM_PAN_PIN 10
 #define CAM_TILT_PIN 9
@@ -31,9 +32,14 @@ uint8_t getPan(){
   return camPan;
 }
 
-void setPanAngle(uint8_t angle){
-    if (angle > PAN_MAX){angle = PAN_MAX;}
-    else if (angle < PAN_MIN){angle = PAN_MIN;}
+void setPanAngle(int16_t value){
+    // Mapping the input value to the angle range
+    if (value > 1023) value = 1023;
+    if (value < -1024) value = -1024;
+
+    uint8_t angle = camPan;
+    if (value >= 0) angle = map(value, 0, 1024, PAN_CENTER, PAN_MAX); 
+    else angle = map(value, -1024, 0, PAN_MIN, PAN_CENTER);
 
     // Saving the angle in the cam_pan variable
     camPan = angle;
@@ -42,9 +48,12 @@ void setPanAngle(uint8_t angle){
     panServo.write(camPan);
 }
 
-void incrementPanAngle(uint8_t incAngle){
-  uint8_t inputValue = camPan + incAngle;
-  setPanAngle(inputValue);
+void incrementPanAngle(int16_t incValue){
+  camPan += map(incValue, -1024, 1024, -5, 5);
+
+  if (camPan > PAN_MAX) camPan = PAN_MAX;
+  else if (camPan < PAN_MIN) camPan = PAN_MIN;
+  panServo.write(camPan);
 }
 
 void centerPanAngle(){
@@ -56,9 +65,14 @@ uint8_t getTilt(){
   return camTilt;
 }
 
-void setTiltAngle(uint8_t angle){
-    if (angle > TILT_MAX){angle = TILT_MAX;}
-    else if (angle < TILT_MIN){angle = TILT_MIN;}
+void setTiltAngle(int16_t value){
+    // Mapping the input value to the angle range
+    if (value > 1023) value = 1023;
+    if (value < -1024) value = -1024;
+
+    uint8_t angle = camTilt;
+    if (value >= 0) angle = map(value, 0, 1024, TILT_CENTER, TILT_MAX);
+    else angle = map(value, -1024, -0, TILT_MIN, TILT_CENTER);
     
     // Saving the angle in the cam_tilt variable
     camTilt = angle;
@@ -67,9 +81,13 @@ void setTiltAngle(uint8_t angle){
     tiltServo.write(camTilt);
 }
 
-void incrementTiltAngle(uint8_t incAngle){
-  uint8_t inputValue = camTilt + incAngle;
-  setTiltAngle(inputValue);
+
+void incrementTiltAngle(int16_t incValue){
+  camTilt += map(incValue, -1024, 1024, -5, 5);
+
+  if (camTilt > TILT_MAX) camTilt = TILT_MAX;
+  else if (camTilt < TILT_MIN) camTilt = TILT_MIN;
+  tiltServo.write(camTilt);
 }
 
 void centerTiltAngle(){
@@ -80,70 +98,47 @@ void centerTiltAngle(){
 void cameraConfig(String param, int16_t value = -1){
   // GET parameter values
   if (value == -1){
-    if (param == "pan min") Serial.println(PAN_MIN);
-    else if (param == "pan max") Serial.println(PAN_MAX);
-    else if (param == "pan center") Serial.println(PAN_CENTER);
-    else if (param == "tilt min") Serial.println(TILT_MIN);
-    else if (param == "tilt max") Serial.println(TILT_MAX);
-    else if (param == "tilt center") Serial.println(TILT_CENTER);
-    else Serial.println(F("Unknown camera configuration parameter..."));
-    
-  } else {
+    if (param == "pan min") sendResponse(PAN_MIN);
+    else if (param == "pan max") sendResponse(PAN_MAX);
+    else if (param == "pan center") sendResponse(PAN_CENTER);
+    else if (param == "tilt min") sendResponse(TILT_MIN);
+    else if (param == "tilt max") sendResponse(TILT_MAX);
+    else if (param == "tilt center") sendResponse(TILT_CENTER);
+    else sendError(F("Invalid cam parameter"));
+    return;
+  } 
+  
   // SET parameter values
-    if (param == "pan min"){
-      if (value >= 0){
-        PAN_MIN = value; 
-        Serial.println(F("Camera pan minimum endstop changed..."));
-      } else {
-        PAN_MIN = 0;
-        Serial.println(F("Unvalid value for pan minimum endstop, setting to absolute minimum"));
-      }
-    }
-    else if (param == "pan max"){
-      if (value <= 180){
-        PAN_MAX = value; 
-        Serial.println(F("Camera pan maximum endstop changed..."));
-      } else {
-        PAN_MAX = 180;
-        Serial.println(F("Unvalid value for pan maximum endstop, setting to absolute maximum"));
-      }
-    }
-    else if (param == "pan center"){
-      if (value >= PAN_MIN && value <= PAN_MAX){
-        PAN_CENTER = value; 
-        Serial.println(F("Camera pan center value changed..."));
-      } else {
-        Serial.println(F("Unvalid center value, value must be between PAN_MIN and PAN_MAX"));
-      }
-      
-    }
-    else if (param == "tilt min"){
-      if (value >= 0){
-        TILT_MIN = value; 
-        Serial.println(F("Camera tilt minimum endstop changed..."));
-      } else {
-        TILT_MIN = 0;
-        Serial.println(F("Unvalid value for tilt minimum endstop, setting to absolute minimum"));
-      }
-    }
-    else if (param == "tilt max"){
-      if (value <= 180){
-        TILT_MAX = value; 
-        Serial.println(F("Camera tilt maximum endstop changed..."));
-      } else {
-        TILT_MAX = 180;
-        Serial.println(F("Unvalid value for tilt maximum endstop, setting to absolute maximum"));
-      }
-    }
-    else if (param == "tilt center"){
-      if (value >= TILT_MIN && value <= TILT_MAX){
-        TILT_CENTER = value; 
-        Serial.println(F("Camera tilt center value changed..."));
-      } else {
-        Serial.println(F("Unvalid center value, value must be between TILT_MIN and TILT_MAX"));
-      }
-    }
-    else Serial.println(F("Unknown camera configuration parameter..."));
+  if (value < 0) {value = 0; sendError(F("Cam param invalid, below min"));}
+  if (value > 180) {value = 180; sendError(F("Cam param invalid, above max"));}
+  
+  if (param == "pan min"){
+    PAN_MIN = value; 
+    sendLog(F("Cam pan min endstop changed"));
   }
+  else if (param == "pan max"){
+    PAN_MAX = value; 
+    sendLog(F("Cam pan max endstop changed"));
+  }
+  else if (param == "pan center"){
+    if (value >= PAN_MIN && value <= PAN_MAX){
+      PAN_CENTER = value; 
+      sendLog(F("Cam pan center val changed"));
+    } else sendError(F("Pan center val out of bounds"));
+  }
+  else if (param == "tilt min"){
+    TILT_MIN = value; 
+    sendLog(F("Cam tilt min endstop changed"));
+  }
+  else if (param == "tilt max"){
+    TILT_MAX = value; 
+    sendLog(F("Cam tilt max endstop changed"));
+  }
+  else if (param == "tilt center"){
+    if (value >= TILT_MIN && value <= TILT_MAX){
+      TILT_CENTER = value; 
+      sendLog(F("Cam tilt center val changed"));
+    } else sendError(F("Tilt center val out of bounds"));
+  }
+  else sendError(F("Invalid cam parameter"));
 }
-

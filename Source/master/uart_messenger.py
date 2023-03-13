@@ -35,26 +35,37 @@ class UART_Messenger(serial.Serial):
             return False
         
     def fetch_msg(self):
-        #try:
         if self.in_waiting > 0: #Header for each message is 3 bytes
             msg_header = self.read(3)
             msg_type, payload_length = struct.unpack("<BH", msg_header)
+            print(f"type: {msg_type}, length: {payload_length}", end="--- ")
             
             if msg_type == 0x01: # Ultrasonic sensor measurement
                 sensor_data = struct.unpack("<Bf", self.read(payload_length))
                 side, distance = sensor_data
-                print(f"{side}: {distance}")
+                print(f"(USS)->{side}: {distance}")
                 
             elif msg_type == 0x02: # IMU measurement
                 sensor_data = struct.unpack("<6f", self.read(payload_length))
                 yaw, pitch, roll, ax, ay, az = sensor_data
-                print(f"ypr: {yaw}, {pitch}, {roll} acc: {ax}, {ay}, {az}")
-                    
-                #line = self.readline().decode('utf-8').rstrip()
-                #self.msg_queue.append(line)
+                print(f"(IMU)->ypr: {yaw}, {pitch}, {roll} acc: {ax}, {ay}, {az}")
                 
-        #except Exception as e:
-            #print("Could not fetch message: " + str(e))
+            elif msg_type == 0x03: # Command response
+                reponse = struct.unpack("<B", self.read(payload_length))
+                print(f"(RES)->{response}")
+                
+            elif msg_type == 0x04: # Error message
+                error = self.readline().decode("utf-8").rstrip()
+                print(f"(ERR)->{error}")
+                
+            elif msg_type == 0x05: # Log message
+                log = self.readline().decode("utf-8").rstrip()
+                print(f"(LOG)->{log}")
+                
+            elif msg_type == 0x06: # Debug message
+                debug = self.readline().decode("utf-8").rstrip()
+                print(f"(DEBUG)->{debug}") 
+                
                 
     def wait_for_message(self, msg, timeout):
         start_time = time.time()
