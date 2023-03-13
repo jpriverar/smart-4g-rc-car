@@ -114,3 +114,11 @@ void sendIMUData(IMUData data){
   msg.payload = &data;
   sendMsg(&msg);
 }
+
+void sendRPM(double data){
+  Message msg;
+  msg.messageType = 0x00;
+  msg.payloadLength = sizeof(data);
+  msg.payload = &data;
+  sendMsg(&msg);
+}

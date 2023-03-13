@@ -22,5 +22,6 @@ void sendDebug(String debugText);
 void sendResponse(uint8_t data);
 void sendUSSensorData(USSensorData data);
 void sendIMUData(IMUData data);
+void sendRPM(double data);
 
 #endif /*MESSENGER_H_*/

@@ -1,4 +1,5 @@
 #include "us_sensor.h"
+#include "speedometer.h"
 #include "camera.h"
 #include "drive.h"
 #include "steer.h"
@@ -26,6 +27,9 @@ bool readImu = false;  // To start continuous imu readings
 double imuReadTime = 100; // 100ms between readings
 double imuStartTime;
 
+// Speedometer variables
+double speedometerReadTime = 25; // 25 ms between readings
+
 // To measure the current time
 double currTime;
 
@@ -35,6 +39,7 @@ void setup() {
   waitForConnection();
 
   // Initializing all car components
+  speedometerInit();
   driveInit();
   steerInit();
   cameraInit();
@@ -82,6 +87,11 @@ void loop() {
     sendIMUData(data);
 
     imuStartTime = millis();
+  }
+
+  if (currTime - speedometerStartTime >= speedometerReadTime){
+    double rpms = computeRPM(currTime);
+    sendRPM(rpms);
   }
 }
 
