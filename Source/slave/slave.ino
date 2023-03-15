@@ -9,26 +9,42 @@
 // Buffer for incoming messages
 String msg;
 
+// Camera variables
+double cameraPosStartTime;
+double cameraPosUpdateTime = 250;
+bool absoluteMovement = true;
+uint16_t panVelocity = 0;
+uint16_t tiltVelocity = 0;
+
 // Ultrasonic sensor readings
-double frontUSReadTime = 50; //50 ms between readings
-double frontUSStartTime;
+double frontUS_lastMeasure;
+double frontUS_lastUpdate;
+double frontUS_readTime = 50; //50 ms between readings
+double frontUS_updateTime = 300;
 bool frontUsReading = false;
 bool frontCollision = false;
 float frontStopDist = 10; //cm
 
-double backUSReadTime = 50; // 50 ms between readings
-double backUSStartTime;
+double backUS_lastMeasure;
+double backUS_lastUpdate;
+double backUS_readTime = 50; // 50 ms between readings
+double backUS_updateTime = 0;
 bool backUsReading = false;
 bool backCollision = false;
 float backStopDist = 10; //cm
 
 // IMU Variables
 bool readImu = false;  // To start continuous imu readings
-double imuReadTime = 100; // 100ms between readings
-double imuStartTime;
+double imu_lastMeasure;
+double imu_lastUpdate;
+double imu_readTime = 100; // 100ms between readings
+double imu_updateTime = 500;
 
 // Speedometer variables
-double speedometerReadTime = 25; // 25 ms between readings
+double speedometer_lastMeasure;
+double speedometer_lastUpdate;
+double speedometer_readTime = 25; // 25 ms between readings
+double speedometer_updateTime = 200;
 
 // To measure the current time
 double currTime;
@@ -51,47 +67,82 @@ void setup() {
 }
 
 void loop() {
-  // If there are any incoming messages
+  // READ ANY NEW INCOMING COMMANDS
   if(Serial.available() >= 3){  //All commands are at least 2 bytes + '\n'
     msg = Serial.readStringUntil('\n');
     parse_message(msg);
   }
 
-  // Updating the current time
+  // UPDATING CURRENT TIME
   currTime = millis();
 
-  if ((frontUsReading) && (currTime - frontUSStartTime >= frontUSReadTime)){
+  // FRONT ULTRASONIC SENSOR MEASUREMENT
+  if ((frontUsReading) && (currTime - frontUS_lastMeasure >= frontUS_readTime)){
     USSensorData data = measureFrontDistance();
-    sendUSSensorData(data);
 
+    // Update the distance value
+    if ((frontUS_updateTime >= 0) && (currTime - frontUS_lastUpdate >= frontUS_updateTime)){
+      sendUSSensorData(data);
+      frontUS_lastUpdate = millis();
+    }
+    
+    // Collision detection
     if (frontCollision){
       if (data.distance < frontStopDist) stopDrive();
     }
-
-    frontUSReadTime = millis();
+    
+    frontUS_lastMeasure = millis();
   }
 
-  if ((backUsReading) && (currTime - backUSStartTime >= backUSReadTime)){
+  // BACK ULTRASONIC SENSOR MEASUREMENT
+  if ((backUsReading) && (currTime - backUS_lastMeasure >= backUS_readTime)){
     USSensorData data = measureBackDistance();
-    sendUSSensorData(data);
 
+    // Update the distance value
+    if ((backUS_updateTime >= 0) && (currTime - backUS_lastUpdate >= backUS_updateTime)){
+      sendUSSensorData(data);
+      backUS_lastUpdate = millis();
+    }
+
+    // Collision detection
     if (backCollision){
       if (data.distance < backStopDist) stopDrive();
     }
-
-    backUSStartTime = millis();
+    
+    backUS_lastMeasure = millis();
   }
 
-  if ((readImu) && (currTime - imuStartTime >= imuReadTime)){
+  // IMU MEASUREMENT
+  if ((readImu) && (currTime - imu_lastMeasure >= imu_readTime)){
     IMUData data = compute6dof();
-    sendIMUData(data);
 
-    imuStartTime = millis();
+    // Update the IMU values
+    if ((imu_updateTime >= 0) && (currTime - imu_lastUpdate >= imu_updateTime)){
+      sendIMUData(data);
+      imu_lastUpdate = millis();
+    }
+
+    imu_lastMeasure = millis();
   }
 
-  if (currTime - speedometerStartTime >= speedometerReadTime){
-    double rpms = computeRPM(currTime);
-    sendRPM(rpms);
+  // RPM MEASUREMENT
+  if (currTime - speedometer_lastMeasure >= speedometer_readTime){
+    double rpm = computeRPM(currTime - speedometer_lastMeasure);
+
+    // Update the IMU values
+    if ((speedometer_updateTime >= 0) && (currTime - speedometer_lastUpdate >= speedometer_updateTime)){
+      sendRPM(rpm);
+      speedometer_lastUpdate = millis();
+    }
+    
+    speedometer_lastMeasure = millis();
+  }
+
+  // MOVE THE CAMERA IF NECESSARY
+  if ((!absoluteMovement) && (currTime - cameraPosStartTime >= cameraPosUpdateTime)){
+    incrementPanAngle(panVelocity);
+    incrementTiltAngle(tiltVelocity);
+    cameraPosStartTime = millis();
   }
 }
 
@@ -171,11 +222,9 @@ void parse_message(String msg){
     String value = msg.substring(2);
     if (!isInteger(value)) {sendError("Bad value"); return;}
     input_value = value.toInt();
-    sendDebug((String)input_value);
   }
   
-  if (msg == "help"){help();}
-  else if (command == "SG"){sendResponse(getSteer());}
+  if (command == "SG"){sendResponse(getSteer());}
   else if (command == "SS"){setSteerAngle(input_value);}
   else if (command == "SI"){incrementSteerAngle(input_value);}
   else if (command == "SD"){incrementSteerAngle(-input_value);}
@@ -185,18 +234,20 @@ void parse_message(String msg){
   else if (command == "Sc"){steerConfig("center", input_value);}
 
   else if (command == "PG"){sendResponse(getPan());}
-  else if (command == "PS"){setPanAngle(input_value);}
+  else if (command == "PS"){absoluteMovement=true; setPanAngle(input_value);}
   else if (command == "PI"){incrementPanAngle(input_value);}
   else if (command == "PD"){incrementPanAngle(-input_value);}
+  else if (command == "PV"){absoluteMovement=false; panVelocity = input_value;}
   else if (command == "PC"){centerPanAngle();}
   else if (command == "PM"){cameraConfig("pan max", input_value);}
   else if (command == "Pm"){cameraConfig("pan min", input_value);}
   else if (command == "Pc"){cameraConfig("pan center", input_value);}
   
   else if (command == "TG"){sendResponse(getTilt());}
-  else if (command == "TS"){setTiltAngle(input_value);}
+  else if (command == "TS"){absoluteMovement=true; setTiltAngle(input_value);}
   else if (command == "TI"){incrementTiltAngle(input_value);}
   else if (command == "TD"){incrementTiltAngle(-input_value);}
+  else if (command == "TV"){absoluteMovement=false; tiltVelocity = input_value;}
   else if (command == "TC"){centerTiltAngle();}
   else if (command == "TM"){cameraConfig("tilt max", input_value);}
   else if (command == "Tm"){cameraConfig("tilt min", input_value);}
@@ -212,17 +263,20 @@ void parse_message(String msg){
   else if (command == "FO"){USSensorData data = measureFrontDistance(); sendUSSensorData(data);}
   else if (command == "FC"){frontUsReading=true;}
   else if (command == "FS"){frontUsReading=false;}
-  else if (command == "FT"){frontUSReadTime = input_value; frontUSStartTime = millis();}
+  else if (command == "FT"){frontUS_readTime = input_value; frontUS_lastMeasure = millis();}
+  else if (command == "FU"){frontUS_updateTime = input_value; frontUS_lastUpdate = millis();}
   else if (command == "BO"){USSensorData data = measureBackDistance(); sendUSSensorData(data);}
   else if (command == "BC"){backUsReading=true;}
   else if (command == "BS"){backUsReading=false;}
-  else if (command == "BT"){backUSReadTime = input_value; backUSStartTime = millis();}
+  else if (command == "BT"){backUS_readTime = input_value; backUS_lastMeasure = millis();}
+  else if (command == "BU"){backUS_updateTime = input_value; backUS_lastUpdate = millis();}
 
   else if (command == "Ic"){sendLog("Calibration function not implemented yet...");}
   else if (command == "IO"){IMUData data = compute6dof(); sendIMUData(data);}
   else if (command == "IC"){readImu = true;}
   else if (command == "IS"){readImu = false;}
-  else if (command == "IT"){imuReadTime = input_value; imuStartTime = millis();}
+  else if (command == "IT"){imu_readTime = input_value; imu_lastMeasure = millis();}
+  else if (command == "IU"){imu_updateTime = input_value; imu_lastUpdate = millis();}
 
   else if (command == "FE"){frontCollision=true;}
   else if (command == "FD"){frontCollision=false;}
@@ -230,6 +284,9 @@ void parse_message(String msg){
   else if (command == "BE"){backCollision=true;}
   else if (command == "BD"){backCollision=false;}
   else if (command == "B!"){backStopDist = input_value;}
+
+  else if (command == "RT"){speedometer_readTime = input_value;}
+  else if (command == "RU"){speedometer_updateTime = input_value;}
   
-  else {sendLog("Unknown command");}
+  else {sendLog("Unknown command " + command);}
 }

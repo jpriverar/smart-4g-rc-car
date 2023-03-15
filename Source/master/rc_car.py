@@ -4,52 +4,77 @@ from uart_messenger import UART_Messenger
 from remote_controller import RemoteController
 import threading
 import time
+import struct
 
-def car_setup():
-    # Sending a reset_signal to the arduino
-    print("Resetting slave")
-    ret = slave.send_reset()
-    if not ret:
-        print("Something went wrong, exitting...")
-        return False
+class RC_Car:
+    def __init__(self, uart_path, uart_baudrate, slave_reset_pin, controller_path):
+        # GPIO setup
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(slave_reset_pin, GPIO.OUT)
 
-    # Waiting till connection is stablished
-    print("Attempting UART connection with slave")
-    ret = slave.wait_for_connection(timeout=5)
-    if not ret:
-        print("Timeout reached, could not stablish connection with slave!")
-        return False
+        # Creating arduino comms instance
+        self.slave = UART_Messenger(uart_path, uart_baudrate, timeout=1, reset_pin=slave_reset_pin)
+        if not self.car_setup(): exit()
+
+        # Worker thread to fetch commands and send them to arduino
+        self.command_worker_thread = threading.Thread(target=self.slave.command_worker, daemon=True)
+        self.command_worker_thread.start()
         
-    # Waiting for the slave to initialize all car components
-    print("Waiting for all components to be initialized by slave...")
-    ret = slave.wait_for_message("ready", timeout=10)
-    if not ret:
-        print("Timeout reached, looks like some components are not initializing...")
-        return False
+        # Worker to fetch msg from arduino and send them to respective queues
+        self.message_worker_thread = threading.Thread(target=self.slave.message_worker, daemon=True)
+        self.message_worker_thread.start()
+            
+        # Remote controller thread
+        print("Starting connection with remote controller")
+        self.controller = RemoteController(controller_path, self.slave)
+        self.control_thread = threading.Thread(target=self.controller.read_loop, daemon=True)
+        self.control_thread.start()
+        print("Remote controller active")
         
-    time.sleep(3)
-    slave.flushInput()
-    print("Setup successfull! Slave ready to receive commands...")
-    return True
+    def main_loop(self):
+        while True:
+            '''try:
+                self.slave.fetch_msg()
+            except Exception as e:
+                print("Could not fetch message: " + str(e))'''
+            if not self.slave.msg_queues[0x00].empty():
+                msg = struct.unpack("<f", self.slave.msg_queues[0x00].get())
+                print(f"RPM-> {msg}")
 
-# GPIO setup
-GPIO.setmode(GPIO.BCM)
-reset_pin = 23
-GPIO.setup(reset_pin, GPIO.OUT)
+    def car_setup(self):
+        # Sending a reset_signal to the arduino
+        print("Resetting slave")
+        ret = self.slave.send_reset()
+        if not ret:
+            print("Something went wrong, exitting...")
+            return False
 
-# Creating arduino comms instance
-slave = UART_Messenger('/dev/ttyAMA1', 115200, timeout=1, reset_pin=reset_pin)
-if not car_setup(): exit()
+        # Waiting till connection is stablished
+        print("Attempting UART connection with slave")
+        ret = self.slave.wait_for_connection(timeout=5)
+        if not ret:
+            print("Timeout reached, could not stablish connection with slave!")
+            return False
+            
+        # Waiting for the slave to initialize all car components
+        print("Waiting for all components to be initialized by slave...")
+        ret = self.slave.wait_for_message("ready", timeout=10)
+        if not ret:
+            print("Timeout reached, looks like some components are not initializing...")
+            return False
+            
+        time.sleep(3)
+        self.slave.flushInput()
+        print("Setup successfull! Slave ready to receive commands...")
+        return True
     
-# Remote controller thread
-print("Starting connection with remote controller")
-controller = RemoteController("/dev/input/event0", slave)
-control_thread = threading.Thread(target=controller.read_loop, daemon=True)
-control_thread.start()
-print("Remote controller active")
-
-while True:
-    try:
-        slave.fetch_msg()
-    except Exception as e:
-        print("Could not fetch message: " + str(e))
+if __name__ == "__main__":
+    car = RC_Car(uart_path='/dev/ttyAMA1',
+                 uart_baudrate=115200,
+                 slave_reset_pin=23,
+                 controller_path="auto")
+    
+    car.main_loop()
+    
+    
+    

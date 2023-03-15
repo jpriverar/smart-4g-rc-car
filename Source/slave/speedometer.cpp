@@ -1,9 +1,9 @@
 #include "speedometer.h"
+#include "messenger.h"
 
 #define SPEEDOMETER_INT_PIN 3
 
-double speedometerStartTime = 0;
-int count = 0;
+int A_count = 0;
  
 void speedometerInit() {  
   // Attaching interrupt
@@ -12,16 +12,14 @@ void speedometerInit() {
 }
 
 void increaseCount() {
-  count++;
+  A_count++;
 }
 
-double computeRPM(double currTime) {
+double computeRPM(double period_ms) {
   // Computing rpm based off current count and elapsed time
-  double rpm = (count * (60000/(currTime - speedometerStartTime)))/(100);  // sensor pulse / 100 = 1 motor revolution
-
+  double rpm = (A_count * (60000/period_ms))/100;  // sensor pulse / 100 = 1 motor revolution
+  
   // Resetting count and starting time
-  count = 0;
-  speedometerStartTime = millis();
-
+  A_count = 0;
   return rpm;
 }
