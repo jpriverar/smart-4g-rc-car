@@ -33,20 +33,6 @@ bool isInteger(String input_value){
 }
 
 void sendText(uint8_t type, String data){
-  /*
-  // Formatting text
-  String text = "Error: " + data + "\n";
-  
-  Message msg;
-  msg.messageType = 0x03;
-  msg.payloadLength = text.length();
-
-  // Getting string bytes
-  byte textBytes[msg.payloadLength];
-  text.getBytes(textBytes, msg.payloadLength);
-  msg.payload = textBytes;
-  sendMsg(&msg);
-  */
   uint16_t dataLength = data.length();
   
   Serial.write(type);

@@ -2,9 +2,8 @@
 #define SPEEDOMTER_H_
 #include <Arduino.h>
 
-extern double speedometerStartTime;
 void speedometerInit();
 void increaseCount();
-double computeRPM(double period_ms);
+double computeRPM(double currTime);
 
 #endif //SPEEDOMETER_H_

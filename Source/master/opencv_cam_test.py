@@ -1,7 +1,7 @@
 import cv2
 import time
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(-1)
 print('Waiting for the camera module to initialize...')
 time.sleep(5)
 
@@ -11,7 +11,7 @@ while cap.isOpened():
     
     if not ret:
         print('No frame...')
-        break
+        continue
 
     key = cv2.waitKey(1)
     if key == ord('q') or key == 27: break

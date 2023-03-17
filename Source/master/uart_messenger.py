@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import serial
 import time
-from collections import deque
+import queue
 import struct
 
 class UART_Messenger(serial.Serial):
@@ -10,7 +10,13 @@ class UART_Messenger(serial.Serial):
         
         self.reset_pin = reset_pin
         self.reset_input_buffer()
-        self.msg_queue = deque([])
+        self.command_queue = queue.Queue()
+        
+        self.msg_types = ["RPM", "USS", "IMU", "RES", "ERR", "LOG", "DBG"]
+        self.textual_msg = [0,0,0,0,1,1,1]
+        
+        self.msg_queues = {i:queue.Queue() for i in range(len(self.msg_types))}
+        
  
     def send_reset(self):
         try:
@@ -22,17 +28,46 @@ class UART_Messenger(serial.Serial):
         except Exception as e:
             print(e)
             return False
+        
+    def command_worker(self):
+        while True:
+            # If there are commands in the queue and buffer is free to send
+            if not self.command_queue.empty() and self.out_waiting == 0:
+                self.__send_command(self.command_queue.get())
+                
+    def message_worker(self):
+        while True:
+            # If there are arduino messages in the uart buffer, send them to respective queue
+            if self.in_waiting > 3:
+                msg_header = self.read(3)
+                msg_type, payload_length = struct.unpack("<BH", msg_header)
+                
+                # If message is text
+                if self.textual_msg[msg_type]:
+                    payload = self.readline()
+                else:
+                    payload = self.read(payload_length)
+                
+                # Adding the payload to the corresponding queue
+                self.msg_queues[msg_type].put(payload)
     
-    def send_msg(self, msg):
+    def __send_command(self, command):
+        if command == "":
+            print("empty command, not sending...")
+            return
+        
         try:
-            msg = msg + "\n"
-            msg = msg.encode()
-            self.write(msg)
+            command += "\n"
+            command = command.encode()
+            self.write(command)
             return True
         
         except Exception as e:
-            print(e)
+            print("Could not send message: " + str(e))
             return False
+        
+    def send_command(self, command):
+        self.command_queue.put(command)
         
     def fetch_msg(self):
         if self.in_waiting > 0: #Header for each message is 3 bytes
@@ -40,7 +75,11 @@ class UART_Messenger(serial.Serial):
             msg_type, payload_length = struct.unpack("<BH", msg_header)
             print(f"type: {msg_type}, length: {payload_length}", end="--- ")
             
-            if msg_type == 0x01: # Ultrasonic sensor measurement
+            if msg_type == 0x00: # RPM measurement
+                rpm = struct.unpack("<f", self.read(payload_length))
+                print(f"(RPM)->{rpm}")
+            
+            elif msg_type == 0x01: # Ultrasonic sensor measurement
                 sensor_data = struct.unpack("<Bf", self.read(payload_length))
                 side, distance = sensor_data
                 print(f"(USS)->{side}: {distance}")
@@ -88,33 +127,6 @@ class UART_Messenger(serial.Serial):
         
     def wait_for_connection(self, timeout=10):
         if self.wait_for_message("available", timeout=timeout):
-            if self.send_msg("OK"):
+            if self.__send_command("OK"):
                 return True
         return False
-            
-
-
-if __name__ == "__main__":
-    # GPIO setup
-    GPIO.setmode(GPIO.BCM)
-    reset_pin = 23
-    GPIO.setup(reset_pin, GPIO.OUT)
-
-    # Creating arduino comms instance
-    slave = UART_Messenger('/dev/ttyAMA1', 115200, timeout=1, reset_pin=reset_pin)
-
-    # Sending a reset_signal to the arduino
-    print("Resetting slave")
-    ret = slave.send_reset()
-    if not ret:
-        print("Something went wrong, exitting...")
-        exit()
-
-    # Waiting till connection is stablished
-    print("Attempting UART connection with slave")
-    ret = slave.wait_for_connection(timeout=5)
-    if not ret:
-        print("Timeout reached, could not stablish connection with slave!")
-        exit()
-        
-    print("Setup successfull! Slave ready to receive commands...")
