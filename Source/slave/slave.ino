@@ -95,8 +95,8 @@ void loop() {
   }
 }
 
-void help(){
-  /*Serial.println(F("|---------------------COMMAND SYNTAX---------------------|"));
+/*void help(){
+  Serial.println(F("|---------------------COMMAND SYNTAX---------------------|"));
   Serial.println(F("  {COMMAND}{NUMERICAL VALUE TO PASS THE COMMAND}          "));
   Serial.println(F("  SS130 - Will set the steer direction value to 130°      "));
   Serial.println();
@@ -159,8 +159,8 @@ void help(){
   Serial.println(F("  F! - Set front emergecy stop threshold distance         "));
   Serial.println(F("  BE - Back side collision detection enabled              "));
   Serial.println(F("  BD - Back side collision detection disabled             "));
-  Serial.println(F("  B! - Set back emergecy stop threshold distance          "));*/
-}
+  Serial.println(F("  B! - Set back emergecy stop threshold distance          "));
+}*/
 
 void parse_message(String msg){
   int16_t input_value = -1;
@@ -174,8 +174,8 @@ void parse_message(String msg){
     sendDebug((String)input_value);
   }
   
-  if (msg == "help"){help();}
-  else if (command == "SG"){sendResponse(getSteer());}
+  //if (msg == "help"){help();}
+  if (command == "SG"){sendResponse(getSteer());}
   else if (command == "SS"){setSteerAngle(input_value);}
   else if (command == "SI"){incrementSteerAngle(input_value);}
   else if (command == "SD"){incrementSteerAngle(-input_value);}
