@@ -1,6 +1,6 @@
 import socket
 
-HOST = "192.168.100.11" # On all interfaces
+HOST = "0.0.0.0" # On all interfaces
 PORT = 8485
 
 # Creating socket
