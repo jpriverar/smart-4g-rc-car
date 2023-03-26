@@ -21,5 +21,8 @@ while True:
     message = data.decode('utf-8')
     print(f"Received message from {client_address}: {message}")
 
+    # Send a message back to the client
+    client_socket.send("Thank you for connecting".encode())
+
     # Close the client socket
     client_socket.close()
