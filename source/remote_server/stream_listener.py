@@ -1,50 +1,38 @@
 import socket
-import pickle
-import struct
+import numpy as np
+import threading
 
 HOST = ""
-PORT = 8485
+SOURCE_PORT = 8485
+DEST_PORT = 8486
 
-# Creating the socket to listen the stream
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((HOST, PORT))
+# Creating the socket to listen the streamer
+source_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+source_socket.bind((HOST, SOURCE_PORT))
+
+dest_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+dest_socket.bind((HOST, DEST_PORT))
 
 # Only one incoming connection at a time
-server_socket.listen(1)
-print(f"Server listening on port {PORT}")
+source_socket.listen(1)
+dest_socket.listen(1)
+print(f"Source listening on port {SOURCE_PORT}")
+print(f"Destination listening on port {DEST_PORT}")
 
-conn, address = server_socket.accept()
-print(f"Received connection from {address}")
+source_conn, source_address = source_socket.accept()
+print(f"Received connection from {source_address}")
+dest_conn, dest_address = dest_socket.accept()
+print(f"Received connection from {dest_address}")
 
-# To read the incoming stream of data
-data = b""
-payload_size = struct.calcsize(">L")
-
-frame_counter = 0
 try:
     while True:
-        # Wait until the size of the data is known
-        while len(data) < payload_size:
-            data += conn.recv(4096)
-
-        # Getting the size of the actual data
-        packed_msg_size = data[:payload_size]
-        data = data[payload_size:]
-        msg_size = struct.unpack(">L", packed_msg_size)[0]
-
-        # Waiting until all the data is received
-        while len(data) < msg_size:
-            data += conn.recv(4096)
-
-        # Getting the frame
-        frame_data = data[:msg_size]
-        data = data[msg_size:]
-        frame = pickle.loads(frame_data, encoding="bytes")
-
-        frame_counter += 1
-        print(f"frame: {frame_counter}, size: {msg_size}")
+       data = source_conn.recv(4096)
+       if data:
+          dest_conn.sendall(data)
 
 except Exception as e:
-    print(str(e))
-    conn.close()
-    server_socket.close()
+   print(str(e))
+   source_conn.close()
+   dest_conn.close()
+   source_socket.close()
+   dest_socket.close()
