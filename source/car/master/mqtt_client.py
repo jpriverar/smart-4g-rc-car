@@ -7,8 +7,6 @@ class MQTT_Client(mqtt.Client):
         self.messages = dict()
         # Creating a unique client id
         self.id = self.__generate_client_id()
-        # Default broker address
-        self.broker_address = "test.mosquitto.org"
         # Creating client object with the id
         super().__init__(self.id)
 
@@ -17,7 +15,7 @@ class MQTT_Client(mqtt.Client):
         self.on_disconnect = self.__on_disconnect
         self.on_message = self.__on_message
 
-    def connect(self, broker_address=""):
+    def connect(self, broker_address):
         if len(broker_address) != 0:
             self.broker_address = broker_address
 
@@ -50,3 +48,21 @@ class MQTT_Client(mqtt.Client):
             print(f"A problem occured, could not disconnect from the broker: {self.broker_address}")
         else:
             print(f"Succesfully disconnected from broker: {self.broker_address}")
+            
+if __name__ == "__main__":
+    broker = "3.134.62.14"
+    
+    print("Starting connection with broker...")
+    client = MQTT_Client()
+    client.connect(broker)
+    client.loop_start()
+    print("Connected!")
+    
+    client.subscribe("RC-CAR-POSITION")
+    
+    try:
+        while True:
+            pass
+    except:
+        client.disconnect()
+    
