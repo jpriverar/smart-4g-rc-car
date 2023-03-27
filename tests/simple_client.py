@@ -9,4 +9,7 @@ client_socket.connect((HOST, PORT))
 msg = "hello hello!"
 client_socket.send(msg.encode("utf-8"))
 
+msg = client_socket.recv(1024).decode("utf-8")
+print(msg)
+
 client_socket.close()
