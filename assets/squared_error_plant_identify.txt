@@ -1,0 +1,42 @@
+%% Defining the plant transfer function by the graphical method
+
+plant_graphical = tf([0 111.9], [1 2.275 129.9]);
+
+%% Using the square error method (Pseudo Random Binary Signal)
+
+T = 0.01;
+t = input(:, 1);
+U = input(:, 2);
+Y = Output(:, 2);
+
+%% Constructing the X1 and Y2 matrices
+n = size(t, 1);
+degree = 2;
+
+X1 = [];
+X2 = [];
+
+for i = 3:n
+    X1 = [X1; [U(i-2) U(i-1) -Y(i-2) -Y(i-1)]];
+    X2 = [X2; Y(i)];
+end
+
+%% Getting closed for solution
+
+params = inv(X1'*X1)*X1'*X2;
+
+bs = params(1:2, :);
+as = params(3:end, :);
+
+%% Approximation transfer function
+
+plant_approx = tf([bs(2) bs(1)], [1 as(2) as(1)], T);
+plant_approx_c = d2c(plant_approx);
+
+step(plant_graphical)
+hold on
+step(plant_approx_c)
+legend("Graphical", "Squared Error")
+hold off
+
+%%
