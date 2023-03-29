@@ -1,20 +1,27 @@
 import RPi.GPIO as GPIO
 import utils
-from uart_messenger import UART_Messenger
-from remote_controller import RemoteController
 import threading
 import time
 import struct
+import sys
+import select
+from picamera2 import Picamera2
+import cv2
+
+sys.path.insert(1, "/home/jp/Projects/smart-4g-rc-car/source/common")
+from socket_relay_client import SocketRelayClient
+from mqtt_client import MQTT_Client
+from uart_messenger import UART_Messenger
 
 class RC_Car:
-    def __init__(self, uart_path, uart_baudrate, slave_reset_pin, controller_path):
+    def __init__(self, uart_path, uart_baudrate, slave_reset_pin, controller_path, remote_host, remote_port):
         # GPIO setup
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(slave_reset_pin, GPIO.OUT)
 
         # Creating arduino comms instance
         self.slave = UART_Messenger(uart_path, uart_baudrate, timeout=1, reset_pin=slave_reset_pin)
-        if not self.car_setup(): exit()
+        #if not self.car_setup(): exit()
 
         # Worker thread to fetch commands and send them to arduino
         self.command_worker_thread = threading.Thread(target=self.slave.command_worker, daemon=True)
@@ -23,23 +30,45 @@ class RC_Car:
         # Worker to fetch msg from arduino and send them to respective queues
         self.message_worker_thread = threading.Thread(target=self.slave.message_worker, daemon=True)
         self.message_worker_thread.start()
-            
-        # Remote controller thread
-        print("Starting connection with remote controller")
-        self.controller = RemoteController(controller_path, self.slave)
-        self.control_thread = threading.Thread(target=self.controller.read_loop, daemon=True)
-        self.control_thread.start()
-        print("Remote controller active")
+        
+        # Initializing the camera
+        self.cam = Picamera2()
+        config = self.cam.create_preview_configuration(main={"size": (640, 480), "format":"RGB888"}, lores={"size": (320, 240), "format": "YUV420"})#, controls={"FrameDurationLimits": (16666, 16666)})
+        self.cam.configure(config)
+        
+        # Client for socket relay
+        self.remote_controller = SocketRelayClient()
+        self.relay_host = remote_host
+        self.relay_port = remote_port
         
     def main_loop(self):
         while True:
-            '''try:
-                self.slave.fetch_msg()
-            except Exception as e:
-                print("Could not fetch message: " + str(e))'''
-            if not self.slave.msg_queues[0x00].empty():
-                msg = struct.unpack("<f", self.slave.msg_queues[0x00].get())
-                print(f"RPM-> {msg}")
+            if self.remote_controller.connected:
+                # Send a new frame to the remote controller
+                self.send_encoded_frame()
+                
+                # Fetch any commands received
+                data = self.remote_controller.recv(1024)
+                if not data: continue
+                
+                command_list = data.decode('utf-8')
+                print(command_list)
+                
+            else:
+                self.remote_controller.connect(self.relay_host, self.relay_port)
+                
+    def send_encoded_frame(self):
+        frame = self.cam.capture_array("main")
+    
+        # Encoding and serializing the frame
+        result, encoded_frame = cv2.imencode('.jpg', frame, encode_param)
+        data = encoded_frame.tobytes()
+        size = len(data)
+
+        # Sending the serialized frame through the socket
+        print("{}: {}".format(img_counter, size))
+        self.remote_controller.sendall(size.to_bytes(4, byteorder="big"))
+        self.remote_controller.sendall(data)
 
     def car_setup(self):
         # Sending a reset_signal to the arduino
@@ -72,7 +101,9 @@ if __name__ == "__main__":
     car = RC_Car(uart_path='/dev/ttyAMA1',
                  uart_baudrate=115200,
                  slave_reset_pin=23,
-                 controller_path="auto")
+                 controller_path="auto",
+                 remote_host="3.134.62.14",
+                 remote_port=8485)
     
     car.main_loop()
     

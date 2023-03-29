@@ -1,4 +1,5 @@
 import socket
+import select
 
 class SocketRelayClient:
     def __init__(self):
@@ -40,9 +41,13 @@ class SocketRelayClient:
     def recv(self, buffer_size):
         if self.connected:
             try:
-                data = self._socket.recv(buffer_size)
-                if not data:
-                    raise Exception
+                data = None
+                ready_to_read, _, _ = select.select([self._socket], [], [], 0)
+                
+                if ready_to_read:
+                    data = self._socket.recv(buffer_size)
+                    if not data:
+                        raise Exception
                 return data
 
             except Exception as e:
