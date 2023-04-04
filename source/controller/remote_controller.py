@@ -2,18 +2,17 @@ from evdev import InputDevice, categorize, ecodes
 import subprocess
 import os
 import time
-import threading
 
 class RemoteController(InputDevice):
-    def __init__(self, dev_path="auto", uart_messenger=None):
+    def __init__(self, dev_path="auto", sender=None):
         # Creating the controller event reader
         if dev_path == "auto":
             event_dev = subprocess.run(["ls /dev/input/ | grep event | sort -V | tail -n1"], capture_output=True, text=True, shell=True)
             dev_path = os.path.join("/dev/input", event_dev.stdout.split("\n")[0])
             print(dev_path)    
         super().__init__(dev_path)
-        
-        self.messenger = uart_messenger
+
+        self.sender = sender
         
         # controller modes are: DRIVE, MENU, ...
         self.mode = "DRIVE"
@@ -70,11 +69,11 @@ class RemoteController(InputDevice):
 
     def b_btn_handler(self, value):
         if value:
-            self.messenger.send_command("IO")
+            self.sender.sendall("IO\n".encode())
 
     def x_btn_handler(self, value):
         if value:
-            self.messenger.send_command("FO")
+            self.sender.sendall("FO\n".encode())
 
     def y_btn_handler(self, value):
         pass
@@ -102,13 +101,13 @@ class RemoteController(InputDevice):
             
     def left_joyBtn_handler(self, value):
         if value:
-            self.messenger.send_command("SC")
+            self.sender.sendall("SC\n".encode())
     
     def right_joyBtn_handler(self, value):
         if value:
             # Center camera
-            self.messenger.send_command("PC")
-            self.messenger.send_command("TC")
+            self.sender.sendall("PC\n".encode())
+            self.sender.sendall("TC\n".encode())
             
             # Start measuring for long press
             self.event_start_time = time.time()
@@ -118,10 +117,10 @@ class RemoteController(InputDevice):
                 self.cam_move_mode = "INC" if self.cam_move_mode == "ABS" else "ABS"
 
     def left_xjoy_handler(self, value):
-        if abs(value - self.state_values["left_xjoy"]) >= 100:
+        if abs(value - self.state_values["left_xjoy"]) >= 300:
             value /= 32768
             input_val = int(-value*1024)
-            self.messenger.send_command(f"SS{input_val}")
+            self.sender.sendall(f"SS{input_val}\n".encode())
             self.state_values["left_xjoy"] = value
 
     def left_yjoy_handler(self, value):
@@ -131,46 +130,46 @@ class RemoteController(InputDevice):
         pass
 
     def right_xjoy_handler(self, value):
-        if abs(value - self.state_values["right_xjoy"]) >= 100:
+        if abs(value - self.state_values["right_xjoy"]) >= 300:
             value /= 32768
             input_val = int(-value*1024)
             
             if self.cam_move_mode == "ABS":
-                self.messenger.send_command(f"PS{input_val}")
+                self.sender.sendall(f"PS{input_val}\n".encode())
     
             elif self.cam_move_mode == "INC":
                 if abs(input_val) < 250: input_val = 0
-                self.messenger.send_command(f"PV{input_val}")
+                self.sender.sendall(f"PV{input_val}\n".encode())
                 
             self.state_values["right_xjoy"] = value
         
     def right_yjoy_handler(self, value):
-        if abs(value - self.state_values["right_yjoy"]) >= 100:
+        if abs(value - self.state_values["right_yjoy"]) >= 300:
             value /= 32768
             input_val = int(-value*1024)
             
             if self.cam_move_mode == "ABS":
-                self.messenger.send_command(f"TS{input_val}")
+                self.sender.sendall(f"TS{input_val}\n".encode())
     
             elif self.cam_move_mode == "INC":
                 if abs(input_val) < 250: input_val = 0
-                self.messenger.send_command(f"TV{input_val}")
+                self.sender.sendall(f"TV{input_val}\n".encode())
                 
             self.state_values["right_yjoy"] = value
 
     def right_trig_handler(self, value):
         value /= 1024
-        power_val = int(value*50)
-        self.messenger.send_command(f"DP{power_val}")
+        power_val = int(value*100)
+        self.sender.sendall(f"DP{power_val}\n".encode())
 
     def x_arrow_handler(self, value):
         if value == 1:
-            self.messenger.send_command("PD1024")
+            self.sender.sendall("PD1024\n".encode())
         elif value == -1:
-            self.messenger.send_command("PI1024")
+            self.sender.sendall("PI1024\n".encode())
         
     def y_arrow_handler(self, value):
         if value == 1:
-            self.messenger.send_command("TI1024")
+            self.sender.sendall("TI1024\n".encode())
         elif value == -1:
-            self.messenger.send_command("TD1024")
+            self.sender.sendall("TD1024\n".encode())

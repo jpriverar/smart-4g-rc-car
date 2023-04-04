@@ -2,7 +2,7 @@ import socket
 import threading
 
 class ThreadSafeSocket:
-    def __init__(self, family=socket.AF_INET, type=socket.SOCK_STREAM):
+    def __init__(self, family, type):
         self._socket = socket.socket(family, type)
         self._lock = threading.Lock()
 
@@ -38,6 +38,14 @@ class ThreadSafeSocket:
     def close(self):
         with self._lock:
             self._socket.close()
+
+    def recvfrom(self, buffer_size):
+        with self._lock:
+            return self._socket.recvfrom(buffer_size)
+        
+    def sendto(self, data, address):
+        with self._lock:
+            return self._socket.sendto(data, address)
 
     @staticmethod
     def from_socket(sock):

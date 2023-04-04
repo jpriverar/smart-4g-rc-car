@@ -4,11 +4,11 @@ import time
 HOST = "3.134.62.14"
 PORT = 8486
 
-client = SocketRelayClient()
+client = SocketRelayClient(type="UDP")
+
+# Sending message just so that relay server knows we are here
+client.sendto("Ready".encode(), (HOST, PORT))
 
 while True:
-    if client.connected:
-        client.sendall("Hello there!".encode())
+        client.sendto("Hello from client2".encode(), (HOST, PORT))
         time.sleep(3)
-    else:
-        client.connect(HOST, PORT)
