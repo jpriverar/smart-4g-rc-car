@@ -2,17 +2,11 @@ import socket
 import select
 from thread_safe_socket import ThreadSafeSocket
 
-class SocketRelayClient:
-    def __init__(self, type="TCP"):
+class RelayClientTCP:
+    def __init__(self):
         self.connected = False
-        self.type = type
-
-        if type == "UDP":
-            self._socket = ThreadSafeSocket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def connect(self, host, port):
-        if self.type == "UPD": raise Exception("Cannot 'connect' to UDP sockets...")
-
         self._socket = ThreadSafeSocket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.connect((host, port))
         print("Client connected, waiting for relay to open...")
@@ -26,7 +20,6 @@ class SocketRelayClient:
                 self.connected = True
 
     def send(self, data):
-        if self.type == "UPD": raise Exception("Cannot 'send' to UDP sockets...")
         if self.connected:
             try:
                 self._socket.send(data)
@@ -37,7 +30,6 @@ class SocketRelayClient:
                 self.connected = False
 
     def sendall(self, data):
-        if self.type == "UPD": raise Exception("Cannot 'send' to UDP sockets...")
         if self.connected:
             try:
                 self._socket.sendall(data)
@@ -48,7 +40,6 @@ class SocketRelayClient:
                 self.connected = False
     
     def recv(self, buffer_size):
-        if self.type == "UPD": raise Exception("Cannot 'receive' from UDP sockets...")
         if self.connected:
             try:
                 data = None
@@ -65,8 +56,13 @@ class SocketRelayClient:
                 self._socket.close()
                 self.connected = False
 
+class RelayClientUDP:
+    def __init__(self, host, port):
+        self._socket = ThreadSafeSocket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.host = host
+        self.port = port
+
     def recvfrom(self, buffer_size):
-        if self.type == "TCP": raise Exception("Cannot 'receive from' with TCP sockets...")
         ready_to_read, _, _ = select.select([self._socket], [], [], 0)
         if ready_to_read:
             data, address = self._socket.recvfrom(buffer_size)
@@ -74,6 +70,9 @@ class SocketRelayClient:
         else:
             return None, None
         
-    def sendto(self, data, address):
-        if self.type == "TCP": raise Exception("Cannot 'sent to' with TCP sockets...")
+    def sendto(self, data, address=None):
+        if not address: 
+            address = (self.host, self.port)
+        else:
+            self.host, self.port = address
         self._socket.sendto(data, address)
