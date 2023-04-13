@@ -34,14 +34,12 @@ if __name__ == "__main__":
         for sock in ready_to_read:
             if sock == car_socket:
                 data, car_address = car_socket.recvfrom(4064)
-                print(f"Received car data from: {car_address}")
-                print(data.decode('utf-8'))
-                if data and controller_address:
+                print(f"Got {len(data)} bytes of data from {car_address}")
+                if controller_address:
                     controller_socket.sendto(data, controller_address)
 
             if sock == controller_socket:
                 data, controller_address = controller_socket.recvfrom(1024)
-                print(f"Received controller data from: {controller_address}")
-                print(data.decode('utf-8'))
-                if data and car_address:
+                print(f"Got {len(data)} bytes of data from {controller_address}")
+                if car_address:
                     car_socket.sendto(data, car_address)
