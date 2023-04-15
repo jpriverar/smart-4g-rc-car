@@ -69,7 +69,7 @@ void driveInit(){
   pinMode(BPWM, OUTPUT);
   
   // Changing timer frequency for drive PWM, Timer for pins 5&6 to 7.8 kHz
-  TCCR0B = TCCR0B & 0b11111000 | 0x02; // Prescaler -> 8, 7.8 kHz
+  //TCCR0B = TCCR0B & 0b11111000 | 0x02; // Prescaler -> 8, 7.8 kHz
 
   changeDriveDirection(1); // Forward- default starting direction
   changeDrivePower(0);

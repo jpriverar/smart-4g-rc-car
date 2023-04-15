@@ -7,9 +7,10 @@ import sys
 import select
 from picamera2 import Picamera2
 import cv2
+import math
 
 sys.path.insert(1, "/home/jp/Projects/smart-4g-rc-car/source/common")
-from socket_relay_client import SocketRelayClient
+from socket_relay_client import RelayClientUDP
 from mqtt_client import MQTT_Client
 from uart_messenger import UART_Messenger
 
@@ -24,8 +25,8 @@ class RC_Car:
         #if not self.car_setup(): exit()
 
         # Worker thread to fetch commands and send them to arduino
-        self.command_worker_thread = threading.Thread(target=self.slave.command_worker, daemon=True)
-        self.command_worker_thread.start()
+        #self.command_worker_thread = threading.Thread(target=self.slave.command_worker, daemon=True)
+        #self.command_worker_thread.start()
         
         # Worker to fetch msg from arduino and send them to respective queues
         self.message_worker_thread = threading.Thread(target=self.slave.message_worker, daemon=True)
@@ -37,38 +38,41 @@ class RC_Car:
         self.cam.configure(config)
         
         # Client for socket relay
-        self.remote_controller = SocketRelayClient()
+        self.remote_controller = RelayClientUDP(remote_host, remote_port)
+        self.remote_controller.sendto("OK".encode())
         self.relay_host = remote_host
         self.relay_port = remote_port
         
     def main_loop(self):
+        self.cam.start()
         while True:
-            if self.remote_controller.connected:
-                # Send a new frame to the remote controller
-                self.send_encoded_frame()
-                
-                # Fetch any commands received
-                data = self.remote_controller.recv(1024)
-                if not data: continue
-                
-                command_list = data.decode('utf-8')
-                print(command_list)
-                
-            else:
-                self.remote_controller.connect(self.relay_host, self.relay_port)
+            # Send a new frame to the remote controller
+            self.send_encoded_frame()
+            
+            # Fetch any commands received
+            data, address = self.remote_controller.recvfrom(128)
+            if not data: continue
+            
+            #self.slave.send_command(data, encoded=True)
                 
     def send_encoded_frame(self):
         frame = self.cam.capture_array("main")
     
         # Encoding and serializing the frame
-        result, encoded_frame = cv2.imencode('.jpg', frame, encode_param)
-        data = encoded_frame.tobytes()
-        size = len(data)
-
-        # Sending the serialized frame through the socket
-        print("{}: {}".format(img_counter, size))
-        self.remote_controller.sendall(size.to_bytes(4, byteorder="big"))
-        self.remote_controller.sendall(data)
+        result, encoded_frame = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY),80])
+        buffer = encoded_frame.tobytes()
+        size = len(buffer)
+        
+        # Sending the serialized frame through the socket in chunks
+        max_datagram_size = 4064
+        packets = math.ceil(size / max_datagram_size)
+        self.remote_controller.sendto(packets.to_bytes(4, byteorder="big"))
+        print(f"{packets} packets")
+        
+        for i in range(packets):
+            data = buffer[i*(max_datagram_size):(i+1)*(max_datagram_size)]
+            print(f"sending {len(data)} bytes")
+            self.remote_controller.sendto(data)
 
     def car_setup(self):
         # Sending a reset_signal to the arduino
