@@ -1,22 +1,22 @@
 import RPi.GPIO as GPIO
 import serial
 import time
-import queue
 import struct
 
 class UART_Messenger(serial.Serial):
-    def __init__(self, device, baud_rate, timeout, reset_pin):
+    def __init__(self, device, baud_rate, timeout, reset_pin, mqtt_client=None):
         super().__init__(device, baud_rate, timeout=timeout)
         
         self.reset_pin = reset_pin
         self.reset_input_buffer()
-        self.command_queue = queue.Queue()
         
         self.msg_types = ["RPM", "USS", "IMU", "RES", "ERR", "LOG", "DBG"]
         self.text_msg = [0,0,0,0,1,1,1]
         
-        self.msg_queues = {i:queue.Queue() for i in range(len(self.msg_types))}
-        
+        self.mqtt = False
+        if mqtt_client is not None:
+            self.mqtt = True
+            self.mqtt_client = mqtt_client
  
     def send_reset(self):
         try:
@@ -28,12 +28,6 @@ class UART_Messenger(serial.Serial):
         except Exception as e:
             print(e)
             return False
-        
-    def command_worker(self):
-        while True:
-            # If there are commands in the queue and buffer is free to send
-            if not self.command_queue.empty() and self.out_waiting == 0:
-                self.send_command(self.command_queue.get())
                 
     def message_worker(self):
         while True:
@@ -61,20 +55,24 @@ class UART_Messenger(serial.Serial):
     def fetch_msg(self):
         msg_header = self.read(3)
         msg_type, payload_length = struct.unpack("<BH", msg_header)
-        print(f"type: {msg_type}, length: {payload_length}", end="--- ")
+        #print(f"type: {msg_type}, length: {payload_length}", end="--- ")
         
         payload = self.read(payload_length)
         return msg_type, payload
                 
     def parse_msg(self, msg_type, payload):
         if msg_type == 0x00: # RPM measurement
-                rpm = struct.unpack("<f", payload)
-                print(f"(RPM)->{rpm}")
+            rpm = struct.unpack("<f", payload)[0]
+            #print(f"(RPM)->{rpm}")
+            if self.mqtt:
+                self.mqtt_client.publish(topic=f"RCCAR-RPM", payload=rpm)
             
         elif msg_type == 0x01: # Ultrasonic sensor measurement
             sensor_data = struct.unpack("<Bf", payload)
             side, distance = sensor_data
             print(f"(USS)->{side}: {distance}")
+            if self.mqtt:
+                self.mqtt_client.publish(topic=f"RCCAR-FUSS", payload=distance)
             
         elif msg_type == 0x02: # IMU measurement
             sensor_data = struct.unpack("<6f", payload)
