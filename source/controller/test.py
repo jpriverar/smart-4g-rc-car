@@ -1,16 +1,41 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHeaderView
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, QThread, pyqtSignal
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.uic import loadUi
-import threading
-from remote_controller import RemoteController
-from video_receiver import VideoThread
+import cv2
+import numpy as np
+import socket
 
-sys.path.insert(1, "/home/jprivera/Scripts/smart_4g_car/source/common")
-from socket_relay_client import RelayClientUDP
+class VideoThread(QThread):
+    change_pixmap = pyqtSignal(QImage)
 
+    def run(self):
+        HOST = "192.168.100.18"
+        PORT = 8486
+
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client_socket.connect((HOST, PORT))
+
+        while True:
+            # Getting the size of the image
+            size_data = client_socket.recv(4)
+            size = int.from_bytes(size_data, byteorder="big")
+
+            # Waiting to get the whole image
+            data = b""
+            while len(data) < size:
+                data += client_socket.recv(size - len(data))
+
+            # Decoding the image
+            frame = cv2.imdecode(np.frombuffer(data, dtype=np.uint8), cv2.IMREAD_COLOR)
+
+            # Convert the image to QImage and emit the signal
+            height, width, channel = frame.shape
+            bytesPerLine = 3 * width
+            qImg = QImage(frame.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
+            self.change_pixmap.emit(qImg)
 
 class VentanaPrincipal(QMainWindow):
     def __init__(self):
@@ -87,9 +112,9 @@ class VentanaPrincipal(QMainWindow):
         else:
             print("Back Collision Detection OFF")
 
-    def start_video_stream(self, HOST, PORT):
+    def start_video_stream(self):
         # Create the video thread and connect its signal to the update_image slot
-        self.thread = VideoThread(HOST, PORT)
+        self.thread = VideoThread()
         self.thread.change_pixmap.connect(self.update_image)
         self.thread.start()
 
@@ -100,20 +125,8 @@ class VentanaPrincipal(QMainWindow):
         self.label_video.setPixmap(scaled_pixmap)
 
 if __name__ == '__main__':
-
-    HOST = "3.134.62.14"
-    CONTROL_PORT = 8486
-
-    control_client = RelayClientUDP(HOST, CONTROL_PORT)
-    control_client.sendto("OK".encode())
-
-    controller = RemoteController(dev_path="/dev/input/event8", sender=control_client)
-    controller_thread = threading.Thread(target=controller.read_loop, daemon=True)
-    controller_thread.start()
-
     app = QApplication(sys.argv)
     my_window = VentanaPrincipal()
     my_window.show()
     my_window.start_video_stream()
     sys.exit(app.exec_())
-
