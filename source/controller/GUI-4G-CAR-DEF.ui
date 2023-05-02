@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1148</width>
-    <height>786</height>
+    <width>1121</width>
+    <height>739</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1051,9 +1051,18 @@ QSlider::handle:horizontal{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -1116,9 +1125,18 @@ QSlider::handle:horizontal{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -1184,6 +1202,15 @@ QSlider::handle:horizontal{
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -1334,9 +1361,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -1399,9 +1435,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -1467,6 +1512,15 @@ QSpinBox QAbstractItemView{
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -1611,9 +1665,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -1676,9 +1739,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -1744,6 +1816,15 @@ QSpinBox QAbstractItemView{
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -2205,9 +2286,18 @@ border: 5px solid #111111;
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -2270,9 +2360,18 @@ border: 5px solid #111111;
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -2338,6 +2437,15 @@ border: 5px solid #111111;
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -2485,9 +2593,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -2550,9 +2667,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -2618,6 +2744,15 @@ QSpinBox QAbstractItemView{
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -3102,9 +3237,18 @@ border-radius: 10px;
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -3167,9 +3311,18 @@ border-radius: 10px;
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -3235,6 +3388,15 @@ border-radius: 10px;
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -3388,9 +3550,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -3453,9 +3624,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -3521,6 +3701,15 @@ QSpinBox QAbstractItemView{
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -3668,9 +3857,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -3733,9 +3931,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -3801,6 +4008,15 @@ QSpinBox QAbstractItemView{
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -4068,9 +4284,18 @@ border-radius: 10px;</string>
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -4133,9 +4358,18 @@ border-radius: 10px;</string>
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -4201,6 +4435,15 @@ border-radius: 10px;</string>
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -4348,9 +4591,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -4413,9 +4665,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -4481,6 +4742,15 @@ QSpinBox QAbstractItemView{
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -4628,9 +4898,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -4693,9 +4972,18 @@ QSpinBox QAbstractItemView{
                           <colorrole role="Highlight">
                            <brush brushstyle="SolidPattern">
                             <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
                              <red>0</red>
-                             <green>0</green>
-                             <blue>0</blue>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
@@ -4761,6 +5049,15 @@ QSpinBox QAbstractItemView{
                              <red>0</red>
                              <green>120</green>
                              <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
                             </color>
                            </brush>
                           </colorrole>
