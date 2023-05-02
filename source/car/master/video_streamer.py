@@ -28,19 +28,19 @@ class Video_Streamer:
         
     def get_encoded_frame(self):
         frame = self.cam.capture_array("main")
-        result, encoded_frame = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY),80])
+        result, encoded_frame = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY),50])
         buffer = encoded_frame.tobytes()
         return buffer
         
     def send_encoded_frame(self, buffer):
         # Sending the serialized frame through the socket in chunks
         size = len(buffer)
-        max_datagram_size = 32768
+        max_datagram_size = 65536
         
-        packets = math.ceil(size / max_datagram_size)
-        self.remote_controller.sendto(packets.to_bytes(4, byteorder="big"))
+        #packets = math.ceil(size / max_datagram_size)
+        #self.remote_controller.sendto(packets.to_bytes(4, byteorder="big"))
         
-        for i in range(packets):
-            data = buffer[i*(max_datagram_size):(i+1)*(max_datagram_size)]
-            self.remote_controller.sendto(data)
+        #for i in range(packets):
+            #data = buffer[i*(max_datagram_size):(i+1)*(max_datagram_size)]
+        self.remote_controller.sendto(buffer)
 

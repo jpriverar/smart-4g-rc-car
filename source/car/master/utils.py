@@ -1,35 +1,25 @@
-import time
+def get_config_file_commands(file_path):
+    commands = []
+    config_file = open(file_path, 'r')
+    
+    for line in config_file:
+        command = line.strip()
+        if not command.startswith("#") and command != "":
+            commands.append(command)
+    return commands
 
-def steering_test(uart):
-    print("Starting unit test on steering module")
+def transform_gps_coordinates(coordinates):
+    lat, latDir, lon, lonDir, _, _, _, _, _ = coordinates.split(',')
     
-    def get_current():
-        uart.send_msg("SG")
-        time.sleep(1)
-        return uart.msg_queue.popleft()
+    latDeg = lat[:2]
+    latMin = lat[2:]
+    lonDeg = lon[:3]
+    lonMin = lon[3:]
     
-    passed = 0
-    total = 0
+    finalLat = float(latDeg) + (float(latMin)/60)
+    finalLon = float(lonDeg) + (float(lonMin)/60)
+    if latDir == 'S': finalLat = -finalLat
+    if lonDir == 'W': finalLon = -finalLon
     
-    # Current steer angle
-    msg = get_current()
-    print("Recieved message: " + msg)
+    return finalLat, finalLon
     
-    # Setting to new angle
-    total += 1
-    target = "120"
-    uart.send_msg("SS" + target)
-    time.sleep(0.1)
-    msg = get_current()
-    passed += msg == target
-    
-    # Increasing the current angle
-    total += 1
-    msg = get_current()
-    increase = "10"
-    target = str(int(msg) + int(increase))
-    uart.send_msg("SI" + target)
-    msg = get_current()
-    passed += msg == target
-    
-    print(f"{passed}/{total} Test passed")

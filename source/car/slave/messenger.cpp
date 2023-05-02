@@ -101,7 +101,7 @@ void sendIMUData(IMUData data){
   sendMsg(&msg);
 }
 
-void sendRPM(double data){
+void sendRPM(RPMData data){
   Message msg;
   msg.messageType = 0x00;
   msg.payloadLength = sizeof(data);

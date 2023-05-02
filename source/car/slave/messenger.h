@@ -4,6 +4,7 @@
 #include <SoftwareSerial.h>
 #include "imu.h"
 #include "us_sensor.h"
+#include "speedometer.h"
 
 struct Message{
   uint8_t messageType;
@@ -22,6 +23,6 @@ void sendDebug(String debugText);
 void sendResponse(uint8_t data);
 void sendUSSensorData(USSensorData data);
 void sendIMUData(IMUData data);
-void sendRPM(double data);
+void sendRPM(RPMData data);
 
 #endif /*MESSENGER_H_*/

@@ -5,7 +5,7 @@
 #define BACK_TRIG 4
 #define BACK_ECHO 12
 
-const double VelSon = 34000.0;
+const double VelSon = 34300.0;   // cm/s
 unsigned long defaultTimeout = 10000; //0.008 sec, approx 1 meter go and 1 meter back
 
 void usSensorInit(){

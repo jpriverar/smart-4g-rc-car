@@ -2,6 +2,7 @@
 #define CAMERA_H_
 #include <Arduino.h>
 #include <Servo.h>
+#include "messenger.h"
 
 void cameraInit();
 void cameraConfig(String param, int16_t value);

@@ -1,5 +1,4 @@
 #include "camera.h"
-#include "messenger.h"
 
 #define CAM_PAN_PIN 10
 #define CAM_TILT_PIN 9

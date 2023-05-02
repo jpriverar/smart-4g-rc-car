@@ -46,10 +46,12 @@ void imuInit(){
   devStatus = mpu.dmpInitialize();
 
   // supply your own MPU gyro offsets here, scaled for min sensitivity
-  mpu.setXGyroOffset(95);
-  mpu.setYGyroOffset(80);
-  mpu.setZGyroOffset(31);
-  mpu.setZAccelOffset(1514); // 1688 factory default for my test chip
+  mpu.setXGyroOffset(112);
+  mpu.setYGyroOffset(50);
+  mpu.setZGyroOffset(21);
+  mpu.setXAccelOffset(-1009);
+  mpu.setYAccelOffset(489);
+  mpu.setZAccelOffset(1522); // 1688 factory default for my test chip
 
   // make sure it worked (returns 0 if so)
   if (devStatus == 0) {

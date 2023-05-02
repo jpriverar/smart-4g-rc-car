@@ -1,11 +1,11 @@
 #include "drive.h"
 
-#define FPWM 5
-#define BPWM 6
+#define FPWM 6
+#define BPWM 5
 
 // Maximum allowed drive power
-uint8_t MAX_POWER = 100;
-uint8_t drivePower = 0;
+uint8_t MAX_POWER = 255;
+double drivePower = 0;
 uint8_t onDrive = FPWM; // Forward direction first on
 uint8_t offDrive = BPWM; 
 
@@ -21,7 +21,7 @@ void changeDrivePower(uint8_t power){
 }
 
 void incrementDrivePower(uint8_t power){
-  uint8_t inputValue = drivePower + power;
+  double inputValue = drivePower + power;
   changeDrivePower(inputValue);
 }
 
@@ -67,9 +67,6 @@ void driveConfig(String param, int16_t value = -1){
 void driveInit(){
   pinMode(FPWM, OUTPUT);
   pinMode(BPWM, OUTPUT);
-  
-  // Changing timer frequency for drive PWM, Timer for pins 5&6 to 7.8 kHz
-  //TCCR0B = TCCR0B & 0b11111000 | 0x02; // Prescaler -> 8, 7.8 kHz
 
   changeDriveDirection(1); // Forward- default starting direction
   changeDrivePower(0);
