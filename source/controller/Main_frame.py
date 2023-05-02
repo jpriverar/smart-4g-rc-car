@@ -110,6 +110,75 @@ class VentanaPrincipal(QMainWindow):
         else:
             print("Back Collision Detection OFF")
 
+    # Metodo para leer el slider
+    def slider_one(self,event):
+        self.hSlider_MAX_P.setValue(event)
+        self.label_MAX_P.setText(str(event))
+        slider1 = str(event)
+        print(slider1)
+
+    # Metodos para leer los radio buttons
+    def control_radio1(self):
+        if self.radioButton_FCOLLD.isChecked()==True:
+            print("Front Collision Detection ON")
+        else:
+            print("Front Collision Detection OFF")
+
+    def control_radio2(self):
+        if self.radioButton_BCOLLD.isChecked()==True:
+            print("Back Collision Detection ON")
+        else:
+            print("Back Collision Detection OFF")
+
+    # Metodos para leer las spinBox
+    #Steering
+    def spinS_MAX_valueChange(self):
+        value_S_MAX = self.spinBox_S_MAX.value()
+        print('El valor del Steering MAX es:',value_S_MAX)
+
+    def spinS_CENTER_valueChange(self):
+        value_S_CENTER = self.spinBox_S_CENTER.value()
+        print('El valor del Steering CENTER es:',value_S_CENTER)
+
+    def spinS_MIN_valueChange(self):
+        value_S_MIN = self.spinBox_S_MIN.value()
+        print('El valor del Steering MIN es:',value_S_MIN)
+
+    #Ultrasonic sensor
+    def spinFCOLLD_valueChange(self):
+        value_FCOLLD = self.spinBox_FCOLLD.value()
+        print('El valor del Front Collision Sensor es:',value_FCOLLD)
+
+    def spinBCOLLD_valueChange(self):
+        value_BCOLLD = self.spinBox_BCOLLD.value()
+        print('El valor del Back Collision Sensor es:', value_BCOLLD)
+
+    #PAN camera
+    def spinPAN_MAX_valueChange(self):
+        value_PAN_MAX = self.spinBox_PAN_MAX.value()
+        print('El valor del PAN MAX es:', value_PAN_MAX)
+
+    def spinPAN_CENTER_valueChange(self):
+        value_PAN_CENTER = self.spinBox_PAN_CENTER.value()
+        print('El valor del PAN CENTER es:', value_PAN_CENTER)
+
+    def spinPAN_MIN_valueChange(self):
+        value_PAN_MIN = self.spinBox_PAN_MIN.value()
+        print('El valor del PAN MIN es:', value_PAN_MIN)
+
+    #TILT camera
+    def spinTILT_MAX_valueChange(self):
+        value_TILT_MAX = self.spinBox_TILT_MAX.value()
+        print('El valor del TILT MAX es:', value_TILT_MAX)
+
+    def spinTILT_CENTER_valueChange(self):
+        value_TILT_CENTER = self.spinBox_TILT_CENTER.value()
+        print('El valor del TILT CENTER es:', value_TILT_CENTER)
+
+    def spinTILT_MIN_valueChange(self):
+        value_TILT_MIN = self.spinBox_TILT_MIN.value()
+        print('El valor del TILT MIN es:', value_TILT_MIN)
+
 if __name__ == '__main__':
 
     HOST = "3.134.62.14"
