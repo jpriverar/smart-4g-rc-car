@@ -8,7 +8,7 @@ import threading
 from remote_controller import RemoteController
 from video_receiver import VideoThread
 
-sys.path.insert(1, "/home/jprivera/Scripts/smart_4g_car/source/common")
+sys.path.insert(1, "/home/jp/Projects/smart-4g-rc-car/source/common")
 from socket_relay_client import RelayClientUDP
 
 
@@ -178,6 +178,18 @@ class VentanaPrincipal(QMainWindow):
     def spinTILT_MIN_valueChange(self):
         value_TILT_MIN = self.spinBox_TILT_MIN.value()
         print('El valor del TILT MIN es:', value_TILT_MIN)
+        
+    def start_video_stream(self):
+        # Create the video thread and connect its signal to the update_image slot
+        self.thread = VideoThread()
+        self.thread.change_pixmap.connect(self.update_image)
+        self.thread.start()
+
+    def update_image(self, qImg):
+        # Update the label_video with the new image
+        pixmap = QPixmap.fromImage(qImg)
+        scaled_pixmap = pixmap.scaled(self.label_video.size(), QtCore.Qt.IgnoreAspectRatio)
+        self.label_video.setPixmap(scaled_pixmap)
 
 if __name__ == '__main__':
 
@@ -187,7 +199,7 @@ if __name__ == '__main__':
     control_client = RelayClientUDP(HOST, CONTROL_PORT)
     control_client.sendto("OK".encode())
 
-    controller = RemoteController(dev_path="/dev/input/event8", sender=control_client)
+    controller = RemoteController(dev_path="auto", sender=control_client)
     controller_thread = threading.Thread(target=controller.read_loop, daemon=True)
     controller_thread.start()
 

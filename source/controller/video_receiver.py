@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 import socket
 
-sys.path.insert(1, "/home/jprivera/Scripts/smart_4g_car/source/common")
+sys.path.insert(1, "/home/jp/Projects/smart-4g-rc-car/source/common")
 from socket_relay_client import RelayClientUDP
 
 class VideoThread(QThread):

@@ -63,7 +63,7 @@ class RemoteController(InputDevice):
         self.event_handlers.get((type, code), lambda _: print(f"Handler not defined for {categorize(event)}"))(value)
 
     def a_btn_handler(self, value):
-        pass
+        if value: print("A button pressed")
 
     def b_btn_handler(self, value):
         pass
