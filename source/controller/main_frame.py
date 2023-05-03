@@ -6,14 +6,14 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.uic import loadUi
 import threading
 from remote_controller import RemoteController
-from video_receiver import VideoThread
+from video_receiver import UDPVideoThread
 
-sys.path.insert(1, "/home/jp/Projects/smart-4g-rc-car/source/common")
+sys.path.append("../common")
 from socket_relay_client import RelayClientUDP
 
 
 class VentanaPrincipal(QMainWindow):
-    def __init__(self):
+    def __init__(self, command_sender):
         super(VentanaPrincipal,self).__init__()
         loadUi('GUI-4G-CAR-DEF.ui',self)
 
@@ -68,6 +68,7 @@ class VentanaPrincipal(QMainWindow):
         self.spinBox_TILT_CENTER.valueChanged.connect(self.spinTILT_CENTER_valueChange)
         self.spinBox_TILT_MIN.valueChanged.connect(self.spinTILT_MIN_valueChange)
 
+        self.send_command = command_sender
 
     # Metodo para actualizar ambos textos de las combobox
     def actualizar_texto(self, texto):
@@ -94,94 +95,77 @@ class VentanaPrincipal(QMainWindow):
     def slider_one(self,event):
         self.hSlider_MAX_P.setValue(event)
         self.label_MAX_P.setText(str(event))
-        slider1 = str(event)
-        print(slider1)
+        value = str(event)
+
+        # Changing power percentage to 8-bit integer representation
+        value = int(int(value)*255/100)
+        self.send_command(f"DM{value}\n".encode())
 
     # Metodos para leer los radio buttons
     def control_radio1(self):
         if self.radioButton_FCOLLD.isChecked()==True:
-            print("Front Collision Detection ON")
+            self.send_command(f"FE000\n".encode())
         else:
-            print("Front Collision Detection OFF")
+            self.send_command(f"FD000\n".encode())
 
     def control_radio2(self):
         if self.radioButton_BCOLLD.isChecked()==True:
-            print("Back Collision Detection ON")
+            self.send_command(f"BE000\n".encode())
         else:
-            print("Back Collision Detection OFF")
-
-    # Metodo para leer el slider
-    def slider_one(self,event):
-        self.hSlider_MAX_P.setValue(event)
-        self.label_MAX_P.setText(str(event))
-        slider1 = str(event)
-        print(slider1)
-
-    # Metodos para leer los radio buttons
-    def control_radio1(self):
-        if self.radioButton_FCOLLD.isChecked()==True:
-            print("Front Collision Detection ON")
-        else:
-            print("Front Collision Detection OFF")
-
-    def control_radio2(self):
-        if self.radioButton_BCOLLD.isChecked()==True:
-            print("Back Collision Detection ON")
-        else:
-            print("Back Collision Detection OFF")
+            self.send_command(f"BD000\n".encode())
 
     # Metodos para leer las spinBox
     #Steering
     def spinS_MAX_valueChange(self):
-        value_S_MAX = self.spinBox_S_MAX.value()
-        print('El valor del Steering MAX es:',value_S_MAX)
+        value = self.spinBox_S_MAX.value()
+        self.send_command(f"SM{value}\n".encode())
 
     def spinS_CENTER_valueChange(self):
-        value_S_CENTER = self.spinBox_S_CENTER.value()
-        print('El valor del Steering CENTER es:',value_S_CENTER)
+        value = self.spinBox_S_CENTER.value()
+        self.send_command(f"Sc{value}\n".encode())
 
     def spinS_MIN_valueChange(self):
-        value_S_MIN = self.spinBox_S_MIN.value()
-        print('El valor del Steering MIN es:',value_S_MIN)
+        value = self.spinBox_S_MIN.value()
+        self.send_command(f"Sm{value}\n".encode())
 
     #Ultrasonic sensor
     def spinFCOLLD_valueChange(self):
-        value_FCOLLD = self.spinBox_FCOLLD.value()
-        print('El valor del Front Collision Sensor es:',value_FCOLLD)
+        value = self.spinBox_FCOLLD.value()
+        self.send_command(f"F!{value}\n".encode())
 
     def spinBCOLLD_valueChange(self):
-        value_BCOLLD = self.spinBox_BCOLLD.value()
-        print('El valor del Back Collision Sensor es:', value_BCOLLD)
+        value = self.spinBox_BCOLLD.value()
+        self.send_command(f"B!{value}\n".encode())
 
     #PAN camera
     def spinPAN_MAX_valueChange(self):
-        value_PAN_MAX = self.spinBox_PAN_MAX.value()
-        print('El valor del PAN MAX es:', value_PAN_MAX)
+        value = self.spinBox_PAN_MAX.value()
+        self.send_command(f"PM{value}\n".encode())
 
     def spinPAN_CENTER_valueChange(self):
-        value_PAN_CENTER = self.spinBox_PAN_CENTER.value()
-        print('El valor del PAN CENTER es:', value_PAN_CENTER)
+        value = self.spinBox_PAN_CENTER.value()
+        self.send_command(f"Pc{value}\n".encode())
 
     def spinPAN_MIN_valueChange(self):
-        value_PAN_MIN = self.spinBox_PAN_MIN.value()
-        print('El valor del PAN MIN es:', value_PAN_MIN)
+        value = self.spinBox_PAN_MIN.value()
+        self.send_command(f"Pm{value}\n".encode())
 
     #TILT camera
     def spinTILT_MAX_valueChange(self):
-        value_TILT_MAX = self.spinBox_TILT_MAX.value()
-        print('El valor del TILT MAX es:', value_TILT_MAX)
+        value = self.spinBox_TILT_MAX.value()
+        self.send_command(f"TM{value}\n".encode())
 
     def spinTILT_CENTER_valueChange(self):
-        value_TILT_CENTER = self.spinBox_TILT_CENTER.value()
-        print('El valor del TILT CENTER es:', value_TILT_CENTER)
+        value = self.spinBox_TILT_CENTER.value()
+        self.send_command(f"Tc{value}\n".encode())
 
     def spinTILT_MIN_valueChange(self):
-        value_TILT_MIN = self.spinBox_TILT_MIN.value()
-        print('El valor del TILT MIN es:', value_TILT_MIN)
+        value = self.spinBox_TILT_MIN.value()
+        self.send_command(f"Tm{value}\n".encode())
         
-    def start_video_stream(self):
+    def start_video_stream(self, host, port):
         # Create the video thread and connect its signal to the update_image slot
-        self.thread = VideoThread()
+        self.thread = UDPVideoThread(host, port)
         self.thread.change_pixmap.connect(self.update_image)
         self.thread.start()
 
@@ -195,17 +179,18 @@ if __name__ == '__main__':
 
     HOST = "3.134.62.14"
     CONTROL_PORT = 8486
+    VIDEO_PORT = 8488
 
     control_client = RelayClientUDP(HOST, CONTROL_PORT)
     control_client.sendto("OK".encode())
 
-    controller = RemoteController(dev_path="auto", sender=control_client)
+    controller = RemoteController(dev_path="auto", command_sender=control_client.sendto)
     controller_thread = threading.Thread(target=controller.read_loop, daemon=True)
     controller_thread.start()
 
     app = QApplication(sys.argv)
-    my_window = VentanaPrincipal()
+    my_window = VentanaPrincipal(command_sender=control_client.sendto)
     my_window.show()
-    my_window.start_video_stream()
+    my_window.start_video_stream(HOST, VIDEO_PORT)
     sys.exit(app.exec_())
 

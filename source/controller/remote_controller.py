@@ -4,16 +4,15 @@ import os
 import time
 
 class RemoteController(InputDevice):
-    def __init__(self, dev_path="auto", sender=None):
+    def __init__(self, dev_path, command_sender):
         # Creating the controller event reader
         if dev_path == "auto":
             event_dev = subprocess.run(["ls /dev/input/ | grep event | sort -V | tail -n1"], capture_output=True, text=True, shell=True)
             dev_path = os.path.join("/dev/input", event_dev.stdout.split("\n")[0])
-            print(dev_path)    
-        super().__init__(dev_path)
+            print(f"Using {dev_path} as controller")   
 
-        self.sender = sender
-        
+        super().__init__(dev_path)
+        self.send_command = command_sender
         # controller modes are: DRIVE, MENU, ...
         self.mode = "DRIVE"
         
@@ -70,16 +69,16 @@ class RemoteController(InputDevice):
 
     def x_btn_handler(self, value):
         if value:
-            self.sender.sendto("HH000\n".encode())
+            self.send_command("HH000\n".encode())
         else:
-            self.sender.sendto("HL000\n".encode())
+            self.send_command("HL000\n".encode())
 
     def y_btn_handler(self, value):
         if value:
             if not self.state_values["y_button"]:
-                self.sender.sendto("LH000\n".encode())
+                self.send_command("LH000\n".encode())
             else: 
-                self.sender.sendto("LL000\n".encode())
+                self.send_command("LL000\n".encode())
             self.state_values["y_button"] ^= 1 
 
     def start_btn_handler(self, value):
@@ -99,21 +98,21 @@ class RemoteController(InputDevice):
 
     def left_btn_handler(self, value):
         if value:
-            self.sender.sendto("RD000\n".encode())
+            self.send_command("RD000\n".encode())
             
     def right_btn_handler(self, value):
         if value:
-            self.sender.sendto("RU000\n".encode())
+            self.send_command("RU000\n".encode())
             
     def left_joyBtn_handler(self, value):
         if value:
-            self.sender.sendto("SC000\n".encode())
+            self.send_command("SC000\n".encode())
     
     def right_joyBtn_handler(self, value):
         if value:
             # Center camera
-            self.sender.sendto("PC000\n".encode())
-            self.sender.sendto("TC000\n".encode())
+            self.send_command("PC000\n".encode())
+            self.send_command("TC000\n".encode())
             
             # Start measuring for long press
             self.event_start_time = time.time()
@@ -126,7 +125,7 @@ class RemoteController(InputDevice):
         if abs(value - self.state_values["left_xjoy"]) >= 100:
             value /= 32768
             input_val = int(-value*1024)
-            self.sender.sendto(f"SS{input_val}\n".encode())
+            self.send_command(f"SS{input_val}\n".encode())
             self.state_values["left_xjoy"] = value
 
     def left_yjoy_handler(self, value):
@@ -134,7 +133,7 @@ class RemoteController(InputDevice):
 
     def left_trig_handler(self, value):
         if value > 400:
-            self.sender.sendto(f"DS000\n".encode())
+            self.send_command(f"DS000\n".encode())
         
         self.state_values["left_trig"] = value
 
@@ -144,11 +143,11 @@ class RemoteController(InputDevice):
             input_val = int(-value*1024)
             
             if self.cam_move_mode == "ABS":
-                self.sender.sendto(f"PS{input_val}\n".encode())
+                self.send_command(f"PS{input_val}\n".encode())
     
             elif self.cam_move_mode == "INC":
                 if abs(input_val) < 250: input_val = 0
-                self.sender.sendto(f"PV{input_val}\n".encode())
+                self.send_command(f"PV{input_val}\n".encode())
                 
             self.state_values["right_xjoy"] = value
         
@@ -158,11 +157,11 @@ class RemoteController(InputDevice):
             input_val = int(-value*1024)
             
             if self.cam_move_mode == "ABS":
-                self.sender.sendto(f"TS{input_val}\n".encode())
+                self.send_command(f"TS{input_val}\n".encode())
     
             elif self.cam_move_mode == "INC":
                 if abs(input_val) < 250: input_val = 0
-                self.sender.sendto(f"TV{input_val}\n".encode())
+                self.send_command(f"TV{input_val}\n".encode())
                 
             self.state_values["right_yjoy"] = value
 
@@ -170,18 +169,18 @@ class RemoteController(InputDevice):
         # If not already pressing the break
         if self.state_values["left_trig"] == 0: 
             input_value = int((value/1023)*255)
-            self.sender.sendto(f"DP{input_value}\n".encode())
+            self.send_command(f"DP{input_value}\n".encode())
 
         self.state_values["right_trig"] = value
 
     def x_arrow_handler(self, value):
         if value == 1:
-            self.sender.sendto("PD1024\n".encode())
+            self.send_command("PD1024\n".encode())
         elif value == -1:
-            self.sender.sendto("PI1024\n".encode())
+            self.send_command("PI1024\n".encode())
         
     def y_arrow_handler(self, value):
         if value == 1:
-            self.sender.sendto("TI1024\n".encode())
+            self.send_command("TI1024\n".encode())
         elif value == -1:
-            self.sender.sendto("TD1024\n".encode())
+            self.send_command("TD1024\n".encode())
