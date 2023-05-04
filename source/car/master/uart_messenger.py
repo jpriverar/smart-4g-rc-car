@@ -11,7 +11,7 @@ class UART_Messenger(serial.Serial):
         self.reset_input_buffer()
         
         self.msg_types = ["RPM", "USS", "IMU", "RES", "ERR", "LOG", "DBG"]
-        self.text_msg = [0,0,0,0,1,1,1]
+        self.is_text_msg = [0,0,0,0,1,1,1]
         
         self.mqtt = False
         if mqtt_client is not None:
@@ -52,8 +52,12 @@ class UART_Messenger(serial.Serial):
     def fetch_msg(self):
         msg_header = self.read(3)
         msg_type, payload_length = struct.unpack("<BH", msg_header)
+        print(f"type: {msg_type}, length: {payload_length}")
         
-        payload = self.read(payload_length)
+        if self.is_text_msg[msg_type]:
+            payload = self.readline()
+        else:
+            payload = self.read(payload_length)
         return msg_type, payload
                 
     def parse_msg(self, msg_type, payload):
@@ -79,15 +83,15 @@ class UART_Messenger(serial.Serial):
             print(f"(RES)->{response}")
             
         elif msg_type == 0x04: # Error message
-            error = payload.decode("utf-8").rstrip()
+            error = payload.decode("utf-8").strip()
             print(f"(ERR)->{error}")
             
         elif msg_type == 0x05: # Log message
-            log = payload.decode("utf-8").rstrip()
+            log = payload.decode("utf-8").strip()
             print(f"(LOG)->{log}")
             
         elif msg_type == 0x06: # Debug message
-            debug = payload.decode("utf-8").rstrip()
+            debug = payload.decode("utf-8").strip()
             print(f"(DEBUG)->{debug}")
             
         else:

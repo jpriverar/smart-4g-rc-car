@@ -28,7 +28,7 @@ class Video_Streamer:
         
     def get_encoded_frame(self):
         frame = self.cam.capture_array("main")
-        result, encoded_frame = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY),50])
+        result, encoded_frame = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY),30])
         buffer = encoded_frame.tobytes()
         return buffer
         

@@ -2,9 +2,6 @@
 #define MESSENGER_H_
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-#include "imu.h"
-#include "us_sensor.h"
-#include "speedometer.h"
 
 struct Message{
   uint8_t messageType;
@@ -12,12 +9,31 @@ struct Message{
   void *payload;
 };
 
+struct RPMData{
+  uint8_t gear;
+  double rpm;
+};
+
+struct USSensorData{
+  uint8_t side; //1 for front and 0 for back sensors
+  double distance;
+};
+
+struct IMUData{
+  float yaw;
+  float pitch;
+  float roll;
+  float ax;
+  float ay;
+  float az;
+};
+
 void waitForConnection();
 bool isValidCommand(String command);
 bool isInteger(String input_value);
 void sendMsg(Message *msg);
 void sendText(uint8_t type, String text);
-void sendError(String error);
+void sendError(String errorText);
 void sendLog(String logText);
 void sendDebug(String debugText);
 void sendResponse(uint8_t data);

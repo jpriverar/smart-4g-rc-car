@@ -54,9 +54,9 @@ void sendResponse(uint8_t data){
   sendMsg(&msg);
 }
 
-void sendError(String error){
+void sendError(String errorText){
   uint8_t type = 0x04;
-  sendText(type, error);
+  sendText(type, errorText);
 }
 
 void sendLog(String logText){

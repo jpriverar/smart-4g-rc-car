@@ -1,11 +1,7 @@
 #ifndef US_SENSOR_H_
 #define US_SENSOR_H_
 #include <Arduino.h>
-
-struct USSensorData{
-  uint8_t side; //1 for front and 0 for back sensors
-  double distance;
-};
+#include "messenger.h"
 
 void usSensorInit();
 double measureDistance(uint8_t echoPin, uint8_t triggerPin, unsigned long timeout);

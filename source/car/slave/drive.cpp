@@ -9,7 +9,7 @@ double drivePower = 0;
 uint8_t onDrive = FPWM; // Forward direction first on
 uint8_t offDrive = BPWM; 
 
-void changeDrivePower(uint8_t power){
+void changeDrivePower(uint16_t power){
   if (power > MAX_POWER){power = MAX_POWER;}
 
   // Saving the angle in the steer_angle variable
@@ -20,8 +20,8 @@ void changeDrivePower(uint8_t power){
   analogWrite(offDrive, 0);
 }
 
-void incrementDrivePower(uint8_t power){
-  double inputValue = drivePower + power;
+void incrementDrivePower(uint16_t power){
+  uint8_t inputValue = drivePower + power;
   changeDrivePower(inputValue);
 }
 
@@ -29,7 +29,7 @@ void stopDrive(){
   changeDrivePower(0);
 }
 
-void changeDriveDirection(uint8_t dir){
+void changeDriveDirection(uint16_t dir){
   // Stopping motors before change direction
   stopDrive();
   
@@ -44,24 +44,17 @@ void changeDriveDirection(uint8_t dir){
   }
 }
 
-void driveConfig(String param, int16_t value = -1){
-  // GET parameter value
-  if (value == -1){
-    if (param == "max") Serial.println(MAX_POWER);
-    else Serial.println(F("Unknown steer configuration parameter..."));
-    
+void setMaxDrivePower(uint16_t value){
+  if ((value <= 255) && (value >= 0)){
+    MAX_POWER = value;
+    sendLog(F("Maximum allowed power changed"));
   } else {
-  // SET parameter values
-    if (param == "max"){
-      if (value <= 255){
-        MAX_POWER = value; 
-        Serial.println(F("Maximum allowed power changed..."));
-      } else {
-        MAX_POWER = 255;
-        Serial.println(F("Unvalid value for maximum power, setting to absolute maximum"));
-      }
-    } else Serial.println(F("Unknown steer configuration parameter..."));
+    sendError(F("Invalid value for maximum power"));
   }
+}
+
+uint8_t getMaxDrivePower(){
+  return MAX_POWER;
 }
 
 void driveInit(){
