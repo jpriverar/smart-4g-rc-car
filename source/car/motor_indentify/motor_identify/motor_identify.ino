@@ -24,10 +24,10 @@ const int CHANN_A = 3;
 
 // Values found with experimentation of pwm and rpms for the motor at half capacity
 double input_norm_ref = 100;
-double output_norm_ref = 10000;
+double output_norm_ref = 5000;
 
 // Starting reference and sampling period
-double sample_time = 15000; // Measure for 10 seconds
+double sample_time = 10000; // Measure for 10 seconds
 double T_sample = 1000/100;  // 100 Hz
 
 // Noise percentage relative to the reference
@@ -49,6 +49,7 @@ void setup() {
   // Starting motor rotation
   analogWrite(FPWM, 0);
   analogWrite(BPWM, 0);
+  
 
   wait_start = millis();
   start_time = millis();
