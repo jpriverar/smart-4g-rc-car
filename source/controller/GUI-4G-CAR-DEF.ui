@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1121</width>
+    <width>1137</width>
     <height>739</height>
    </rect>
   </property>
@@ -384,7 +384,7 @@ border-radius:20px;
              <enum>QFrame::Raised</enum>
             </property>
             <property name="currentIndex">
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="page_video">
              <property name="styleSheet">
@@ -724,7 +724,7 @@ border-radius: 10px;
                         </font>
                        </property>
                        <property name="text">
-                        <string>MAX POWER (%)</string>
+                        <string>MAX POWER [%]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -759,7 +759,7 @@ border-radius: 10px;
                         </size>
                        </property>
                        <property name="text">
-                        <string>STEERING MAX (U)</string>
+                        <string>STEERING MAX [°]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -794,7 +794,7 @@ border-radius: 10px;
                         </size>
                        </property>
                        <property name="text">
-                        <string>STEERING CENTER (U)</string>
+                        <string>STEERING CENTER [°]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -829,7 +829,7 @@ border-radius: 10px;
                         </size>
                        </property>
                        <property name="text">
-                        <string>STEERING MIN (U)</string>
+                        <string>STEERING MIN [°]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2127,7 +2127,7 @@ border: 5px solid #111111;
                      <item>
                       <widget class="QLabel" name="label_FCOLLD">
                        <property name="text">
-                        <string>FRONT COLLISION DISTANCE (U)</string>
+                        <string>FRONT COLLISION DISTANCE [cm]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2153,7 +2153,7 @@ border: 5px solid #111111;
                      <item>
                       <widget class="QLabel" name="label_BCOLLD">
                        <property name="text">
-                        <string>BACK COLLISON DISTANCE (U)</string>
+                        <string>BACK COLLISON DISTANCE [cm]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -3083,7 +3083,7 @@ border-radius: 10px;
                         </font>
                        </property>
                        <property name="text">
-                        <string>PAN MAX</string>
+                        <string>PAN MAX [°]</string>
                        </property>
                       </widget>
                      </item>
@@ -3103,7 +3103,7 @@ border-radius: 10px;
                      <item alignment="Qt::AlignLeft">
                       <widget class="QLabel" name="label_PAN_CENTER">
                        <property name="text">
-                        <string>PAN CENTER                        </string>
+                        <string>PAN CENTER [°]                        </string>
                        </property>
                       </widget>
                      </item>
@@ -3123,7 +3123,7 @@ border-radius: 10px;
                      <item>
                       <widget class="QLabel" name="label_PAN_MIN">
                        <property name="text">
-                        <string>PAN MIN</string>
+                        <string>PAN MIN [°]</string>
                        </property>
                       </widget>
                      </item>
@@ -4130,7 +4130,7 @@ border-radius: 10px;</string>
                      <item>
                       <widget class="QLabel" name="label_TILT_MAX">
                        <property name="text">
-                        <string>TILT MAX</string>
+                        <string>TILT MAX [°]</string>
                        </property>
                       </widget>
                      </item>
@@ -4150,7 +4150,7 @@ border-radius: 10px;</string>
                      <item alignment="Qt::AlignLeft">
                       <widget class="QLabel" name="label_TILT_CENTER">
                        <property name="text">
-                        <string>TILT CENTER                        </string>
+                        <string>TILT CENTER [°]                  </string>
                        </property>
                       </widget>
                      </item>
@@ -4170,7 +4170,7 @@ border-radius: 10px;</string>
                      <item>
                       <widget class="QLabel" name="label_TILT_MIN">
                        <property name="text">
-                        <string>TILT MIN</string>
+                        <string>TILT MIN [°]</string>
                        </property>
                       </widget>
                      </item>

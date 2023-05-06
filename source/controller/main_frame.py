@@ -91,6 +91,24 @@ class VentanaPrincipal(QMainWindow):
         elif Right_Gauge_text == "Acc":
             self.label_GUI_text_2.setText("ACC")
 
+    # Metodo para hacer set de los valores recibidos
+    def message_TILT_received(self, client, userdata, message_S_info): # Ejemplo de los parametros
+
+        # En caso de que sea un arreglo
+        values = message_S_info.split(",")
+
+        self.spinBox_S_MIN.setValue(int(values[0]))
+        self.spinBox_S_CENTER.setValue(int(values[1]))
+        self.spinBox_S_MAX.setValue(int(values[2]))
+
+    def message_PAN_received(self, client, userdata, message_PAN_info):
+
+        values = message_PAN_info(",")
+
+        self.spinBox_PAN_MIN.setValue(int(values[0]))
+        self.spinBox_PAN_CENTER.setValue(int(values[1]))
+        self.spinBox_PAN_MAX.setValue(int(values[2]))
+
     # Metodo para leer el slider
     def slider_one(self,event):
         self.hSlider_MAX_P.setValue(event)
@@ -162,7 +180,7 @@ class VentanaPrincipal(QMainWindow):
     def spinTILT_MIN_valueChange(self):
         value = self.spinBox_TILT_MIN.value()
         self.send_command(f"Tm{value}\n".encode())
-        
+
     def start_video_stream(self, host, port):
         # Create the video thread and connect its signal to the update_image slot
         self.thread = UDPVideoThread(host, port)
