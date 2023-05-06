@@ -37,11 +37,11 @@ class SIM7600(serial.Serial):
         self.on = False
         print("Good bye!")
         
-    def send_at(self, command, expected="OK", timeout=0.05):
+    def send_at(self, command, expected="OK", timeout=0.05, debug=False):
         self.recv_buffer = ""
         # Writing the command to the serial port
         self.write((command + "\r\n").encode())
-        print(command) # To verify it's has been sent
+        if debug: print(command) # To verify it's has been sent
         time.sleep(0.05)
         self.fetch_response(expected, timeout)
         

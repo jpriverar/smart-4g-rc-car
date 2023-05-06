@@ -2,11 +2,12 @@ from picamera2 import Picamera2
 import sys
 import cv2
 import math
+import threading
 
 sys.path.insert(1, "/home/jp/Projects/smart-4g-rc-car/source/common")
 from socket_relay_client import RelayClientUDP
 
-class Video_Streamer:
+class VideoStreamer:
     def __init__(self, remote_host, remote_port):
         # Initializing the camera
         self.cam = Picamera2()
@@ -16,19 +17,21 @@ class Video_Streamer:
         # Client for socket relay
         print("Connecting to video relay")
         self.remote_controller = RelayClientUDP(remote_host, remote_port)
-        self.remote_controller.sendto("OK".encode())
-        self.relay_host = remote_host
-        self.relay_port = remote_port
+        self.remote_controller.heartbeat()
         
-    def start(self):
-        self.cam.start()
+    def __stream_loop(self):
         while True:
             buffer = self.get_encoded_frame()
             self.send_encoded_frame(buffer)
         
+    def start(self):
+        self.cam.start()
+        stream_thread = threading.Thread(target=self.__stream_loop, daemon=True)
+        stream_thread.start()
+        
     def get_encoded_frame(self):
         frame = self.cam.capture_array("main")
-        result, encoded_frame = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY),30])
+        result, encoded_frame = cv2.imencode('.jpg', frame, [int(cv2.IMWRITE_JPEG_QUALITY),80])
         buffer = encoded_frame.tobytes()
         return buffer
         

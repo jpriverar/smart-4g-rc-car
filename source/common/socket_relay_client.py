@@ -1,5 +1,7 @@
 import socket
 import select
+import threading
+import time
 from thread_safe_socket import ThreadSafeSocket
 
 class RelayClientTCP:
@@ -76,3 +78,18 @@ class RelayClientUDP:
         else:
             self.host, self.port = address
         self._socket.sendto(data, address)
+        
+    def heartbeat(self):
+        self.sendto("OK".encode())
+        
+    def __keep_alive_loop(self, period=5):
+        while True:
+            self.heartbeat()
+            time.sleep(period)
+            
+    def keep_alive(self):
+        keep_alive_thread = threading.Thread(target=self.__keep_alive_loop, daemon=True)
+        keep_alive_thread.start()
+            
+            
+            

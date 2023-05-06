@@ -9,7 +9,7 @@ sys.path.insert(1, "/home/jp/Projects/smart-4g-rc-car/source/common")
 from socket_relay_client import RelayClientUDP
 from mqtt_client import MQTT_Client
 from uart_messenger import UART_Messenger
-from video_streamer import Video_Streamer
+from video_streamer import VideoStreamer
 from sim7600 import SIM7600
 
 class RC_Car:
@@ -34,23 +34,21 @@ class RC_Car:
         
         # Applying initial configuration file
         #self.apply_configuration("/home/jp/Projects/smart-4g-rc-car/source/car/config.txt")
+        config_values = get_current_configuration(self.slave)
+        print(config_values)
         
         # Control client for socket relay
         print("Connecting to main relay")
         self.remote_controller = RelayClientUDP(remote_host, remote_control_port)
-        self.remote_controller.sendto("OK".encode())
-        self.control_relay_host = remote_host
-        self.control_relay_port = remote_control_port
+        self.remote_controller.keep_alive()
         
         # Video client process
-        self.video_streamer = Video_Streamer(remote_host, remote_video_port)
-        self.video_stream = threading.Thread(target=self.video_streamer.start, daemon=True)
-        self.video_stream.start()
+        self.video_streamer = VideoStreamer(remote_host, remote_video_port)
+        self.video_streamer.start()
         
         # GPS Position Update
         self.gps = SIM7600("/dev/ttyS0", 115200, power_key=6)
-        gps_update_thread = threading.Thread(target=self.gps_update_loop, daemon=True)
-        gps_update_thread.start()
+        self.gps_continuous_update()
         
         self.mqtt_client.publish(topic="RCCAR-CAR-ON", payload="true", qos=1, retain=True)
 
@@ -64,7 +62,6 @@ class RC_Car:
         print("Waiting for all components to be initialized by slave...")
         self.slave.wait_for_message("ready", timeout=10)
             
-        time.sleep(3)
         self.slave.flushInput()
         print("Setup successfull! Slave ready to receive commands...")
         
@@ -73,15 +70,20 @@ class RC_Car:
         for command in commands:
             self.slave.send_command(command)
             
-    def gps_update_loop(self):
+    def __gps_update_loop(self):
         while True:
             try:
                 lat, lon = self.gps.get_gps_coordinates()
                 self.mqtt_client.publish(topic="RCCAR-GPS-COORDS", payload=f'{{ "name":"rc-car", "lat":{lat}, "lon":{lon}, "icon":"arrow", "radius":50 }}', qos=1, retain=True)
+                time_to_sleep = 3
             except:
-                pass
+                time_to_sleep = 15
             finally:
-                time.sleep(3)
+                time.sleep(time_to_sleep)
+    
+    def gps_continuous_update(self):
+        gps_update_thread = threading.Thread(target=self.__gps_update_loop, daemon=True)
+        gps_update_thread.start()
     
     def main_loop(self):
         while True:
@@ -101,7 +103,7 @@ if __name__ == "__main__":
     try:
         car.main_loop()
         
-    except KeyboardInterrupt:
+    except:
         GPIO.cleanup()
     
     

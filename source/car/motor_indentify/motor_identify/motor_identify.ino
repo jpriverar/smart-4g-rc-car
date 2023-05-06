@@ -18,8 +18,8 @@ String output_measurements = "";
 
 // ----------------------------MODIFY THESE VALUES ONLY!!!------------------------//
 // Pin definition
-#define FPWM 5
-#define BPWM 6
+#define FPWM 6
+#define BPWM 5
 const int CHANN_A = 3;
 
 // Values found with experimentation of pwm and rpms for the motor at half capacity
