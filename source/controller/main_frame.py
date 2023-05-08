@@ -14,20 +14,22 @@ from mqtt_client import MQTT_Client
 
 
 class VentanaPrincipal(QMainWindow):
-    spin_pan_max_signal = pyqtSignal(int)
-    spin_pan_center_signal = pyqtSignal(int)
-    spin_pan_min_signal = pyqtSignal(int)
-    spin_tilt_max_signal = pyqtSignal(int)
-    spin_tilt_center_signal = pyqtSignal(int)
-    spin_tilt_min_signal = pyqtSignal(int)
-    spin_steering_max_signal = pyqtSignal(int)
-    spin_steering_center_signal = pyqtSignal(int)
-    spin_steering_min_signal = pyqtSignal(int)
-    slider_drive_power_signal = pyqtSignal(int)
+    mqtt_msg_signal = pyqtSignal(str, int)
 
     def __init__(self, command_sender):
         super(VentanaPrincipal,self).__init__()
         loadUi('GUI-4G-CAR-DEF.ui',self)
+
+        self.widget_setter_func = {"STEER_MAX": self.set_steering_max,
+                                   "STEER_CENTER": self.set_steering_center,
+                                   "STEER_MIN": self.set_steering_min,
+                                   "PAN_MAX": self.set_pan_max,
+                                   "PAN_CENTER": self.set_pan_center,
+                                   "PAN_MIN": self.set_pan_min,
+                                   "TILT_MAX": self.set_tilt_max,
+                                   "TILT_CENTER": self.set_tilt_center,
+                                   "TILT_MIN": self.set_tilt_min,
+                                   "DRIVE_MAX_POWER": self.set_drive_max_power}
 
         # Conexion entre botones
         self.btn_config.clicked.connect(lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_settings))
@@ -80,16 +82,8 @@ class VentanaPrincipal(QMainWindow):
         self.spinBox_TILT_CENTER.valueChanged.connect(self.spinTILT_CENTER_valueChange)
         self.spinBox_TILT_MIN.valueChanged.connect(self.spinTILT_MIN_valueChange)
 
-        self.spin_pan_max_signal.connect(self.set_spin_pan_max)
-        self.spin_pan_center_signal.connect(self.set_spin_pan_center)
-        self.spin_pan_min_signal.connect(self.set_spin_pan_min)
-        self.spin_tilt_max_signal.connect(self.set_spin_tilt_max)
-        self.spin_tilt_center_signal.connect(self.set_spin_tilt_center)
-        self.spin_tilt_min_signal.connect(self.set_spin_tilt_min)
-        self.spin_steering_max_signal.connect(self.set_spin_steering_max)
-        self.spin_steering_center_signal.connect(self.set_spin_steering_center)
-        self.spin_steering_min_signal.connect(self.set_spin_steering_min)
-        self.slider_drive_power_signal.connect(self.set_slider_drive_power)
+        # To update wigets when a new mqtt message is received
+        self.mqtt_msg_signal.connect(self.widget_setter)
 
         self.send_command = command_sender
 
@@ -117,35 +111,47 @@ class VentanaPrincipal(QMainWindow):
         self.mqtt_client.publish(topic="CONTROLLER/STATUS", payload="ON", qos=1, retain=True)
 
     def mqtt_msg_handler(self, topic, msg):
-        if topic == "RCCAR/CONFIG/PAN_MAX":
-            self.spin_pan_max_signal.emit(int(msg))
+        widget_type, widget_name = topic.split("/")[-2:]
 
-        elif topic == "RCCAR/CONFIG/PAN_CENTER":
-            self.spin_pan_center_signal.emit(int(msg))
+        if widget_type == "DATA":
+            print("Not implemented:", widget_name)
 
-        elif topic == "RCCAR/CONFIG/PAN_MIN":
-            self.spin_pan_min_signal.emit(int(msg))
+        elif widget_type == "CONFIG":
+            self.mqtt_msg_signal.emit(widget_name, int(msg))
 
-        elif topic == "RCCAR/CONFIG/TILT_MAX":
-            self.spin_tilt_max_signal.emit(int(msg))
+    def widget_setter(self, widget_name, value):
+        self.widget_setter_func[widget_name](value)
 
-        elif topic == "RCCAR/CONFIG/TILT_CENTER":
-            self.spin_tilt_center_signal.emit(int(msg))
+    def set_pan_max(self, value):
+        self.spinBox_PAN_MAX.setValue(value)
 
-        elif topic == "RCCAR/CONFIG/TILT_MIN":
-            self.spin_tilt_min_signal.emit(int(msg))
+    def set_pan_center(self, value):
+        self.spinBox_PAN_CENTER.setValue(value)
 
-        elif topic == "RCCAR/CONFIG/STEER_MAX":
-            self.spin_steering_max_signal.emit(int(msg))
+    def set_pan_min(self, value):
+        self.spinBox_PAN_MIN.setValue(value)
 
-        elif topic == "RCCAR/CONFIG/STEER_CENTER":
-            self.spin_steering_center_signal.emit(int(msg))
+    def set_tilt_max(self, value):
+        self.spinBox_TILT_MAX.setValue(value)
 
-        elif topic == "RCCAR/CONFIG/STEER_MIN":
-            self.spin_steering_min_signal.emit(int(msg))
+    def set_tilt_center(self, value):
+        self.spinBox_TILT_CENTER.setValue(value)
 
-        elif topic == "RCCAR/CONFIG/DRIVE_POWER_MAX":
-            self.slider_drive_power_signal.emit(int(msg))
+    def set_tilt_min(self, value):
+        self.spinBox_TILT_MIN.setValue(value)
+
+    def set_steering_max(self, value):
+        self.spinBox_S_MAX.setValue(value)
+
+    def set_steering_center(self, value):
+        self.spinBox_S_CENTER.setValue(value)
+
+    def set_steering_min(self, value):
+        self.spinBox_S_MIN.setValue(value)
+
+    def set_drive_max_power(self, value):
+        self.hSlider_MAX_P.setValue(value)
+        self.label_MAX_P.setText(str(value))
 
     # Metodo para actualizar ambos textos de las combobox
     def actualizar_texto(self, texto):
@@ -167,37 +173,6 @@ class VentanaPrincipal(QMainWindow):
             self.label_GUI_text_2.setText("Km/h")
         elif Right_Gauge_text == "Acc":
             self.label_GUI_text_2.setText("ACC")
-
-    def set_spin_pan_max(self, value):
-        self.spinBox_PAN_MAX.setValue(value)
-
-    def set_spin_pan_center(self, value):
-        self.spinBox_PAN_CENTER.setValue(value)
-
-    def set_spin_pan_min(self, value):
-        self.spinBox_PAN_MIN.setValue(value)
-
-    def set_spin_tilt_max(self, value):
-        self.spinBox_TILT_MAX.setValue(value)
-
-    def set_spin_tilt_center(self, value):
-        self.spinBox_TILT_CENTER.setValue(value)
-
-    def set_spin_tilt_min(self, value):
-        self.spinBox_TILT_MIN.setValue(value)
-
-    def set_spin_steering_max(self, value):
-        self.spinBox_S_MAX.setValue(value)
-
-    def set_spin_steering_center(self, value):
-        self.spinBox_S_CENTER.setValue(value)
-
-    def set_spin_steering_min(self, value):
-        self.spinBox_S_MIN.setValue(value)
-
-    def set_slider_drive_power(self, value):
-        self.hSlider_MAX_P.setValue(value)
-        self.label_MAX_P.setText(str(value))
 
     # Metodo para leer el slider
     def slider_one(self,event):
