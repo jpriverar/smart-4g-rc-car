@@ -65,20 +65,20 @@ class RemoteController(InputDevice):
         if value: print("A button pressed")
 
     def b_btn_handler(self, value):
-        pass
+        self.send_command("DS000\n".encode())
 
     def x_btn_handler(self, value):
         if value:
-            self.send_command("HH000\n".encode())
+            self.send_command("H1000\n".encode())
         else:
-            self.send_command("HL000\n".encode())
+            self.send_command("H0000\n".encode())
 
     def y_btn_handler(self, value):
         if value:
             if not self.state_values["y_button"]:
-                self.send_command("LH000\n".encode())
+                self.send_command("L1000\n".encode())
             else: 
-                self.send_command("LL000\n".encode())
+                self.send_command("L0000\n".encode())
             self.state_values["y_button"] ^= 1 
 
     def start_btn_handler(self, value):
@@ -98,11 +98,11 @@ class RemoteController(InputDevice):
 
     def left_btn_handler(self, value):
         if value:
-            self.send_command("RD000\n".encode())
+            self.send_command("VD000\n".encode())
             
     def right_btn_handler(self, value):
         if value:
-            self.send_command("RU000\n".encode())
+            self.send_command("VU000\n".encode())
             
     def left_joyBtn_handler(self, value):
         if value:
@@ -132,8 +132,7 @@ class RemoteController(InputDevice):
         pass
 
     def left_trig_handler(self, value):
-        if value > 400:
-            self.send_command(f"DS000\n".encode())
+        self.send_command(f"VB{value}\n".encode())
         
         self.state_values["left_trig"] = value
 
@@ -166,10 +165,7 @@ class RemoteController(InputDevice):
             self.state_values["right_yjoy"] = value
 
     def right_trig_handler(self, value):
-        # If not already pressing the break
-        if self.state_values["left_trig"] == 0: 
-            input_value = int((value/1023)*255)
-            self.send_command(f"DP{input_value}\n".encode())
+        self.send_command(f"VG{value}\n".encode())
 
         self.state_values["right_trig"] = value
 

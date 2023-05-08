@@ -1,15 +1,15 @@
 %% From the squared error method, the obtained plant approximation
-G = tf([0.07526 0.02277], [1 -0.7033 -0.1679], 0.01);
+G = tf([0.1441 -0.1241], [1 -0.8606 -0.1211], 0.01);
 step(G)
 
 %% Getting the cut-off frequency of the plant
 bode(G)
 
-wc = 4.4; % rad/s
+wc = 2; % rad/s
 fc = wc/(2*pi);
 
 % Sampling frequency 5-8 times the cut-off frequency
-fs = 5*fc;
+fs = 8*fc;
 ts = 1/fs;
 
 %% Rewriting the plant with the new sampling period
