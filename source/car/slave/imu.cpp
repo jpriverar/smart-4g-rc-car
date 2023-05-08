@@ -38,7 +38,7 @@ void imuInit(){
   pinMode(MPU_INTERRUPT_PIN, INPUT);
 
   // verify MPU connection
-  Serial.println(F("Testing device connections..."));
+  //Serial.println(F("Testing device connections..."));
   Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
 
   // load and configure the MPU DMP
@@ -56,17 +56,17 @@ void imuInit(){
   // make sure it worked (returns 0 if so)
   if (devStatus == 0) {
       // Calibration Time: generate offsets and calibrate our MPU6050
-      mpu.CalibrateAccel(6);
-      mpu.CalibrateGyro(6);
+      //mpu.CalibrateAccel(6);
+      //mpu.CalibrateGyro(6);
       mpu.PrintActiveOffsets();
       // turn on the DMP, now that it's ready
-      Serial.println(F("Enabling DMP..."));
+      //Serial.println(F("Enabling DMP..."));
       mpu.setDMPEnabled(true);
 
       // enable Arduino interrupt detection
-      Serial.print(F("Enabling interrupt detection (Arduino external interrupt "));
-      Serial.print(digitalPinToInterrupt(MPU_INTERRUPT_PIN));
-      Serial.println(F(")..."));
+      //Serial.print(F("Enabling interrupt detection (Arduino external interrupt "));
+      //Serial.print(digitalPinToInterrupt(MPU_INTERRUPT_PIN));
+      //Serial.println(F(")..."));
       attachInterrupt(digitalPinToInterrupt(MPU_INTERRUPT_PIN), dmpDataReady, RISING);
       mpuIntStatus = mpu.getIntStatus();
 

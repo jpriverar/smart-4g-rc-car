@@ -1,3 +1,7 @@
+#include <Servo.h>
+
+#define STEER_PIN 11
+
 // Starting values for intermediate variables
 int A_count = 0;
 double start_time = 0;
@@ -27,12 +31,14 @@ double input_norm_ref = 100;
 double output_norm_ref = 5000;
 
 // Starting reference and sampling period
-double sample_time = 10000; // Measure for 10 seconds
-double T_sample = 1000/100;  // 100 Hz
+double sample_time = 20000; // Measure for 20 seconds
+double T_sample = 1000/50;  // 100 Hz
 
 // Noise percentage relative to the reference
 double noise_percentage = 0.00; 
 //-------------------------------------------------------------------------------//
+
+Servo steerServo;
 
 void setup() {
   // Initialize Serial
@@ -49,6 +55,10 @@ void setup() {
   // Starting motor rotation
   analogWrite(FPWM, 0);
   analogWrite(BPWM, 0);
+
+  pinMode(STEER_PIN, OUTPUT);
+  steerServo.attach(STEER_PIN);
+  steerServo.write(80);
   
 
   wait_start = millis();
@@ -62,6 +72,7 @@ void loop() {
   /* If sample time is finished */
   if (curr_time - start_time > sample_time){
     Serial.print("Done");
+    analogWrite(FPWM, 0);
     while(1){}
   }
 
@@ -75,7 +86,7 @@ void loop() {
     on ^= 1;
     
     // Setting time for the new period and then update start time
-    time_to_wait = random(200, 1200);
+    time_to_wait = (on)? random(1000, 5000) : random(500, 2500);
     wait_start = millis();
   }
   

@@ -6,27 +6,28 @@ GearSpeed gearSpeeds[7];
 void gearboxInit(){
   // Reverse
   gearSpeeds[0].min_rpm = 0;
-  gearSpeeds[0].max_rpm = 5000;
+  gearSpeeds[0].max_rpm = 1500;
   
   // Forward gears
   gearSpeeds[1].min_rpm = 0;
-  gearSpeeds[1].max_rpm = 4000;
+  gearSpeeds[1].max_rpm = 1000;
   
-  gearSpeeds[2].min_rpm = 3500;
-  gearSpeeds[2].max_rpm = 8000;
+  gearSpeeds[2].min_rpm = 900;
+  gearSpeeds[2].max_rpm = 2000;
   
-  gearSpeeds[3].min_rpm = 7000;
-  gearSpeeds[3].max_rpm = 12000;
+  gearSpeeds[3].min_rpm = 1900;
+  gearSpeeds[3].max_rpm = 3000;
   
-  gearSpeeds[4].min_rpm = 11000;
-  gearSpeeds[4].max_rpm = 16000;
+  gearSpeeds[4].min_rpm = 2800;
+  gearSpeeds[4].max_rpm = 4000;
   
-  gearSpeeds[5].min_rpm = 15000;
-  gearSpeeds[5].max_rpm = 20000;
+  gearSpeeds[5].min_rpm = 3800;
+  gearSpeeds[5].max_rpm = 5000;
   
-  gearSpeeds[6].min_rpm = 18500;
-  gearSpeeds[6].max_rpm = 30000;
+  gearSpeeds[6].min_rpm = 4700;
+  gearSpeeds[6].max_rpm = 6000;
 }
+
 
 uint8_t gear = 1;
 

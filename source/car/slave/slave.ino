@@ -40,9 +40,7 @@ double IMU_updateTime = 500;
 // Speed control variables
 bool followReference = false;
 double PID_lastSample;
-double PID_samplePeriod = 1000/3.5014; //3.5014 Hz
-
-// To measure the current time
+double PID_samplePeriod = 1000/2.5465; //2.5465 Hz
 double currTime;
 
 void setup() {
@@ -131,7 +129,10 @@ void loop() {
     sendRPM(data);
 
     // Updating PID output
-    if (followReference) updatePIDOutput();    
+    if (followReference){
+      updatePIDReference();
+      updatePIDOutput();    
+    }
     
     PID_lastSample = millis();
     resetCount();
@@ -158,6 +159,8 @@ void parse_message(String msg){
       performCamTiltAction(action, input_value); break;
     case 'D':
       performDriveAction(action, input_value); break;
+    case 'V':
+      performVelocityAction(action, input_value); break;
     case 'F':
       performFrontUSSAction(action, input_value); break;
     case 'B':
@@ -271,6 +274,22 @@ void performDriveAction(char action, uint16_t value){
   }
 }
 
+void performVelocityAction(char action, uint16_t value){
+  followReference = true;
+  switch(action){
+    case 'R':
+      setPIDReference(value); break;
+    case 'G':
+      setGasPedal(value); break;
+    case 'B':
+      setBreakPedal(value); break;
+    case 'U':
+      shiftGearUp(); break;
+    case 'D':
+      shiftGearDown(); break;
+  }
+}
+
 void performFrontUSSAction(char action, uint16_t value){
   switch(action){
     case 'O':
@@ -327,82 +346,3 @@ void performIMUAction(char action, uint16_t value){
       IMU_updateTime = value; IMU_lastUpdate = millis(); break;
   }
 }
-
-  /*
-  if (command == "SS"){setSteerAngle(input_value);}
-  else if (command == "SI"){incrementSteerAngle(input_value);}
-  else if (command == "SD"){incrementSteerAngle(-input_value);}
-  else if (command == "SC"){centerSteerAngle();}
-  else if (command == "SX"){setSteerMax(input_value);}
-  else if (command == "SY"){setSteerCenter(input_value);}
-  else if (command == "SZ"){setSteerMin(input_value);}
-  else if (command == "SM"){sendResponse(getSteerMax());}
-  else if (command == "Sc"){sendResponse(getSteerCenter());}
-  else if (command == "Sm"){sendResponse(getSteerMin());}
-  
-  else if (command == "PS"){setPanAngle(input_value);}
-  else if (command == "PI"){incrementPanAngle(input_value);}
-  else if (command == "PD"){incrementPanAngle(-input_value);}
-  else if (command == "PC"){centerPanAngle();}
-  else if (command == "PX"){setPanMax(input_value);}
-  else if (command == "PY"){setPanCenter(input_value);}
-  else if (command == "PZ"){setPanMin(input_value);}
-  else if (command == "PM"){sendResponse(getPanMax());}
-  else if (command == "Pc"){sendResponse(getPanCenter());}
-  else if (command == "Pm"){sendResponse(getPanMin());}
-  
-  else if (command == "TS"){setTiltAngle(input_value);}
-  else if (command == "TI"){incrementTiltAngle(input_value);}
-  else if (command == "TD"){incrementTiltAngle(-input_value);}
-  else if (command == "TC"){centerTiltAngle();}
-  else if (command == "TX"){setTiltMax(input_value);}
-  else if (command == "TY"){setTiltCenter(input_value);}
-  else if (command == "TZ"){setTiltMin(input_value);}
-  else if (command == "TM"){sendResponse(getTiltMax());}
-  else if (command == "Tc"){sendResponse(getTiltCenter());}
-  else if (command == "Tm"){sendResponse(getTiltMin());}
-
-  else if (command == "DP"){followReference = false; changeDrivePower(input_value);}
-  else if (command == "DI"){incrementDrivePower(input_value);}
-  else if (command == "DD"){incrementDrivePower(-input_value);}
-  else if (command == "DS"){followReference = false; stopDrive();}
-  else if (command == "DC"){changeDriveDirection(input_value);}
-  else if (command == "Ds"){setMaxDrivePower(input_value);}
-  else if (command == "Dg"){sendResponse(getMaxDrivePower());}
-  
-  else if (command == "FO"){USSensorData data = measureFrontDistance(); sendUSSensorData(data);}
-  else if (command == "FC"){frontUsReading=true;}
-  else if (command == "FS"){frontUsReading=false;}
-  else if (command == "FT"){frontUS_readTime = input_value; frontUS_lastMeasure = millis();}
-  else if (command == "FU"){frontUS_updateTime = input_value; frontUS_lastUpdate = millis();}
-  else if (command == "BO"){USSensorData data = measureBackDistance(); sendUSSensorData(data);}
-  else if (command == "BC"){backUsReading=true;}
-  else if (command == "BS"){backUsReading=false;}
-  else if (command == "BT"){backUS_readTime = input_value; backUS_lastMeasure = millis();}
-  else if (command == "BU"){backUS_updateTime = input_value; backUS_lastUpdate = millis();}
-
-  else if (command == "Ic"){sendLog("Calibration function not implemented yet...");}
-  else if (command == "IO"){IMUData data = compute6dof(); sendIMUData(data);}
-  else if (command == "IC"){readImu = true;}
-  else if (command == "IS"){readImu = false;}
-  else if (command == "IT"){imu_readTime = input_value; imu_lastMeasure = millis();}
-  else if (command == "IU"){imu_updateTime = input_value; imu_lastUpdate = millis();}
-
-  else if (command == "FE"){frontCollision=true;}
-  else if (command == "FD"){frontCollision=false;}
-  else if (command == "Fd"){frontStopDist = input_value;}
-  else if (command == "BE"){backCollision=true;}
-  else if (command == "BD"){backCollision=false;}
-  else if (command == "Bd"){backStopDist = input_value;}
-
-  else if (command == "RR"){followReference = true; setPIDReference((double)input_value);}
-  else if (command == "RU"){shiftGearUp();}
-  else if (command == "RD"){shiftGearDown();}
-
-  else if (command == "LH"){digitalWrite(LIGHT_PIN, HIGH);}
-  else if (command == "LL"){digitalWrite(LIGHT_PIN, LOW);}
-  else if (command == "HH"){digitalWrite(BUZZER_PIN, HIGH);}
-  else if (command == "HL"){digitalWrite(BUZZER_PIN, LOW);}
-      
-  else {sendLog("Unknown command " + command);}
-  */
