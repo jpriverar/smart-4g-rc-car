@@ -20,7 +20,7 @@ class UDPVideoThread(QThread):
     
     def run(self):
         video_client = RelayClientUDP(self.host, self.port)
-        video_client.sendto("OK".encode())
+        video_client.keep_alive()
 
         max_datagram_size = 65536
         while True:
