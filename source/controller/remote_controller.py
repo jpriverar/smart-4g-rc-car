@@ -111,7 +111,8 @@ class RemoteController(InputDevice):
             self.publish_mqtt(topic="RCCAR/CMD/SETUP", payload="1", qos=2) # 1 is just a dummy value, to send the signal
 
     def record_btn_handler(self, value):
-        pass
+        if value:
+            self.publish_mqtt(topic="RCCAR/CMD/SAVE_CONFIG", payload="1", qos=2)
 
     def left_btn_handler(self, value):
         if value:

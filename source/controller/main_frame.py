@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHeaderView
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, pyqtSignal
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, pyqtSignal, QSize
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.uic import loadUi
@@ -29,6 +29,11 @@ class GUI(QMainWindow):
                                    "TILT_CENTER": self.set_tilt_center,
                                    "TILT_MIN": self.set_tilt_min,
                                    "DRIVE_MAX_POWER": self.set_drive_max_power}
+        
+        self.label_video.setContentsMargins(0, 0, 0, 0)  # Set the margin to zero
+        self.label_video.setStyleSheet("padding: 0px;")  # Set the padding to zero
+        self.label_video.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+        self.label_video.setFixedSize(self.frame_video.width(), self.frame_video.height())
 
         # Conexion entre botones
         self.btn_config.clicked.connect(lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_settings))
@@ -93,7 +98,7 @@ class GUI(QMainWindow):
     def update_image(self, qImg):
         # Update the label_video with the new image
         pixmap = QPixmap.fromImage(qImg)
-        scaled_pixmap = pixmap.scaled(self.label_video.size(), QtCore.Qt.IgnoreAspectRatio)
+        scaled_pixmap = pixmap.scaled(self.label_video.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
         self.label_video.setPixmap(scaled_pixmap)
 
     def init_remote_control(self, remote_host, control_port):
