@@ -44,4 +44,3 @@ while True:
     
 cam.stop()
 cv2.destroyAllWindows()
-      

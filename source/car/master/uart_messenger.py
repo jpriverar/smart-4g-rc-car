@@ -13,6 +13,17 @@ class UART_Messenger(serial.Serial):
         
         self.response_queue = queue.Queue()
         
+        self.param_command_dict = {"STEER_MAX":("Sx","SM"),
+                      "STEER_CENTER":("Sr","Sc"),
+                      "STEER_MIN":("Sn","Sm"),
+                      "PAN_MAX":("Px","PM"),
+                      "PAN_CENTER":("Pr","Pc"),
+                      "PAN_MIN":("Pn","Pm"),
+                      "TILT_MAX":("Tx","TM"),
+                      "TILT_CENTER":("Tr","Tc"),
+                      "TILT_MIN":("Tn","Tm"),
+                      "DRIVE_MAX_POWER":("Dg","Ds")}
+        
         self.msg_types = ["RPM", "USS", "IMU", "RES", "ERR", "LOG", "DBG"]
         self.is_text_msg = [0,0,0,0,1,1,1]
          
@@ -23,8 +34,8 @@ class UART_Messenger(serial.Serial):
                 
     def get_msg(self):
         if self.in_waiting > 3: #Header for each message is 3 bytes
-            msg_type, payload = self.__fetch_msg()
             try:
+                msg_type, payload = self.__fetch_msg()
                 msg = self.__parse_msg(msg_type, payload)
                 return msg
             
@@ -32,6 +43,13 @@ class UART_Messenger(serial.Serial):
                 print("Error parsing message: " + str(e))
                 self.flushInput()
                 return None
+            
+    def get_current_configuration(self):
+        configuration_values = {}
+        for param, (command, _) in self.param_command_dict.items():
+            self.send_command(command)
+            configuration_values[param] = self.get_response()
+        return configuration_values
     
     def send_command(self, command, encoded=False):
         if command == "": return
@@ -59,8 +77,8 @@ class UART_Messenger(serial.Serial):
         return msg_type, payload
                 
     def __parse_msg(self, msg_type, payload):
-        topic = self.msg_types[msg_type
-                               ]
+        topic = self.msg_types[msg_type]
+        
         if msg_type == 0x00: # RPM measurement
             gear, rpm = struct.unpack("<Bf", payload)
             return topic, (gear, rpm)
@@ -84,16 +102,16 @@ class UART_Messenger(serial.Serial):
         elif msg_type == 0x04: # Error message
             error = payload.decode("utf-8").strip()
             # Log the error to log file
-            print(f"(topic)->{error}")
+            print(f"({topic})->{error}")
             
         elif msg_type == 0x05: # Log message
             log = payload.decode("utf-8").strip()
             # Log the log message to log file
-            print(f"(topic)->{log}")
+            print(f"({topic})->{log}")
             
         elif msg_type == 0x06: # Debug message
             debug = payload.decode("utf-8").strip()
-            print(f"(topic)->{debug}")
+            print(f"({topic})->{debug}")
             
         else:
             print(f"Unknown message type")
