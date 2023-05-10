@@ -1,5 +1,8 @@
+#! /usr/bin/python
+
 import socket
 import select
+import argparse
 
 def start_server(host, car_port, controller_port):
     # Creating the socket objects
@@ -17,11 +20,13 @@ def start_server(host, car_port, controller_port):
 
 if __name__ == "__main__":
 
-    HOST = ''
-    CAR_PORT = 8485
-    CONTROLLER_PORT = 8486
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--car", type=int, required=True)
+    parser.add_argument("--controller", type=int, required=True)
+    args = parser.parse_args()
 
-    car_socket, controller_socket = start_server(HOST, CAR_PORT, CONTROLLER_PORT)
+    HOST = ''
+    car_socket, controller_socket = start_server(HOST, args.car, args.controller)
 
     car_address = None
     controller_address = None
@@ -33,7 +38,7 @@ if __name__ == "__main__":
 
         for sock in ready_to_read:
             if sock == car_socket:
-                data, car_address = car_socket.recvfrom(4064)
+                data, car_address = car_socket.recvfrom(65536)
                 print(f"Got {len(data)} bytes of data from {car_address}")
                 if controller_address:
                     controller_socket.sendto(data, controller_address)
