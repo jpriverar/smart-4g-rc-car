@@ -276,6 +276,7 @@ if __name__ == '__main__':
     gui.init_MQTT(HOST)
     gui.init_remote_control(HOST, CONTROL_PORT)
     gui.init_video_stream(HOST, VIDEO_PORT)
+    gui.showMaximized()
     gui.show()
     sys.exit(app.exec_())
 
