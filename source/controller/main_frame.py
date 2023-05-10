@@ -98,7 +98,7 @@ class GUI(QMainWindow):
     def update_image(self, qImg):
         # Update the label_video with the new image
         pixmap = QPixmap.fromImage(qImg)
-        scaled_pixmap = pixmap.scaled(self.label_video.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        scaled_pixmap = pixmap.scaled(self.label_video.size(), QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
         self.label_video.setPixmap(scaled_pixmap)
 
     def init_remote_control(self, remote_host, control_port):
