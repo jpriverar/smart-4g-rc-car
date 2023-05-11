@@ -9,17 +9,17 @@ double norm_input = 0;
 
 // ----------------------------MODIFY THESE VALUES ONLY!!!------------------------//
 // Pin definition
-#define FPWM 5
-#define BPWM 6
+#define FPWM 6
+#define BPWM 5
 const int CHANN_A = 3;
 
 // Values found with experimentation of pwm and rpms for the motor at half capacity
 double input_norm_ref = 100;
-double output_norm_ref = 10000;
+double output_norm_ref = 5000;
 
 // Starting reference and sampling period
 double ref = 0;
-double T_sample = 1000/3.5014;  // 3.5014 Hz
+double T_sample = 1000/5; //2.5465;  // 3.5014 Hz
 
 // Noise percentage relative to the reference
 double noise_percentage = 0.00; 
@@ -76,7 +76,7 @@ void loop() {
   e = r - y;
   
   // Compute the required input to the system
-  u = 1.1835*e - 0.056441*e1 + 0.000497*e2 + u1;// Ecuacion en diferencias
+  u = 2.0448*e - 0.41325408*e1 - 0.08112*e2 + u1;// Ecuacion en diferencias
 
   // Change value from normalized to PWM
   input_val = u*input_norm_ref; // from 0 to 255

@@ -6,7 +6,10 @@
 #include "messenger.h"
 
 void speedometerInit();
+void setGasPedal(uint16_t value);
+void setBreakPedal(uint16_t value);
 void setPIDReference(double value);
+void updatePIDReference();
 void updatePIDOutput();
 void increaseCount();
 void resetCount();

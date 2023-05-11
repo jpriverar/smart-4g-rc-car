@@ -3,8 +3,6 @@ import uuid, random, string
 
 class MQTT_Client(mqtt.Client):
     def __init__(self):
-        # To store messages from subcriptions
-        self.messages = dict()
         # Creating a unique client id
         self.id = self.__generate_client_id()
         # Creating client object with the id
@@ -14,16 +12,13 @@ class MQTT_Client(mqtt.Client):
         self.on_connect = self.__on_connect
         self.on_disconnect = self.__on_disconnect
         self.on_message = self.__on_message
+        self.msg_handler = print
 
     def connect(self, broker_address):
         if len(broker_address) != 0:
             self.broker_address = broker_address
 
         super().connect(self.broker_address)
-        
-    def subscribe(self, topic):
-        self.messages[topic] = 'None'
-        super().subscribe(topic)
 
     def __generate_client_id(self):
         # Making a client_id 23 characters long
@@ -34,8 +29,7 @@ class MQTT_Client(mqtt.Client):
     def __on_message(self, client, userdata, msg):
         topic = msg.topic
         m_decode = str(msg.payload.decode("utf-8", "ignore"))
-        self.messages[topic] = m_decode
-        print(f'{topic} message recieved: {m_decode}')
+        self.msg_handler(topic, m_decode)
 
     def __on_connect(self, client, userdata, flags, rc):
         if rc:
@@ -48,21 +42,3 @@ class MQTT_Client(mqtt.Client):
             print(f"A problem occured, could not disconnect from the broker: {self.broker_address}")
         else:
             print(f"Succesfully disconnected from broker: {self.broker_address}")
-            
-if __name__ == "__main__":
-    broker = "3.134.62.14"
-    
-    print("Starting connection with broker...")
-    client = MQTT_Client()
-    client.connect(broker)
-    client.loop_start()
-    print("Connected!")
-    
-    client.subscribe("RC-CAR-POSITION")
-    
-    try:
-        while True:
-            pass
-    except:
-        client.disconnect()
-    

@@ -1,32 +1,21 @@
-def get_config_file_commands(file_path):
+def get_file_commands(file_path):
     commands = []
-    config_file = open(file_path, 'r')
+    commands_file = open(file_path, 'r')
     
-    for line in config_file:
+    for line in commands_file:
         command = line.strip()
         if not command.startswith("#") and command != "":
             commands.append(command)
+            
+    commands_file.close()
     return commands
 
-def get_current_configuration(messenger):
-    configuration_values = {}
+def save_configuration(config, config_file_path):    
+    config_file = open(config_file_path, "w")
     
-    command_param_pairs = [("Sx", "STEER_MAX"),
-                           ("Sr", "STEER_CENTER"),
-                           ("Sn", "STEER_MIN"),
-                           ("Px", "PAN_MAX"),
-                           ("Pr", "PAN_CENTER"),
-                           ("Pn", "PAN_MIN"),
-                           ("Tx", "TILT_MAX"),
-                           ("Tr", "TILT_CENTER"),
-                           ("Tn", "TILT_MIN"),
-                           ("Dg", "DRIVE_MAX_POWER")]
-    
-    for command, param in command_param_pairs:
-        messenger.send_command(command)
-        configuration_values[param] = messenger.get_response()
-    return configuration_values
-    
+    for param, value in config.items():
+        config_file.write(f"{param}:{value}\n")
+    config_file.close()
 
 def transform_gps_coordinates(coordinates):
     lat, latDir, lon, lonDir, _, _, _, _, _ = coordinates.split(',')

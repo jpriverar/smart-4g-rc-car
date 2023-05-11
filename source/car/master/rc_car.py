@@ -5,7 +5,7 @@ from multiprocessing import Process
 import time
 import sys
 
-sys.path.insert(1, "/home/jp/Projects/smart-4g-rc-car/source/common")
+sys.path.append("../../common")
 from socket_relay_client import RelayClientUDP
 from mqtt_client import MQTT_Client
 from uart_messenger import UART_Messenger
@@ -18,41 +18,17 @@ class RC_Car:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(slave_reset_pin, GPIO.OUT)
         
-        # Client for mqtt broker
-        self.mqtt_client = MQTT_Client()
-        self.mqtt_client.will_set(topic="RCCAR-CAR-ON", payload="false", qos=1, retain=True)
-        self.mqtt_client.connect(remote_host)
-        self.mqtt_client.loop_start()
-
         # Creating arduino comms instance
-        self.slave = UART_Messenger(uart_path, uart_baudrate, timeout=1, reset_pin=slave_reset_pin, mqtt_client=self.mqtt_client)
+        self.slave = UART_Messenger(uart_path, uart_baudrate, timeout=1, reset_pin=slave_reset_pin)
         self.car_setup()
+    
+        self.remote_host = remote_host
+        self.remote_control_port = remote_control_port
+        self.remote_video_port = remote_video_port        
         
-        # Worker to fetch msg from arduino and process accordingly
-        message_worker_thread = threading.Thread(target=self.slave.message_worker, daemon=True)
-        message_worker_thread.start()
-        
-        # Applying initial configuration file
-        #self.apply_configuration("/home/jp/Projects/smart-4g-rc-car/source/car/config.txt")
-        config_values = get_current_configuration(self.slave)
-        print(config_values)
-        
-        # Control client for socket relay
-        print("Connecting to main relay")
-        self.remote_controller = RelayClientUDP(remote_host, remote_control_port)
-        self.remote_controller.keep_alive()
-        
-        # Video client process
-        self.video_streamer = VideoStreamer(remote_host, remote_video_port)
-        self.video_streamer.start()
-        
-        # GPS Position Update
-        self.gps = SIM7600("/dev/ttyS0", 115200, power_key=6)
-        self.gps_continuous_update()
-        
-        self.mqtt_client.publish(topic="RCCAR-CAR-ON", payload="true", qos=1, retain=True)
-
     def car_setup(self):
+        self.slave_ready = False
+        
         print("Resetting slave")
         self.slave.send_reset()
 
@@ -65,16 +41,78 @@ class RC_Car:
         self.slave.flushInput()
         print("Setup successfull! Slave ready to receive commands...")
         
-    def apply_configuration(self, config_file_path):
-        commands = get_config_file_commands(config_file_path)
+        print("Applying saved configuration")
+        self.apply_configuration_file("../saved.conf")
+        
+        print("Running startup commands")
+        self.apply_command_file("../startup.cmd")
+        
+        self.slave_ready = True
+        
+    def init_MQTT(self):
+        self.mqtt_client = MQTT_Client()
+        self.mqtt_client.msg_handler = self.mqtt_msg_handler
+        self.mqtt_client.will_set(topic="RCCAR/STATUS", payload="OFF", qos=1, retain=True)
+        self.mqtt_client.connect(self.remote_host)
+        self.mqtt_client.loop_start()
+        self.mqtt_client.publish(topic="RCCAR/STATUS", payload="ON", qos=1, retain=True)
+        
+        self.mqtt_client.subscribe("RCCAR/CMD/SETUP")
+        self.mqtt_client.subscribe("RCCAR/CMD/SAVE_CONFIG")
+        
+        msg_publisher_thread = threading.Thread(target=self.publish_car_messages_loop, daemon=True)
+        msg_publisher_thread.start()
+        
+    def init_GPS(self):
+        self.sim = SIM7600("/dev/ttyS0", 115200, power_key=6)
+        self.gps_continuous_update()
+        
+    def init_remote_control(self):
+        print("Connecting to control relay")
+        self.remote_controller = RelayClientUDP(self.remote_host, self.remote_control_port)
+        self.remote_controller.keep_alive()
+        self.remote_control_loop()
+        
+    def init_video_stream(self):
+        self.video_streamer = VideoStreamer(self.remote_host, self.remote_video_port)
+        self.video_streamer.start()
+        
+    def apply_command_file(self, command_file_path):
+        commands = get_file_commands(command_file_path)
         for command in commands:
             self.slave.send_command(command)
+            
+    def apply_configuration_file(self, config_file_path):
+        commands = []
+        
+        config_file = open(config_file_path, 'r')
+        for line in config_file:
+            config_line = line.strip()
+            if not config_line.startswith("#") and config_line != "":
+                param, value = config_line.split(":")
+                param, value = param.strip(), value.strip()
+                commands.append(self.slave.param_command_dict[param][1] + str(value))
+        config_file.close()
+        
+        for command in commands:
+            self.slave.send_command(command)
+            
+    def publish_current_configuration(self):
+        current_config = self.slave.get_current_configuration()
+        for topic, value in current_config.items():
+            self.mqtt_client.publish(topic=f"RCCAR/CONFIG/{topic}", payload=str(value), retain=True)
+            
+    def save_current_configuration(self):
+        print("Saving current configuration")
+        current_config = self.slave.get_current_configuration()
+        save_configuration(current_config, "../saved.conf")
+        print("Current configuration saved")
             
     def __gps_update_loop(self):
         while True:
             try:
-                lat, lon = self.gps.get_gps_coordinates()
-                self.mqtt_client.publish(topic="RCCAR-GPS-COORDS", payload=f'{{ "name":"rc-car", "lat":{lat}, "lon":{lon}, "icon":"arrow", "radius":50 }}', qos=1, retain=True)
+                lat, lon = self.sim.get_gps_coordinates()
+                self.mqtt_client.publish(topic="RCCAR/DATA/POS", payload=f'{{ "name":"rc-car", "lat":{lat}, "lon":{lon}, "icon":"arrow", "radius":50 }}', qos=1, retain=True)
                 time_to_sleep = 3
             except:
                 time_to_sleep = 15
@@ -85,12 +123,31 @@ class RC_Car:
         gps_update_thread = threading.Thread(target=self.__gps_update_loop, daemon=True)
         gps_update_thread.start()
     
-    def main_loop(self):
+    def remote_control_loop(self):
         while True:
             data, address = self.remote_controller.recvfrom(1024)
             if not data: continue
-            
             self.slave.send_command(data, encoded=True)
+            
+    def publish_car_messages_loop(self):
+        while True:
+            if self.slave_ready:
+                msg = self.slave.get_msg()
+                if not msg: continue
+                topic, payload = msg
+                self.mqtt_client.publish(topic=f"RCCAR/DATA/{topic}", payload=str(payload))
+            
+    def mqtt_msg_handler(self, topic, msg):
+        if topic == "RCCAR/CMD/SETUP":
+            self.car_setup()
+            
+        elif topic == "RCCAR/CMD/SAVE_CONFIG":
+            print("here")
+            self.save_current_configuration()
+        else:
+            print(f'{topic} message recieved: {m_decode}')
+        
+        
     
 if __name__ == "__main__":
     car = RC_Car(uart_path='/dev/ttyAMA1',
@@ -100,10 +157,16 @@ if __name__ == "__main__":
                  remote_control_port=8485,
                  remote_video_port=8487)
     
-    try:
-        car.main_loop()
+    car.init_MQTT()
+    car.publish_current_configuration()
+    car.init_GPS()
+    car.init_video_stream()
+    car.init_remote_control()
         
-    except:
+    try:
+        pass
+    except Exception as e:
+        print(str(e))
         GPIO.cleanup()
     
     

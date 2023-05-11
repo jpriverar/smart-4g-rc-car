@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHeaderView
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, pyqtSignal, QSize
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.uic import loadUi
@@ -9,13 +9,31 @@ from remote_controller import RemoteController
 from video_receiver import UDPVideoThread
 
 sys.path.append("../common")
-from socket_relay_client import RelayClientUDP
+from mqtt_client import MQTT_Client
 
 
-class VentanaPrincipal(QMainWindow):
-    def __init__(self, command_sender):
-        super(VentanaPrincipal,self).__init__()
+class GUI(QMainWindow):
+    mqtt_msg_signal = pyqtSignal(str, int)
+
+    def __init__(self):
+        super(GUI, self).__init__()
         loadUi('GUI-4G-CAR-DEF.ui',self)
+
+        self.widget_setter_func = {"STEER_MAX": self.set_steering_max,
+                                   "STEER_CENTER": self.set_steering_center,
+                                   "STEER_MIN": self.set_steering_min,
+                                   "PAN_MAX": self.set_pan_max,
+                                   "PAN_CENTER": self.set_pan_center,
+                                   "PAN_MIN": self.set_pan_min,
+                                   "TILT_MAX": self.set_tilt_max,
+                                   "TILT_CENTER": self.set_tilt_center,
+                                   "TILT_MIN": self.set_tilt_min,
+                                   "DRIVE_MAX_POWER": self.set_drive_max_power}
+        
+        self.label_video.setContentsMargins(0, 0, 0, 0)  # Set the margin to zero
+        self.label_video.setStyleSheet("padding: 0px;")  # Set the padding to zero
+        self.label_video.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+        self.label_video.setFixedSize(self.frame_video.width(), self.frame_video.height())
 
         # Conexion entre botones
         self.btn_config.clicked.connect(lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_settings))
@@ -68,7 +86,91 @@ class VentanaPrincipal(QMainWindow):
         self.spinBox_TILT_CENTER.valueChanged.connect(self.spinTILT_CENTER_valueChange)
         self.spinBox_TILT_MIN.valueChanged.connect(self.spinTILT_MIN_valueChange)
 
-        self.send_command = command_sender
+        # To update wigets when a new mqtt message is received
+        self.mqtt_msg_signal.connect(self.widget_setter)
+
+    def init_video_stream(self, host, port):
+        # Create the video thread and connect its signal to the update_image slot
+        self.thread = UDPVideoThread(host, port)
+        self.thread.change_pixmap.connect(self.update_image)
+        self.thread.start()
+
+    def update_image(self, qImg):
+        # Update the label_video with the new image
+        pixmap = QPixmap.fromImage(qImg)
+        scaled_pixmap = pixmap.scaled(self.label_video.size(), QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
+        self.label_video.setPixmap(scaled_pixmap)
+
+    def init_remote_control(self, remote_host, control_port):
+        self.controller = RemoteController(remote_host, control_port, dev_path="auto", mqtt_publisher=self.mqtt_client.publish)
+        self.controller.start() 
+
+    def init_MQTT(self, broker_address):
+        self.mqtt_client = MQTT_Client()
+        self.mqtt_client.msg_handler = self.mqtt_msg_handler
+        self.mqtt_client.will_set(topic="CONTROLLER/STATUS", payload="OFF", qos=1, retain=True)
+        self.mqtt_client.connect(broker_address)
+        self.mqtt_client.loop_start()
+
+        self.mqtt_client.subscribe("RCCAR/DATA/RPM")
+        self.mqtt_client.subscribe("RCCAR/DATA/POS")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/STEER_MAX")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/STEER_CENTER")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/STEER_MIN")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/PAN_MAX")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/PAN_CENTER")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/PAN_MIN")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/TILT_MAX")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/TILT_CENTER")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/TILT_MIN")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/DRIVE_MAX_POWER")
+
+        # Setting on the led in dashboard
+        self.mqtt_client.publish(topic="CONTROLLER/STATUS", payload="ON", qos=1, retain=True)
+
+    def mqtt_msg_handler(self, topic, msg):
+        widget_type, widget_name = topic.split("/")[-2:]
+
+        if widget_type == "DATA":
+            #print("Not implemented:", widget_name)
+            pass
+
+        elif widget_type == "CONFIG":
+            self.mqtt_msg_signal.emit(widget_name, int(msg))
+
+    def widget_setter(self, widget_name, value):
+        self.widget_setter_func[widget_name](value)
+
+    def set_pan_max(self, value):
+        self.spinBox_PAN_MAX.setValue(value)
+
+    def set_pan_center(self, value):
+        self.spinBox_PAN_CENTER.setValue(value)
+
+    def set_pan_min(self, value):
+        self.spinBox_PAN_MIN.setValue(value)
+
+    def set_tilt_max(self, value):
+        self.spinBox_TILT_MAX.setValue(value)
+
+    def set_tilt_center(self, value):
+        self.spinBox_TILT_CENTER.setValue(value)
+
+    def set_tilt_min(self, value):
+        self.spinBox_TILT_MIN.setValue(value)
+
+    def set_steering_max(self, value):
+        self.spinBox_S_MAX.setValue(value)
+
+    def set_steering_center(self, value):
+        self.spinBox_S_CENTER.setValue(value)
+
+    def set_steering_min(self, value):
+        self.spinBox_S_MIN.setValue(value)
+
+    def set_drive_max_power(self, value):
+        self.hSlider_MAX_P.setValue(value)
+        self.label_MAX_P.setText(str(value))
 
     # Metodo para actualizar ambos textos de las combobox
     def actualizar_texto(self, texto):
@@ -91,24 +193,6 @@ class VentanaPrincipal(QMainWindow):
         elif Right_Gauge_text == "Acc":
             self.label_GUI_text_2.setText("ACC")
 
-    # Metodo para hacer set de los valores recibidos
-    def message_TILT_received(self, client, userdata, message_S_info): # Ejemplo de los parametros
-
-        # En caso de que sea un arreglo
-        values = message_S_info.split(",")
-
-        self.spinBox_S_MIN.setValue(int(values[0]))
-        self.spinBox_S_CENTER.setValue(int(values[1]))
-        self.spinBox_S_MAX.setValue(int(values[2]))
-
-    def message_PAN_received(self, client, userdata, message_PAN_info):
-
-        values = message_PAN_info(",")
-
-        self.spinBox_PAN_MIN.setValue(int(values[0]))
-        self.spinBox_PAN_CENTER.setValue(int(values[1]))
-        self.spinBox_PAN_MAX.setValue(int(values[2]))
-
     # Metodo para leer el slider
     def slider_one(self,event):
         self.hSlider_MAX_P.setValue(event)
@@ -117,81 +201,69 @@ class VentanaPrincipal(QMainWindow):
 
         # Changing power percentage to 8-bit integer representation
         value = int(int(value)*255/100)
-        self.send_command(f"DM{value}\n".encode())
+        self.controller.send_command(f"DM{value}\n".encode())
 
     # Metodos para leer los radio buttons
     def control_radio1(self):
         if self.radioButton_FCOLLD.isChecked()==True:
-            self.send_command(f"FE000\n".encode())
+            self.controller.send_command(f"FE000\n".encode())
         else:
-            self.send_command(f"FD000\n".encode())
+            self.controller.send_command(f"FD000\n".encode())
 
     def control_radio2(self):
         if self.radioButton_BCOLLD.isChecked()==True:
-            self.send_command(f"BE000\n".encode())
+            self.controller.send_command(f"BE000\n".encode())
         else:
-            self.send_command(f"BD000\n".encode())
+            self.controller.send_command(f"BD000\n".encode())
 
     # Metodos para leer las spinBox
     #Steering
     def spinS_MAX_valueChange(self):
         value = self.spinBox_S_MAX.value()
-        self.send_command(f"SM{value}\n".encode())
+        self.controller.send_command(f"SM{value}\n".encode())
 
     def spinS_CENTER_valueChange(self):
         value = self.spinBox_S_CENTER.value()
-        self.send_command(f"Sc{value}\n".encode())
+        self.controller.send_command(f"Sc{value}\n".encode())
 
     def spinS_MIN_valueChange(self):
         value = self.spinBox_S_MIN.value()
-        self.send_command(f"Sm{value}\n".encode())
+        self.controller.send_command(f"Sm{value}\n".encode())
 
     #Ultrasonic sensor
     def spinFCOLLD_valueChange(self):
         value = self.spinBox_FCOLLD.value()
-        self.send_command(f"F!{value}\n".encode())
+        self.controller.send_command(f"F!{value}\n".encode())
 
     def spinBCOLLD_valueChange(self):
         value = self.spinBox_BCOLLD.value()
-        self.send_command(f"B!{value}\n".encode())
+        self.controller.send_command(f"B!{value}\n".encode())
 
     #PAN camera
     def spinPAN_MAX_valueChange(self):
         value = self.spinBox_PAN_MAX.value()
-        self.send_command(f"PM{value}\n".encode())
+        self.controller.send_command(f"PM{value}\n".encode())
 
     def spinPAN_CENTER_valueChange(self):
         value = self.spinBox_PAN_CENTER.value()
-        self.send_command(f"Pc{value}\n".encode())
+        self.controller.send_command(f"Pc{value}\n".encode())
 
     def spinPAN_MIN_valueChange(self):
         value = self.spinBox_PAN_MIN.value()
-        self.send_command(f"Pm{value}\n".encode())
+        self.controller.send_command(f"Pm{value}\n".encode())
 
     #TILT camera
     def spinTILT_MAX_valueChange(self):
         value = self.spinBox_TILT_MAX.value()
-        self.send_command(f"TM{value}\n".encode())
+        self.controller.send_command(f"TM{value}\n".encode())
 
     def spinTILT_CENTER_valueChange(self):
         value = self.spinBox_TILT_CENTER.value()
-        self.send_command(f"Tc{value}\n".encode())
+        self.controller.send_command(f"Tc{value}\n".encode())
 
     def spinTILT_MIN_valueChange(self):
         value = self.spinBox_TILT_MIN.value()
-        self.send_command(f"Tm{value}\n".encode())
-
-    def start_video_stream(self, host, port):
-        # Create the video thread and connect its signal to the update_image slot
-        self.thread = UDPVideoThread(host, port)
-        self.thread.change_pixmap.connect(self.update_image)
-        self.thread.start()
-
-    def update_image(self, qImg):
-        # Update the label_video with the new image
-        pixmap = QPixmap.fromImage(qImg)
-        scaled_pixmap = pixmap.scaled(self.label_video.size(), QtCore.Qt.IgnoreAspectRatio)
-        self.label_video.setPixmap(scaled_pixmap)
+        self.controller.send_command(f"Tm{value}\n".encode())
 
 if __name__ == '__main__':
 
@@ -199,16 +271,12 @@ if __name__ == '__main__':
     CONTROL_PORT = 8486
     VIDEO_PORT = 8488
 
-    control_client = RelayClientUDP(HOST, CONTROL_PORT)
-    control_client.sendto("OK".encode())
-
-    controller = RemoteController(dev_path="auto", command_sender=control_client.sendto)
-    controller_thread = threading.Thread(target=controller.read_loop, daemon=True)
-    controller_thread.start()
-
     app = QApplication(sys.argv)
-    my_window = VentanaPrincipal(command_sender=control_client.sendto)
-    my_window.show()
-    my_window.start_video_stream(HOST, VIDEO_PORT)
+    gui = GUI()
+    gui.init_MQTT(HOST)
+    gui.init_remote_control(HOST, CONTROL_PORT)
+    gui.init_video_stream(HOST, VIDEO_PORT)
+    gui.showMaximized()
+    gui.show()
     sys.exit(app.exec_())
 

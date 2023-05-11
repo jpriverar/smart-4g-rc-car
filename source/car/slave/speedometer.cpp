@@ -2,13 +2,15 @@
 
 #define SPEEDOMETER_INT_PIN 3
 
-// Values found with experimentation of pwm and rpms for the motor at half capacity
-double input_norm_ref = 100;
-double output_norm_ref = 10000;
-
 // Starting reference and sampling period
+uint16_t gasPedal;
+uint16_t breakPedal;
 double rpm = 0;
 double ref= 0;
+
+// Values found with experimentation of pwm and rpms for the motor at half capacity
+double input_norm_ref = 100;
+double output_norm_ref = 5000;
 
 // Variables for PID controller
 double r = 0;
@@ -19,7 +21,7 @@ double e = 0;
 double e1 = 0;
 double e2 = 0;
 
-int A_count = 0;
+volatile long A_count = 0;
  
 void speedometerInit() {  
   // Attaching interrupt
@@ -27,9 +29,42 @@ void speedometerInit() {
   attachInterrupt(digitalPinToInterrupt(SPEEDOMETER_INT_PIN), increaseCount, RISING);
 }
 
+void setGasPedal(uint16_t value){
+  value = max(value, 0);
+  value = min(value, 1023);
+  gasPedal = value;
+}
+
+void setBreakPedal(uint16_t value){
+  value = max(value, 0);
+  value = min(value, 1023);
+  breakPedal = value;
+}
+
 void setPIDReference(double value){
-  if (value >= 0)
-    ref = value;
+  value = max(value, 0);
+  ref = value;
+}
+
+void updatePIDReference(){
+  double new_ref;
+  if (breakPedal > 0){
+    new_ref = ref - ((double)breakPedal/1023)*3000;
+  }
+
+  else if (gasPedal > 0){
+    int max_rpm = getMaxRPM();
+    int min_rpm = getMinRPM();
+    
+    new_ref = ((double)gasPedal/1023)*(max_rpm-min_rpm) + min_rpm; 
+  }
+  
+  else{
+    // Regular decay
+    new_ref = 0.8*ref;
+  }
+
+  ref = new_ref;
 }
 
 void updatePIDOutput(){
@@ -41,7 +76,7 @@ void updatePIDOutput(){
   e = r - y;
   
   // Compute the required input to the system
-  u = 1.1835*e - 0.056441*e1 + 0.000497*e2 + u1;// Ecuacion en diferencias
+  u = 2.0448*e - 0.41325408*e1 - 0.08112*e2 + u1;// Ecuacion en diferencias
 
   // Change value from normalized to PWM
   double input_val = u*input_norm_ref; // from 0 to 255

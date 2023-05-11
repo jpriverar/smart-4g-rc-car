@@ -2,17 +2,24 @@ from evdev import InputDevice, categorize, ecodes
 import subprocess
 import os
 import time
+import sys
+import threading
+
+sys.path.append("../common")
+from socket_relay_client import RelayClientUDP
 
 class RemoteController(InputDevice):
-    def __init__(self, dev_path, command_sender):
+    def __init__(self, host, port, dev_path, mqtt_publisher):
         # Creating the controller event reader
         if dev_path == "auto":
             event_dev = subprocess.run(["ls /dev/input/ | grep event | sort -V | tail -n1"], capture_output=True, text=True, shell=True)
             dev_path = os.path.join("/dev/input", event_dev.stdout.split("\n")[0])
             print(f"Using {dev_path} as controller")   
-
         super().__init__(dev_path)
-        self.send_command = command_sender
+
+        self.control_client = RelayClientUDP(host, port)
+        self.publish_mqtt = mqtt_publisher
+
         # controller modes are: DRIVE, MENU, ...
         self.mode = "DRIVE"
         
@@ -51,6 +58,11 @@ class RemoteController(InputDevice):
                                (ecodes.EV_ABS, ecodes.ABS_HAT0X): self.x_arrow_handler,
                                (ecodes.EV_ABS, ecodes.ABS_HAT0Y): self.y_arrow_handler,
                               }
+        
+    def start(self):
+        self.control_client.heartbeat()
+        controller_thread = threading.Thread(target=self.read_loop, daemon=True)
+        controller_thread.start()
 
     def read_loop(self):
         for event in super().read_loop():
@@ -61,24 +73,28 @@ class RemoteController(InputDevice):
         if not type: return # Syncronisation event, does not need handler
         self.event_handlers.get((type, code), lambda _: print(f"Handler not defined for {categorize(event)}"))(value)
 
+    def send_command(self, command):
+        self.control_client.sendto(command)
+
     def a_btn_handler(self, value):
         if value: print("A button pressed")
 
     def b_btn_handler(self, value):
-        pass
+        if value:
+            self.send_command("DS000\n".encode())
 
     def x_btn_handler(self, value):
         if value:
-            self.send_command("HH000\n".encode())
+            self.send_command("H1000\n".encode())
         else:
-            self.send_command("HL000\n".encode())
+            self.send_command("H0000\n".encode())
 
     def y_btn_handler(self, value):
         if value:
             if not self.state_values["y_button"]:
-                self.send_command("LH000\n".encode())
+                self.send_command("L1000\n".encode())
             else: 
-                self.send_command("LL000\n".encode())
+                self.send_command("L0000\n".encode())
             self.state_values["y_button"] ^= 1 
 
     def start_btn_handler(self, value):
@@ -91,18 +107,20 @@ class RemoteController(InputDevice):
                 self.mode = "DRIVE"
 
     def select_btn_handler(self, value):
-        pass
+        if value:
+            self.publish_mqtt(topic="RCCAR/CMD/SETUP", payload="1", qos=2) # 1 is just a dummy value, to send the signal
 
     def record_btn_handler(self, value):
-        pass
+        if value:
+            self.publish_mqtt(topic="RCCAR/CMD/SAVE_CONFIG", payload="1", qos=2)
 
     def left_btn_handler(self, value):
         if value:
-            self.send_command("RD000\n".encode())
+            self.send_command("VD000\n".encode())
             
     def right_btn_handler(self, value):
         if value:
-            self.send_command("RU000\n".encode())
+            self.send_command("VU000\n".encode())
             
     def left_joyBtn_handler(self, value):
         if value:
@@ -132,8 +150,7 @@ class RemoteController(InputDevice):
         pass
 
     def left_trig_handler(self, value):
-        if value > 400:
-            self.send_command(f"DS000\n".encode())
+        self.send_command(f"VB{value}\n".encode())
         
         self.state_values["left_trig"] = value
 
@@ -166,10 +183,8 @@ class RemoteController(InputDevice):
             self.state_values["right_yjoy"] = value
 
     def right_trig_handler(self, value):
-        # If not already pressing the break
-        if self.state_values["left_trig"] == 0: 
-            input_value = int((value/1023)*255)
-            self.send_command(f"DP{input_value}\n".encode())
+        value = (value/1023)*100
+        self.send_command(f"DP{value}\n".encode())
 
         self.state_values["right_trig"] = value
 

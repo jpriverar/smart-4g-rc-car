@@ -20,7 +20,7 @@ class UDPVideoThread(QThread):
     
     def run(self):
         video_client = RelayClientUDP(self.host, self.port)
-        video_client.sendto("OK".encode())
+        video_client.keep_alive()
 
         max_datagram_size = 65536
         while True:
@@ -33,7 +33,7 @@ class UDPVideoThread(QThread):
 
             # Convert the image to QImage and emit the signal
             height, width, channel = frame.shape
-            bytesPerLine = 3 * width
+            bytesPerLine = channel * width
             qImg = QImage(frame.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
             self.change_pixmap.emit(qImg)
 
