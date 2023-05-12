@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1141</width>
-    <height>760</height>
+    <width>1138</width>
+    <height>767</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -757,17 +757,17 @@ border-radius: 10px;
                    <item>
                     <layout class="QVBoxLayout" name="verticalLayout_8">
                      <item>
-                      <spacer name="verticalSpacer_7">
+                      <spacer name="verticalSpacer_2">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Maximum</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>50</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -776,8 +776,8 @@ border-radius: 10px;
                       <widget class="QLabel" name="label_MAX_POWER">
                        <property name="minimumSize">
                         <size>
-                         <width>225</width>
-                         <height>25</height>
+                         <width>210</width>
+                         <height>30</height>
                         </size>
                        </property>
                        <property name="maximumSize">
@@ -796,7 +796,7 @@ border-radius: 10px;
                         </font>
                        </property>
                        <property name="text">
-                        <string>MAX POWER (%)</string>
+                        <string>MAX POWER [%]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -804,9 +804,12 @@ border-radius: 10px;
                       </widget>
                      </item>
                      <item>
-                      <spacer name="vSPacer_page_car_10">
+                      <spacer name="verticalSpacer_7">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -820,8 +823,8 @@ border-radius: 10px;
                       <widget class="QLabel" name="label_S_MAX">
                        <property name="minimumSize">
                         <size>
-                         <width>225</width>
-                         <height>25</height>
+                         <width>168</width>
+                         <height>100</height>
                         </size>
                        </property>
                        <property name="maximumSize">
@@ -831,7 +834,7 @@ border-radius: 10px;
                         </size>
                        </property>
                        <property name="text">
-                        <string>STEERING MAX (U)</string>
+                        <string>STEERING MAX [°]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -839,9 +842,12 @@ border-radius: 10px;
                       </widget>
                      </item>
                      <item>
-                      <spacer name="vSPacer_page_car_9">
+                      <spacer name="verticalSpacer_9">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -851,12 +857,12 @@ border-radius: 10px;
                        </property>
                       </spacer>
                      </item>
-                     <item alignment="Qt::AlignHCenter">
+                     <item>
                       <widget class="QLabel" name="label_S_CENTER">
                        <property name="minimumSize">
                         <size>
-                         <width>225</width>
-                         <height>25</height>
+                         <width>168</width>
+                         <height>100</height>
                         </size>
                        </property>
                        <property name="maximumSize">
@@ -866,7 +872,7 @@ border-radius: 10px;
                         </size>
                        </property>
                        <property name="text">
-                        <string>STEERING CENTER (U)</string>
+                        <string>STEERING CENTER [°]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -874,9 +880,12 @@ border-radius: 10px;
                       </widget>
                      </item>
                      <item>
-                      <spacer name="vSPacer_page_car_7">
+                      <spacer name="verticalSpacer_14">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -890,8 +899,8 @@ border-radius: 10px;
                       <widget class="QLabel" name="label_S_MIN">
                        <property name="minimumSize">
                         <size>
-                         <width>225</width>
-                         <height>25</height>
+                         <width>168</width>
+                         <height>100</height>
                         </size>
                        </property>
                        <property name="maximumSize">
@@ -901,7 +910,7 @@ border-radius: 10px;
                         </size>
                        </property>
                        <property name="text">
-                        <string>STEERING MIN (U)</string>
+                        <string>STEERING MIN [°]</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -909,17 +918,17 @@ border-radius: 10px;
                       </widget>
                      </item>
                      <item>
-                      <spacer name="verticalSpacer_9">
+                      <spacer name="verticalSpacer_18">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Maximum</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>50</height>
+                         <height>80</height>
                         </size>
                        </property>
                       </spacer>
@@ -950,12 +959,12 @@ border-radius: 10px;
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Maximum</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>50</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -1039,7 +1048,7 @@ QSlider::handle:horizontal{
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Expanding</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1345,7 +1354,10 @@ QSpinBox QAbstractItemView{
                         <enum>QAbstractSpinBox::UpDownArrows</enum>
                        </property>
                        <property name="maximum">
-                        <number>100</number>
+                        <number>180</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>20</number>
                        </property>
                       </widget>
                      </item>
@@ -1353,6 +1365,9 @@ QSpinBox QAbstractItemView{
                       <spacer name="vSPacer_page_car_13">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1652,7 +1667,10 @@ QSpinBox QAbstractItemView{
                         <set>Qt::AlignCenter</set>
                        </property>
                        <property name="maximum">
-                        <number>100</number>
+                        <number>180</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>20</number>
                        </property>
                       </widget>
                      </item>
@@ -1660,6 +1678,9 @@ QSpinBox QAbstractItemView{
                       <spacer name="vSPacer_page_car_12">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1959,7 +1980,10 @@ QSpinBox QAbstractItemView{
                         <set>Qt::AlignCenter</set>
                        </property>
                        <property name="maximum">
-                        <number>100</number>
+                        <number>180</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>20</number>
                        </property>
                       </widget>
                      </item>
@@ -1969,12 +1993,12 @@ QSpinBox QAbstractItemView{
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Maximum</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>5</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -2195,7 +2219,7 @@ border: 5px solid #111111;
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Maximum</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -2205,10 +2229,22 @@ border: 5px solid #111111;
                        </property>
                       </spacer>
                      </item>
-                     <item>
+                     <item alignment="Qt::AlignVCenter">
                       <widget class="QLabel" name="label_FCOLLD">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
                        <property name="text">
-                        <string>FRONT COLLISION DISTANCE (U)</string>
+                        <string>FRONT COLLISION DISTANCE [cm] </string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2221,20 +2257,32 @@ border: 5px solid #111111;
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Maximum</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>85</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
                      </item>
-                     <item>
+                     <item alignment="Qt::AlignVCenter">
                       <widget class="QLabel" name="label_BCOLLD">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
                        <property name="text">
-                        <string>BACK COLLISON DISTANCE (U)</string>
+                        <string>BACK COLLISON DISTANCE [cm]  </string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2247,33 +2295,17 @@ border: 5px solid #111111;
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Maximum</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>80</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
                      </item>
                     </layout>
-                   </item>
-                   <item>
-                    <spacer name="horizontalSpacer_2">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeType">
-                      <enum>QSizePolicy::Expanding</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>15</height>
-                      </size>
-                     </property>
-                    </spacer>
                    </item>
                    <item>
                     <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -2283,12 +2315,12 @@ border: 5px solid #111111;
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Maximum</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>55</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -2582,8 +2614,11 @@ QSpinBox QAbstractItemView{
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
                        </property>
+                       <property name="minimum">
+                        <number>5</number>
+                       </property>
                        <property name="maximum">
-                        <number>100</number>
+                        <number>25</number>
                        </property>
                       </widget>
                      </item>
@@ -2593,12 +2628,12 @@ QSpinBox QAbstractItemView{
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Expanding</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>85</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -2892,8 +2927,11 @@ QSpinBox QAbstractItemView{
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
                        </property>
+                       <property name="minimum">
+                        <number>5</number>
+                       </property>
                        <property name="maximum">
-                        <number>100</number>
+                        <number>25</number>
                        </property>
                       </widget>
                      </item>
@@ -2908,7 +2946,7 @@ QSpinBox QAbstractItemView{
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>55</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -3163,7 +3201,7 @@ border-radius: 10px;
                         </font>
                        </property>
                        <property name="text">
-                        <string>PAN MAX </string>
+                        <string>PAN MAX [°]</string>
                        </property>
                       </widget>
                      </item>
@@ -3192,7 +3230,7 @@ border-radius: 10px;
                         </size>
                        </property>
                        <property name="text">
-                        <string>PAN CENTER                        </string>
+                        <string>PAN CENTER [°]                 </string>
                        </property>
                       </widget>
                      </item>
@@ -3221,7 +3259,7 @@ border-radius: 10px;
                         </size>
                        </property>
                        <property name="text">
-                        <string>PAN MIN</string>
+                        <string>PAN MIN [°]</string>
                        </property>
                       </widget>
                      </item>
@@ -3250,7 +3288,7 @@ border-radius: 10px;
                         </size>
                        </property>
                        <property name="text">
-                        <string>COMPRESSION QUALITY</string>
+                        <string>COMPRESSION QUALITY [°]</string>
                        </property>
                       </widget>
                      </item>
@@ -3555,6 +3593,9 @@ QSpinBox QAbstractItemView{
                        </property>
                        <property name="maximum">
                         <number>180</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>20</number>
                        </property>
                       </widget>
                      </item>
@@ -3866,6 +3907,9 @@ QSpinBox QAbstractItemView{
                        <property name="maximum">
                         <number>180</number>
                        </property>
+                       <property name="singleStep">
+                        <number>20</number>
+                       </property>
                       </widget>
                      </item>
                      <item>
@@ -4175,6 +4219,9 @@ QSpinBox QAbstractItemView{
                        </property>
                        <property name="maximum">
                         <number>180</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>20</number>
                        </property>
                       </widget>
                      </item>
@@ -4518,7 +4565,7 @@ border-radius: 10px;</string>
                         </size>
                        </property>
                        <property name="text">
-                        <string>TILT MAX</string>
+                        <string>TILT MAX [°]</string>
                        </property>
                       </widget>
                      </item>
@@ -4547,7 +4594,7 @@ border-radius: 10px;</string>
                         </size>
                        </property>
                        <property name="text">
-                        <string>TILT CENTER                        </string>
+                        <string>TILT CENTER [°]                     </string>
                        </property>
                       </widget>
                      </item>
@@ -4576,7 +4623,7 @@ border-radius: 10px;</string>
                         </size>
                        </property>
                        <property name="text">
-                        <string>TILT MIN</string>
+                        <string>TILT MIN [°]</string>
                        </property>
                       </widget>
                      </item>
@@ -4902,6 +4949,12 @@ QSpinBox QAbstractItemView{
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
                        </property>
+                       <property name="maximum">
+                        <number>180</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>20</number>
+                       </property>
                       </widget>
                      </item>
                      <item>
@@ -5209,6 +5262,12 @@ QSpinBox QAbstractItemView{
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
                        </property>
+                       <property name="maximum">
+                        <number>180</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>20</number>
+                       </property>
                       </widget>
                      </item>
                      <item>
@@ -5515,6 +5574,12 @@ QSpinBox QAbstractItemView{
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
+                       </property>
+                       <property name="maximum">
+                        <number>180</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>20</number>
                        </property>
                       </widget>
                      </item>
