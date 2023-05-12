@@ -100,6 +100,10 @@ class GUI(QMainWindow):
         # To update wigets when a new mqtt message is received
         self.mqtt_msg_signal.connect(self.widget_setter)
 
+        # leer spinbox y combobox de IMAGE
+        self.spinBox_COMPRESSION.valueChanged.connect(self.spin_COMPRESSION_valueChange)
+        self.comboBox_IMAGE.currentTextChanged.connect(self.update_resolution)
+
     def init_video_stream(self, host, port):
         # Create the video thread and connect its signal to the update_image slot
         self.thread = UDPVideoThread(host, port)
@@ -279,6 +283,25 @@ class GUI(QMainWindow):
     def spinTILT_MIN_valueChange(self):
         value = self.spinBox_TILT_MIN.value()
         self.controller.send_command(f"Tm{value}\n".encode())
+
+    #Metodos imagen
+    def spin_COMPRESSION_valueChange(self):
+        value_COMPRESSION = self.spinBox_COMPRESSION.value()
+        print('El valor del TILT MIN es:', value_COMPRESSION)
+
+    # Metodos para hacer set al valor del Packet y de los FPS
+    def Packet_size_valueChange(self, value):
+        self.label_Packet_size_value.setValue(value)
+
+    def FPS_valueChange(self, value):
+        self.label_FPS_value.setValue(value)
+
+    def update_resolution(self):
+        resolution_text = self.comboBox_IMAGE.currentText()
+        if resolution_text == "640x480":
+            print("Resolution is 640x480")
+        else:
+            print("Resolution is 320x240")
 
 
 if __name__ == '__main__':

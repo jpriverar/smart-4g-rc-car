@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1141</width>
-    <height>777</height>
+    <height>760</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -119,6 +119,109 @@ border-radius:20px;
 }</string>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QLabel" name="label_Packet_size_text">
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift SemiBold SemiConden</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: rgb(0, 206, 151);
+	background-color:transparent;
+}
+
+</string>
+                </property>
+                <property name="text">
+                 <string>Packet Size</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_Packet_size_value">
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift SemiBold SemiConden</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: white;
+	background-color:transparent;
+}
+</string>
+                </property>
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_7">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>80</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_FPS_text">
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift SemiBold SemiConden</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: rgb(0, 206, 151);
+	background-color:transparent;
+}
+
+</string>
+                </property>
+                <property name="text">
+                 <string>FPS</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_FPS_value">
+                <property name="font">
+                 <font>
+                  <family>Bahnschrift SemiBold SemiConden</family>
+                  <pointsize>12</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: white;
+	background-color:transparent;
+}
+</string>
+                </property>
+                <property name="text">
+                 <string>-</string>
+                </property>
+               </widget>
+              </item>
               <item>
                <spacer name="hSpacer_page_config">
                 <property name="orientation">
@@ -1241,6 +1344,9 @@ QSpinBox QAbstractItemView{
                        <property name="buttonSymbols">
                         <enum>QAbstractSpinBox::UpDownArrows</enum>
                        </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
                       </widget>
                      </item>
                      <item>
@@ -1545,6 +1651,9 @@ QSpinBox QAbstractItemView{
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
                        </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
                       </widget>
                      </item>
                      <item>
@@ -1848,6 +1957,9 @@ QSpinBox QAbstractItemView{
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
+                       </property>
+                       <property name="maximum">
+                        <number>100</number>
                        </property>
                       </widget>
                      </item>
@@ -2470,6 +2582,9 @@ QSpinBox QAbstractItemView{
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
                        </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
                       </widget>
                      </item>
                      <item>
@@ -2777,6 +2892,9 @@ QSpinBox QAbstractItemView{
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
                        </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
                       </widget>
                      </item>
                      <item>
@@ -3028,20 +3146,13 @@ border-radius: 10px;
                    <item>
                     <layout class="QVBoxLayout" name="verticalLayout_16">
                      <item>
-                      <spacer name="verticalSpacer_18">
-                       <property name="orientation">
-                        <enum>Qt::Vertical</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
+                      <widget class="QLabel" name="label_PAN_MAX">
+                       <property name="minimumSize">
                         <size>
-                         <width>20</width>
-                         <height>40</height>
+                         <width>168</width>
+                         <height>100</height>
                         </size>
                        </property>
-                      </spacer>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_PAN_MAX">
                        <property name="font">
                         <font>
                          <family>Bahnschrift SemiBold SemiConden</family>
@@ -3061,6 +3172,9 @@ border-radius: 10px;
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
                        </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::MinimumExpanding</enum>
+                       </property>
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
@@ -3071,6 +3185,12 @@ border-radius: 10px;
                      </item>
                      <item alignment="Qt::AlignLeft">
                       <widget class="QLabel" name="label_PAN_CENTER">
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
                        <property name="text">
                         <string>PAN CENTER                        </string>
                        </property>
@@ -3080,6 +3200,9 @@ border-radius: 10px;
                       <spacer name="vSpacer_page_CAMERA_2">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -3091,6 +3214,12 @@ border-radius: 10px;
                      </item>
                      <item>
                       <widget class="QLabel" name="label_PAN_MIN">
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
                        <property name="text">
                         <string>PAN MIN</string>
                        </property>
@@ -3102,7 +3231,7 @@ border-radius: 10px;
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Expanding</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -3112,26 +3241,23 @@ border-radius: 10px;
                        </property>
                       </spacer>
                      </item>
+                     <item>
+                      <widget class="QLabel" name="label_COMRESSION">
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>COMPRESSION QUALITY</string>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
                    </item>
                    <item>
                     <layout class="QVBoxLayout" name="verticalLayout_4">
-                     <item>
-                      <spacer name="verticalSpacer_14">
-                       <property name="orientation">
-                        <enum>Qt::Vertical</enum>
-                       </property>
-                       <property name="sizeType">
-                        <enum>QSizePolicy::MinimumExpanding</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>20</width>
-                         <height>90</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
                      <item alignment="Qt::AlignHCenter">
                       <widget class="QSpinBox" name="spinBox_PAN_MAX">
                        <property name="minimumSize">
@@ -3443,7 +3569,7 @@ QSpinBox QAbstractItemView{
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>50</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -3753,7 +3879,7 @@ QSpinBox QAbstractItemView{
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>50</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -4063,10 +4189,301 @@ QSpinBox QAbstractItemView{
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>80</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
+                     </item>
+                     <item alignment="Qt::AlignHCenter">
+                      <widget class="QSpinBox" name="spinBox_COMPRESSION">
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>225</width>
+                         <height>225</height>
+                        </size>
+                       </property>
+                       <property name="palette">
+                        <palette>
+                         <active>
+                          <colorrole role="WindowText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Button">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Text">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="ButtonText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Base">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Window">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Highlight">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                         </active>
+                         <inactive>
+                          <colorrole role="WindowText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Button">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Text">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="ButtonText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Base">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Window">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Highlight">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                         </inactive>
+                         <disabled>
+                          <colorrole role="WindowText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Button">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Text">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="ButtonText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Base">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Window">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>61</red>
+                             <green>61</green>
+                             <blue>61</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="Highlight">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>120</green>
+                             <blue>215</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                          <colorrole role="HighlightedText">
+                           <brush brushstyle="SolidPattern">
+                            <color alpha="255">
+                             <red>0</red>
+                             <green>206</green>
+                             <blue>151</blue>
+                            </color>
+                           </brush>
+                          </colorrole>
+                         </disabled>
+                        </palette>
+                       </property>
+                       <property name="layoutDirection">
+                        <enum>Qt::LeftToRight</enum>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QSpinBox{
+	border:3px solid #111111;
+	border-radius: 5px; 
+	min-width:6em;
+	color:rgb(0, 206, 151);
+	font:87 13pt &quot;Bahnschrift SemiBold SemiConden&quot;;
+}
+
+QSpinBox::up-button{
+	subcontrol-origin:padding;
+	subcontrol-position: top right; 
+	width: 40px; 
+	border -left -width:3px;
+	border -left -color:111111;
+	border -left -style:solid;
+	border -top -right -radius:4px;
+	border -bottom -right -radius:4px;
+}
+
+QSpinBox::down-button{
+	subcontrol-origin:padding;
+	subcontrol-position: bottom right; 
+	width: 40px; 
+	border -left -width:3px;
+	border -left -color:111111;
+	border -left -style:solid;
+	border -top -right -radius:4px;
+	border -bottom -right -radius:4px;
+}
+
+QSpinBox QAbstractItemView{
+	background: #2c2c2c;
+	selection-background-color: #ff0037;
+	color: #111111;
+} </string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>10</number>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </item>
@@ -4093,20 +4510,13 @@ border-radius: 10px;</string>
                    <item>
                     <layout class="QVBoxLayout" name="verticalLayout_17">
                      <item>
-                      <spacer name="verticalSpacer_20">
-                       <property name="orientation">
-                        <enum>Qt::Vertical</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
+                      <widget class="QLabel" name="label_TILT_MAX">
+                       <property name="minimumSize">
                         <size>
-                         <width>20</width>
-                         <height>40</height>
+                         <width>168</width>
+                         <height>100</height>
                         </size>
                        </property>
-                      </spacer>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_TILT_MAX">
                        <property name="text">
                         <string>TILT MAX</string>
                        </property>
@@ -4116,6 +4526,9 @@ border-radius: 10px;</string>
                       <spacer name="vSpacer_page_CAMERA_5">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -4127,6 +4540,12 @@ border-radius: 10px;</string>
                      </item>
                      <item alignment="Qt::AlignLeft">
                       <widget class="QLabel" name="label_TILT_CENTER">
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
                        <property name="text">
                         <string>TILT CENTER                        </string>
                        </property>
@@ -4136,6 +4555,9 @@ border-radius: 10px;</string>
                       <spacer name="vSpacer_page_CAMERA_6">
                        <property name="orientation">
                         <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeType">
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -4147,6 +4569,12 @@ border-radius: 10px;</string>
                      </item>
                      <item>
                       <widget class="QLabel" name="label_TILT_MIN">
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
                        <property name="text">
                         <string>TILT MIN</string>
                        </property>
@@ -4158,7 +4586,7 @@ border-radius: 10px;</string>
                         <enum>Qt::Vertical</enum>
                        </property>
                        <property name="sizeType">
-                        <enum>QSizePolicy::Expanding</enum>
+                        <enum>QSizePolicy::MinimumExpanding</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -4168,26 +4596,23 @@ border-radius: 10px;</string>
                        </property>
                       </spacer>
                      </item>
+                     <item>
+                      <widget class="QLabel" name="label_2">
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>IMAGE RESOLUTION</string>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
                    </item>
                    <item>
                     <layout class="QVBoxLayout" name="verticalLayout_18">
-                     <item>
-                      <spacer name="verticalSpacer_2">
-                       <property name="orientation">
-                        <enum>Qt::Vertical</enum>
-                       </property>
-                       <property name="sizeType">
-                        <enum>QSizePolicy::MinimumExpanding</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>20</width>
-                         <height>90</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
                      <item alignment="Qt::AlignHCenter">
                       <widget class="QSpinBox" name="spinBox_TILT_MAX">
                        <property name="minimumSize">
@@ -4490,7 +4915,7 @@ QSpinBox QAbstractItemView{
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>50</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -4797,7 +5222,7 @@ QSpinBox QAbstractItemView{
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>50</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
@@ -5104,10 +5529,62 @@ QSpinBox QAbstractItemView{
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>80</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
+                     </item>
+                     <item alignment="Qt::AlignHCenter">
+                      <widget class="QComboBox" name="comboBox_IMAGE">
+                       <property name="minimumSize">
+                        <size>
+                         <width>168</width>
+                         <height>100</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>225</width>
+                         <height>225</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QComboBox{
+	border:3px solid #111111;
+	border-radius: 5px; 
+	min-width:6em;
+	color:rgb(0, 206, 151);
+	font:87 13pt &quot;Bahnschrift SemiBold SemiConden&quot;;
+}
+
+QComboBox::drop-down{
+	subcontrol-origin:padding;
+	subcontrol-position: top right; 
+	width: 40px; 
+	border -left -width:3px;
+	border -left -color:111111;
+	border -left -style:solid;
+	border -top -right -radius:4px;
+	border -bottom -right -radius:4px;
+}
+
+QComboBox QAbstractItemView{
+	background: #2c2c2c;
+	selection-background-color: #ff0037;
+	color: #111111;
+}</string>
+                       </property>
+                       <item>
+                        <property name="text">
+                         <string>640x480</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>320x240</string>
+                        </property>
+                       </item>
+                      </widget>
                      </item>
                     </layout>
                    </item>
