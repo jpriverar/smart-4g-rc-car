@@ -1,3 +1,4 @@
+from mqtt_client import MQTT_Client
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHeaderView
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, pyqtSignal, QSize
@@ -9,7 +10,6 @@ from remote_controller import RemoteController
 from video_receiver import UDPVideoThread
 
 sys.path.append("../common")
-from mqtt_client import MQTT_Client
 
 
 class GUI(QMainWindow):
@@ -17,7 +17,7 @@ class GUI(QMainWindow):
 
     def __init__(self):
         super(GUI, self).__init__()
-        loadUi('GUI-4G-CAR-DEF.ui',self)
+        loadUi('GUI-4G-CAR-DEF.ui', self)
 
         self.widget_setter_func = {"STEER_MAX": self.set_steering_max,
                                    "STEER_CENTER": self.set_steering_center,
@@ -29,19 +29,30 @@ class GUI(QMainWindow):
                                    "TILT_CENTER": self.set_tilt_center,
                                    "TILT_MIN": self.set_tilt_min,
                                    "DRIVE_MAX_POWER": self.set_drive_max_power}
-        
+
+        # Create a new QLabel called label_video and set its parent to frame_Global
+        self.label_video = QtWidgets.QLabel(self.frame_Global)
         self.label_video.setContentsMargins(0, 0, 0, 0)  # Set the margin to zero
         self.label_video.setStyleSheet("padding: 0px;")  # Set the padding to zero
         self.label_video.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
-        self.label_video.setFixedSize(self.frame_video.width(), self.frame_video.height())
+        # Stack label_video under frame_BarraConfig
+        self.label_video.stackUnder(self.frame_BarraConfig)
+        # Stack label_video under frame_Contenido
+        self.label_video.stackUnder(self.frame_Contenido)
 
         # Conexion entre botones
-        self.btn_config.clicked.connect(lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_settings))
-        self.btn_CAR_S.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_car))
-        self.btn_GUI_S.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_GUI))
-        self.btn_CAMERA_S.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_CAMERA))
-        self.btn_CLOSE_S.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_video))
-        self.btn_CLOSE_S.clicked.connect(lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_config))
+        self.btn_config.clicked.connect(
+            lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_settings))
+        self.btn_CAR_S.clicked.connect(
+            lambda: self.stacked_Contenido.setCurrentWidget(self.page_car))
+        self.btn_GUI_S.clicked.connect(
+            lambda: self.stacked_Contenido.setCurrentWidget(self.page_GUI))
+        self.btn_CAMERA_S.clicked.connect(
+            lambda: self.stacked_Contenido.setCurrentWidget(self.page_CAMERA))
+        self.btn_CLOSE_S.clicked.connect(
+            lambda: self.stacked_Contenido.setCurrentWidget(self.page_video))
+        self.btn_CLOSE_S.clicked.connect(
+            lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_config))
 
         # Conectar la señal currentTextChanged del QComboBox a la función actualizar_texto
         self.comboBox_LGauge.currentTextChanged.connect(self.actualizar_texto)
@@ -66,22 +77,22 @@ class GUI(QMainWindow):
         self.radioButton_FCOLLD.toggled.connect(self.control_radio1)
         self.radioButton_BCOLLD.toggled.connect(self.control_radio2)
 
-        #Leer el valor de la spinbox
-        #Steering
+        # Leer el valor de la spinbox
+        # Steering
         self.spinBox_S_MAX.valueChanged.connect(self.spinS_MAX_valueChange)
         self.spinBox_S_CENTER.valueChanged.connect(self.spinS_CENTER_valueChange)
         self.spinBox_S_MIN.valueChanged.connect(self.spinS_MIN_valueChange)
 
-        #Ultrasonic sensor
+        # Ultrasonic sensor
         self.spinBox_FCOLLD.valueChanged.connect(self.spinFCOLLD_valueChange)
         self.spinBox_BCOLLD.valueChanged.connect(self.spinBCOLLD_valueChange)
 
-        #PAN Camera
+        # PAN Camera
         self.spinBox_PAN_MAX.valueChanged.connect(self.spinPAN_MAX_valueChange)
         self.spinBox_PAN_CENTER.valueChanged.connect(self.spinPAN_CENTER_valueChange)
         self.spinBox_PAN_MIN.valueChanged.connect(self.spinPAN_MIN_valueChange)
 
-        #Tilt Camera
+        # Tilt Camera
         self.spinBox_TILT_MAX.valueChanged.connect(self.spinTILT_MAX_valueChange)
         self.spinBox_TILT_CENTER.valueChanged.connect(self.spinTILT_CENTER_valueChange)
         self.spinBox_TILT_MIN.valueChanged.connect(self.spinTILT_MIN_valueChange)
@@ -98,12 +109,16 @@ class GUI(QMainWindow):
     def update_image(self, qImg):
         # Update the label_video with the new image
         pixmap = QPixmap.fromImage(qImg)
-        scaled_pixmap = pixmap.scaled(self.label_video.size(), QtCore.Qt.KeepAspectRatioByExpanding, QtCore.Qt.SmoothTransformation)
+        # Set a fixed size for the label equal to frame_video's size
+        self.label_video.setFixedSize(self.frame_Global.size())
+        scaled_pixmap = pixmap.scaled(self.frame_Global.size(
+        ), QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
         self.label_video.setPixmap(scaled_pixmap)
 
     def init_remote_control(self, remote_host, control_port):
-        self.controller = RemoteController(remote_host, control_port, dev_path="auto", mqtt_publisher=self.mqtt_client.publish)
-        self.controller.start() 
+        self.controller = RemoteController(
+            remote_host, control_port, dev_path="auto", mqtt_publisher=self.mqtt_client.publish)
+        self.controller.start()
 
     def init_MQTT(self, broker_address):
         self.mqtt_client = MQTT_Client()
@@ -194,7 +209,7 @@ class GUI(QMainWindow):
             self.label_GUI_text_2.setText("ACC")
 
     # Metodo para leer el slider
-    def slider_one(self,event):
+    def slider_one(self, event):
         self.hSlider_MAX_P.setValue(event)
         self.label_MAX_P.setText(str(event))
         value = str(event)
@@ -205,19 +220,19 @@ class GUI(QMainWindow):
 
     # Metodos para leer los radio buttons
     def control_radio1(self):
-        if self.radioButton_FCOLLD.isChecked()==True:
+        if self.radioButton_FCOLLD.isChecked() == True:
             self.controller.send_command(f"FE000\n".encode())
         else:
             self.controller.send_command(f"FD000\n".encode())
 
     def control_radio2(self):
-        if self.radioButton_BCOLLD.isChecked()==True:
+        if self.radioButton_BCOLLD.isChecked() == True:
             self.controller.send_command(f"BE000\n".encode())
         else:
             self.controller.send_command(f"BD000\n".encode())
 
     # Metodos para leer las spinBox
-    #Steering
+    # Steering
     def spinS_MAX_valueChange(self):
         value = self.spinBox_S_MAX.value()
         self.controller.send_command(f"SM{value}\n".encode())
@@ -230,7 +245,7 @@ class GUI(QMainWindow):
         value = self.spinBox_S_MIN.value()
         self.controller.send_command(f"Sm{value}\n".encode())
 
-    #Ultrasonic sensor
+    # Ultrasonic sensor
     def spinFCOLLD_valueChange(self):
         value = self.spinBox_FCOLLD.value()
         self.controller.send_command(f"F!{value}\n".encode())
@@ -239,7 +254,7 @@ class GUI(QMainWindow):
         value = self.spinBox_BCOLLD.value()
         self.controller.send_command(f"B!{value}\n".encode())
 
-    #PAN camera
+    # PAN camera
     def spinPAN_MAX_valueChange(self):
         value = self.spinBox_PAN_MAX.value()
         self.controller.send_command(f"PM{value}\n".encode())
@@ -252,7 +267,7 @@ class GUI(QMainWindow):
         value = self.spinBox_PAN_MIN.value()
         self.controller.send_command(f"Pm{value}\n".encode())
 
-    #TILT camera
+    # TILT camera
     def spinTILT_MAX_valueChange(self):
         value = self.spinBox_TILT_MAX.value()
         self.controller.send_command(f"TM{value}\n".encode())
@@ -264,6 +279,7 @@ class GUI(QMainWindow):
     def spinTILT_MIN_valueChange(self):
         value = self.spinBox_TILT_MIN.value()
         self.controller.send_command(f"Tm{value}\n".encode())
+
 
 if __name__ == '__main__':
 
@@ -279,4 +295,3 @@ if __name__ == '__main__':
     gui.showMaximized()
     gui.show()
     sys.exit(app.exec_())
-
