@@ -782,8 +782,8 @@ border-radius: 10px;
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>225</width>
-                         <height>25</height>
+                         <width>210</width>
+                         <height>30</height>
                         </size>
                        </property>
                        <property name="font">
@@ -830,7 +830,7 @@ border-radius: 10px;
                        <property name="maximumSize">
                         <size>
                          <width>225</width>
-                         <height>25</height>
+                         <height>225</height>
                         </size>
                        </property>
                        <property name="text">
@@ -868,7 +868,7 @@ border-radius: 10px;
                        <property name="maximumSize">
                         <size>
                          <width>225</width>
-                         <height>25</height>
+                         <height>225</height>
                         </size>
                        </property>
                        <property name="text">
@@ -906,7 +906,7 @@ border-radius: 10px;
                        <property name="maximumSize">
                         <size>
                          <width>225</width>
-                         <height>25</height>
+                         <height>225</height>
                         </size>
                        </property>
                        <property name="text">
@@ -928,7 +928,7 @@ border-radius: 10px;
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>80</height>
+                         <height>40</height>
                         </size>
                        </property>
                       </spacer>
