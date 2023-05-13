@@ -21,6 +21,7 @@ class UDPVideoThread(QThread):
         self.port = port
         self.fps = 0
         self.frame_counter = 0
+        self.packet_size = 0
     
     def run(self):
         video_client = RelayClientUDP(self.host, self.port)
@@ -34,7 +35,7 @@ class UDPVideoThread(QThread):
             if not buffer: continue
 
             # Decoding the image
-            print(len(buffer))
+            self.packet_size = len(buffer)
             self.frame_counter += 1
             frame = cv2.imdecode(np.frombuffer(buffer, dtype=np.uint8), cv2.IMREAD_COLOR)
             #frame = cv2.cvtColor(frame, cv2.COLOR_YUV420P2RGB)
@@ -48,7 +49,6 @@ class UDPVideoThread(QThread):
             # Updating fps
             if self.frame_counter%20 == 0:
                 self.fps = self.frame_counter/(time.time() - frame_time)
-                print(self.fps)
                 frame_time = time.time()
                 self.frame_counter = 0
 

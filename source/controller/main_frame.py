@@ -1,4 +1,3 @@
-from mqtt_client import MQTT_Client
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHeaderView
 from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, pyqtSignal, QSize
@@ -10,6 +9,7 @@ from remote_controller import RemoteController
 from video_receiver import UDPVideoThread
 
 sys.path.append("../common")
+from mqtt_client import MQTT_Client
 
 
 class GUI(QMainWindow):
@@ -17,7 +17,7 @@ class GUI(QMainWindow):
 
     def __init__(self):
         super(GUI, self).__init__()
-        loadUi('GUI-4G-CAR-DEF.ui', self)
+        loadUi('GUI-4G-CAR-DEF_#2.ui', self)
 
         self.widget_setter_func = {"STEER_MAX": self.set_steering_max,
                                    "STEER_CENTER": self.set_steering_center,
@@ -28,7 +28,9 @@ class GUI(QMainWindow):
                                    "TILT_MAX": self.set_tilt_max,
                                    "TILT_CENTER": self.set_tilt_center,
                                    "TILT_MIN": self.set_tilt_min,
-                                   "DRIVE_MAX_POWER": self.set_drive_max_power}
+                                   "DRIVE_MAX_POWER": self.set_drive_max_power,
+                                   "FPS": self.set_fps,
+                                   "PACKET_SIZE":self.set_packet_size}
 
         # Create a new QLabel called label_video and set its parent to frame_Global
         self.label_video = QtWidgets.QLabel(self.frame_Global)
@@ -41,83 +43,75 @@ class GUI(QMainWindow):
         self.label_video.stackUnder(self.frame_Contenido)
 
         # Conexion entre botones
-        self.btn_config.clicked.connect(
-            lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_settings))
-        self.btn_CAR_S.clicked.connect(
-            lambda: self.stacked_Contenido.setCurrentWidget(self.page_car))
-        self.btn_GUI_S.clicked.connect(
-            lambda: self.stacked_Contenido.setCurrentWidget(self.page_GUI))
-        self.btn_CAMERA_S.clicked.connect(
-            lambda: self.stacked_Contenido.setCurrentWidget(self.page_CAMERA))
-        self.btn_CLOSE_S.clicked.connect(
-            lambda: self.stacked_Contenido.setCurrentWidget(self.page_video))
-        self.btn_CLOSE_S.clicked.connect(
-            lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_config))
+        self.config_button.clicked.connect(lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_settings))
+        self.car_settings_button.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_car))
+        self.gui_settings_button.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_GUI))
+        self.camera_settings_button.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_CAMERA))
+        self.close_settings_button.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_video))
+        self.close_settings_button.clicked.connect(lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_config))
 
         # Conectar la señal currentTextChanged del QComboBox a la función actualizar_texto
-        self.comboBox_LGauge.currentTextChanged.connect(self.actualizar_texto)
-        self.comboBox_RGauge.currentTextChanged.connect(self.actualizar_texto)
-
-        # Establecer el valor del QLabel al valor inicial del QComboBox
-        self.label_GUI_text_1.setText(self.comboBox_LGauge.itemText(1))
-        self.label_GUI_text_2.setText(self.comboBox_RGauge.itemText(0))
-
-        # Actualizar el texto de los gauges respecto a las combobox
-        self.comboBox_LGauge.currentTextChanged.connect(self.actualizar_texto)
-        self.comboBox_RGauge.currentTextChanged.connect(self.actualizar_texto)
+        self.left_gauge_options.currentTextChanged.connect(self.left_gauge_option_changed)
+        self.right_gauge_options.currentTextChanged.connect(self.right_gauge_option_changed)
 
         # Establecemos las posiciones de los combobox en la GUI
-        self.comboBox_LGauge.setCurrentIndex(1)
-        self.comboBox_RGauge.setCurrentIndex(0)
+        self.left_gauge_options.setCurrentIndex(0)
+        self.right_gauge_options.setCurrentIndex(1)
+        self.left_gauge_option_changed()
+        self.right_gauge_option_changed()
 
         # Leer el valor del slider
-        self.hSlider_MAX_P.valueChanged.connect(self.slider_one)
+        self.max_power_slider.valueChanged.connect(self.slider_one)
 
         # Leer el estado del radio button
-        self.radioButton_FCOLLD.toggled.connect(self.control_radio1)
-        self.radioButton_BCOLLD.toggled.connect(self.control_radio2)
+        self.front_collision_detection_button.toggled.connect(self.control_radio1)
+        self.back_collision_detection_button.toggled.connect(self.control_radio2)
 
         # Leer el valor de la spinbox
         # Steering
-        self.spinBox_S_MAX.valueChanged.connect(self.spinS_MAX_valueChange)
-        self.spinBox_S_CENTER.valueChanged.connect(self.spinS_CENTER_valueChange)
-        self.spinBox_S_MIN.valueChanged.connect(self.spinS_MIN_valueChange)
+        self.steering_max_spinbox.valueChanged.connect(self.spinS_MAX_valueChange)
+        self.steering_center_spinbox.valueChanged.connect(self.spinS_CENTER_valueChange)
+        self.steering_min_spinbox.valueChanged.connect(self.spinS_MIN_valueChange)
 
         # Ultrasonic sensor
-        self.spinBox_FCOLLD.valueChanged.connect(self.spinFCOLLD_valueChange)
-        self.spinBox_BCOLLD.valueChanged.connect(self.spinBCOLLD_valueChange)
+        self.front_collision_distance_spinbox.valueChanged.connect(self.spinFCOLLD_valueChange)
+        self.back_collision_distance_spinbox.valueChanged.connect(self.spinBCOLLD_valueChange)
 
         # PAN Camera
-        self.spinBox_PAN_MAX.valueChanged.connect(self.spinPAN_MAX_valueChange)
-        self.spinBox_PAN_CENTER.valueChanged.connect(self.spinPAN_CENTER_valueChange)
-        self.spinBox_PAN_MIN.valueChanged.connect(self.spinPAN_MIN_valueChange)
+        self.pan_max_spinbox.valueChanged.connect(self.spinPAN_MAX_valueChange)
+        self.pan_center_spinbox.valueChanged.connect(self.spinPAN_CENTER_valueChange)
+        self.pan_min_spinbox.valueChanged.connect(self.spinPAN_MIN_valueChange)
 
         # Tilt Camera
-        self.spinBox_TILT_MAX.valueChanged.connect(self.spinTILT_MAX_valueChange)
-        self.spinBox_TILT_CENTER.valueChanged.connect(self.spinTILT_CENTER_valueChange)
-        self.spinBox_TILT_MIN.valueChanged.connect(self.spinTILT_MIN_valueChange)
+        self.tilt_max_spinbox.valueChanged.connect(self.spinTILT_MAX_valueChange)
+        self.tilt_max_spinbox.valueChanged.connect(self.spinTILT_CENTER_valueChange)
+        self.tilt_max_spinbox.valueChanged.connect(self.spinTILT_MIN_valueChange)
 
         # To update wigets when a new mqtt message is received
         self.mqtt_msg_signal.connect(self.widget_setter)
 
         # leer spinbox y combobox de IMAGE
-        self.spinBox_COMPRESSION.valueChanged.connect(self.spin_COMPRESSION_valueChange)
-        self.comboBox_IMAGE.currentTextChanged.connect(self.update_resolution)
+        self.compression_quality_spinbox.valueChanged.connect(self.spin_COMPRESSION_valueChange)
+        self.image_resolution_options.currentTextChanged.connect(self.update_resolution)
 
     def init_video_stream(self, host, port):
         # Create the video thread and connect its signal to the update_image slot
-        self.thread = UDPVideoThread(host, port)
-        self.thread.change_pixmap.connect(self.update_image)
-        self.thread.start()
+        self.video_streamer = UDPVideoThread(host, port)
+        self.video_streamer.change_pixmap.connect(self.update_image)
+        self.video_streamer.start()
 
     def update_image(self, qImg):
         # Update the label_video with the new image
         pixmap = QPixmap.fromImage(qImg)
+
         # Set a fixed size for the label equal to frame_video's size
         self.label_video.setFixedSize(self.frame_Global.size())
-        scaled_pixmap = pixmap.scaled(self.frame_Global.size(
-        ), QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
+        scaled_pixmap = pixmap.scaled(self.frame_Global.size(), QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
         self.label_video.setPixmap(scaled_pixmap)
+
+        # Update tranmission data
+        self.fps_value_label.setText(str(int(self.video_streamer.fps)))
+        self.packet_size_value_label.setText(str(self.video_streamer.packet_size))
 
     def init_remote_control(self, remote_host, control_port):
         self.controller = RemoteController(
@@ -161,61 +155,67 @@ class GUI(QMainWindow):
         self.widget_setter_func[widget_name](value)
 
     def set_pan_max(self, value):
-        self.spinBox_PAN_MAX.setValue(value)
+        self.pan_max_spinbox.setValue(value)
 
     def set_pan_center(self, value):
-        self.spinBox_PAN_CENTER.setValue(value)
+        self.pan_center_spinbox.setValue(value)
 
     def set_pan_min(self, value):
-        self.spinBox_PAN_MIN.setValue(value)
+        self.pan_min_spinbox.setValue(value)
 
     def set_tilt_max(self, value):
-        self.spinBox_TILT_MAX.setValue(value)
+        self.tilt_max_spinbox.setValue(value)
 
     def set_tilt_center(self, value):
-        self.spinBox_TILT_CENTER.setValue(value)
+        self.tilt_center_spinbox.setValue(value)
 
     def set_tilt_min(self, value):
-        self.spinBox_TILT_MIN.setValue(value)
+        self.tilt_min_spinbox.setValue(value)
 
     def set_steering_max(self, value):
-        self.spinBox_S_MAX.setValue(value)
+        self.steering_max_spinbox.setValue(value)
 
     def set_steering_center(self, value):
-        self.spinBox_S_CENTER.setValue(value)
+        self.steering_center_spinbox.setValue(value)
 
     def set_steering_min(self, value):
-        self.spinBox_S_MIN.setValue(value)
+        self.steering_min_spinbox.setValue(value)
 
     def set_drive_max_power(self, value):
-        self.hSlider_MAX_P.setValue(value)
-        self.label_MAX_P.setText(str(value))
+        self.max_power_slider.setValue(value)
+        self.max_power_value_label.setText(str(value))
 
-    # Metodo para actualizar ambos textos de las combobox
-    def actualizar_texto(self, texto):
+    def set_fps(self, value):
+        self.fps_value_label.setValue(value)
+
+    def set_packet_size(self, value):
+        self.packet_size_value_label.set_value(value)
+
+    def left_gauge_option_changed(self):
         # Obtener el texto seleccionado del QComboBox
-        Left_Gauge_text = self.comboBox_LGauge.currentText()
-        Right_Gauge_text = self.comboBox_RGauge.currentText()
-
-        # Actualizamos el texto dependiendo de la opcion seleccionada
-        if Left_Gauge_text == "RPM":
-            self.label_GUI_text_1.setText("RPM")
-        elif Left_Gauge_text == "Km/h":
-            self.label_GUI_text_1.setText("Km/h")
-        elif Left_Gauge_text == "Acc":
-            self.label_GUI_text_1.setText("ACC")
-
-        if Right_Gauge_text == "RPM":
-            self.label_GUI_text_2.setText("RPM")
-        elif Right_Gauge_text == "Km/h":
-            self.label_GUI_text_2.setText("Km/h")
-        elif Right_Gauge_text == "Acc":
-            self.label_GUI_text_2.setText("ACC")
+        left_gauge_option = self.left_gauge_options.currentText()
+        if left_gauge_option == "RPM":
+            units = "RPM"
+        elif left_gauge_option == "Speed":
+            units = "Km/h"
+        elif left_gauge_option == "Acceleration":
+            units = "m/s*s"
+        self.left_gauge_units_label.setText(units)
+        
+    def right_gauge_option_changed(self):
+        right_gauge_option = self.right_gauge_options.currentText()
+        if right_gauge_option == "RPM":
+            units = "RPM"
+        elif right_gauge_option == "Speed":
+            units = "Km/h"
+        elif right_gauge_option == "Acceleration":
+            units = "m/s*s"
+        self.right_gauge_units_label.setText(units)
 
     # Metodo para leer el slider
     def slider_one(self, event):
-        self.hSlider_MAX_P.setValue(event)
-        self.label_MAX_P.setText(str(event))
+        self.max_power_slider.setValue(event)
+        self.max_power_value_label.setText(str(event))
         value = str(event)
 
         # Changing power percentage to 8-bit integer representation
@@ -224,13 +224,13 @@ class GUI(QMainWindow):
 
     # Metodos para leer los radio buttons
     def control_radio1(self):
-        if self.radioButton_FCOLLD.isChecked() == True:
+        if self.front_collision_detection_button.isChecked() == True:
             self.controller.send_command(f"FE000\n".encode())
         else:
             self.controller.send_command(f"FD000\n".encode())
 
     def control_radio2(self):
-        if self.radioButton_BCOLLD.isChecked() == True:
+        if self.back_collision_detection_button.isChecked() == True:
             self.controller.send_command(f"BE000\n".encode())
         else:
             self.controller.send_command(f"BD000\n".encode())
@@ -238,66 +238,66 @@ class GUI(QMainWindow):
     # Metodos para leer las spinBox
     # Steering
     def spinS_MAX_valueChange(self):
-        value = self.spinBox_S_MAX.value()
+        value = self.steering_max_spinbox.value()
         self.controller.send_command(f"SM{value}\n".encode())
 
     def spinS_CENTER_valueChange(self):
-        value = self.spinBox_S_CENTER.value()
+        value = self.steering_center_spinbox.value()
         self.controller.send_command(f"Sc{value}\n".encode())
 
     def spinS_MIN_valueChange(self):
-        value = self.spinBox_S_MIN.value()
+        value = self.steering_min_spinbox.value()
         self.controller.send_command(f"Sm{value}\n".encode())
 
     # Ultrasonic sensor
     def spinFCOLLD_valueChange(self):
-        value = self.spinBox_FCOLLD.value()
+        value = self.front_collision_distance_spinbox.value()
         self.controller.send_command(f"F!{value}\n".encode())
 
     def spinBCOLLD_valueChange(self):
-        value = self.spinBox_BCOLLD.value()
+        value = self.back_collision_distance_spinbox.value()
         self.controller.send_command(f"B!{value}\n".encode())
 
     # PAN camera
     def spinPAN_MAX_valueChange(self):
-        value = self.spinBox_PAN_MAX.value()
+        value = self.pan_max_spinbox.value()
         self.controller.send_command(f"PM{value}\n".encode())
 
     def spinPAN_CENTER_valueChange(self):
-        value = self.spinBox_PAN_CENTER.value()
+        value = self.pan_center_spinbox.value()
         self.controller.send_command(f"Pc{value}\n".encode())
 
     def spinPAN_MIN_valueChange(self):
-        value = self.spinBox_PAN_MIN.value()
+        value = self.pan_min_spinbox.value()
         self.controller.send_command(f"Pm{value}\n".encode())
 
     # TILT camera
     def spinTILT_MAX_valueChange(self):
-        value = self.spinBox_TILT_MAX.value()
+        value = self.tilt_max_spinbox.value()
         self.controller.send_command(f"TM{value}\n".encode())
 
     def spinTILT_CENTER_valueChange(self):
-        value = self.spinBox_TILT_CENTER.value()
+        value = self.tilt_center_spinbox.value()
         self.controller.send_command(f"Tc{value}\n".encode())
 
     def spinTILT_MIN_valueChange(self):
-        value = self.spinBox_TILT_MIN.value()
+        value = self.tilt_min_spinbox.value()
         self.controller.send_command(f"Tm{value}\n".encode())
 
     #Metodos imagen
     def spin_COMPRESSION_valueChange(self):
-        value_COMPRESSION = self.spinBox_COMPRESSION.value()
-        print('El valor del TILT MIN es:', value_COMPRESSION)
+        value = self.compression_quality_spinbox.value()
+        print('El valor del TILT MIN es:', value)
 
     # Metodos para hacer set al valor del Packet y de los FPS
     def Packet_size_valueChange(self, value):
-        self.label_Packet_size_value.setValue(value)
+        self.packet_size_value_label.setValue(value)
 
     def FPS_valueChange(self, value):
-        self.label_FPS_value.setValue(value)
+        self.fps_value_label.setValue(value)
 
     def update_resolution(self):
-        resolution_text = self.comboBox_IMAGE.currentText()
+        resolution_text = self.image_resolution_options.currentText()
         if resolution_text == "640x480":
             print("Resolution is 640x480")
         else:
