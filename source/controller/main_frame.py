@@ -32,6 +32,11 @@ class GUI(QMainWindow):
                                    "FPS": self.set_fps,
                                    "PACKET_SIZE":self.set_packet_size}
 
+        # Ejemplo de los valores que pueden llegar a los gauges
+        self.RPM = 10
+        self.Acc = 15
+        self.Speed = 25
+
         # Create a new QLabel called label_video and set its parent to frame_Global
         self.label_video = QtWidgets.QLabel(self.frame_Global)
         self.label_video.setContentsMargins(0, 0, 0, 0)  # Set the margin to zero
@@ -59,6 +64,10 @@ class GUI(QMainWindow):
         self.right_gauge_options.setCurrentIndex(1)
         self.left_gauge_option_changed()
         self.right_gauge_option_changed()
+
+        # NUEVO Inicializar el valor de los gauges
+        self.left_gauge_value_label.setText(str(self.Vel))
+        self.right_gauge_value_label.setText(str(self.RPM))
 
         # Leer el valor del slider
         self.max_power_slider.valueChanged.connect(self.slider_one)
@@ -93,6 +102,39 @@ class GUI(QMainWindow):
         # leer spinbox y combobox de IMAGE
         self.compression_quality_spinbox.valueChanged.connect(self.spin_COMPRESSION_valueChange)
         self.image_resolution_options.currentTextChanged.connect(self.update_resolution)
+
+        # NUEVO If para el estilo de los gauges sin necesidad de mover las combobox
+        if self.RPM < 50:
+            self.right_gauge_value_label.setStyleSheet("background-color: rgb(0, 206, 151); color: white;"
+                                                       "border-radius: 50%;"
+                                                       "font-family: Bahnschrift;"
+                                                       "font-size: 25px; font-weight: 600;")
+        elif self.RPM < 100:
+            self.right_gauge_value_label.setStyleSheet("background-color: rgb(255, 165, 0); color: black;"
+                                                       "border-radius: 50%;"
+                                                       "font-family: Bahnschrift;"
+                                                       "font-size: 25px; font-weight: 600;")
+        else:
+            self.right_gauge_value_label.setStyleSheet("background-color: rgb(128, 0, 0); color: white;"
+                                                       "border-radius: 50%;"
+                                                       "font-family: Bahnschrift;"
+                                                       "font-size: 25px; font-weight: 600;")
+
+        if self.Speed <= 50:
+            self.left_gauge_value_label.setStyleSheet("background-color: rgb(0, 206, 151); color: white; "
+                                                      "border-radius: 50%;"
+                                                      "font-family: Bahnschrift;"
+                                                      "font-size: 25px; font-weight: 600;")
+        elif self.Speed <= 75:
+            self.left_gauge_value_label.setStyleSheet("background-color: rgb(255, 165, 0); color: black; "
+                                                      "border-radius: 50%;"
+                                                      "font-family: Bahnschrift;"
+                                                      "font-size: 25px; font-weight: 600;")
+        else:
+            self.left_gauge_value_label.setStyleSheet("background-color: rgb(128, 0, 0); color: white; "
+                                                      "border-radius: 50%;"
+                                                      "font-family: Bahnschrift;"
+                                                      "font-size: 25px; font-weight: 600;")
 
     def init_video_stream(self, host, port):
         # Create the video thread and connect its signal to the update_image slot
@@ -194,22 +236,119 @@ class GUI(QMainWindow):
     def left_gauge_option_changed(self):
         # Obtener el texto seleccionado del QComboBox
         left_gauge_option = self.left_gauge_options.currentText()
+
         if left_gauge_option == "RPM":
             units = "RPM"
+            self.left_gauge_value_label.setText(str(self.RPM))
+            if self.RPM < 50:
+                self.left_gauge_value_label.setStyleSheet("background-color: rgb(0, 206, 151); color: white; "
+                                                          "border-radius: 50%;"
+                                                          "font-family: Bahnschrift; "
+                                                          "font-size: 25px; font-weight: 600;")
+            elif self.RPM < 100:
+                self.left_gauge_value_label.setStyleSheet("background-color: rgb(255, 165, 0); color: black; "
+                                                          "border-radius: 50%;"
+                                                          "font-family: Bahnschrift; "
+                                                          "font-size: 25px; font-weight: 600;")
+            else:
+                self.left_gauge_value_label.setStyleSheet("background-color: rgb(128, 0, 0); color: white; "
+                                                          "border-radius: 50%;"
+                                                          "font-family: Bahnschrift;"
+                                                          "font-size: 25px; font-weight: 600;")
         elif left_gauge_option == "Speed":
             units = "Km/h"
+            self.left_gauge_value_label.setText(str(self.Speed))
+            if self.Speed < 50:
+                self.left_gauge_value_label.setStyleSheet("background-color: rgb(0, 206, 151); color: white; "
+                                                          "border-radius: 50%;"
+                                                          "font-family: Bahnschrift; "
+                                                          "font-size: 25px; font-weight: 600;")
+            elif self.Speed < 100:
+                self.left_gauge_value_label.setStyleSheet("background-color: rgb(255, 165, 0); color: black; "
+                                                          "border-radius: 50%;"
+                                                          "font-family: Bahnschrift; "
+                                                          "font-size: 25px; font-weight: 600;")
+            else:
+                self.left_gauge_value_label.setStyleSheet("background-color: rgb(128, 0, 0); color: white; "
+                                                          "border-radius: 50%;"
+                                                          "font-family: Bahnschrift;"
+                                                          "font-size: 25px; font-weight: 600;")
         elif left_gauge_option == "Acceleration":
             units = "m/s*s"
+            self.left_gauge_value_label.setText(str(self.Acc))
+            if self.Acc < 50:
+                self.left_gauge_value_label.setStyleSheet("background-color: rgb(0, 206, 151); color: white; "
+                                                          "border-radius: 50%;"
+                                                          "font-family: Bahnschrift; "
+                                                          "font-size: 25px; font-weight: 600;")
+            elif self.Acc < 100:
+                self.left_gauge_value_label.setStyleSheet("background-color: rgb(255, 165, 0); color: black; "
+                                                          "border-radius: 50%;"
+                                                          "font-family: Bahnschrift; "
+                                                          "font-size: 25px; font-weight: 600;")
+            else:
+                self.left_gauge_value_label.setStyleSheet("background-color: rgb(128, 0, 0); color: white; "
+                                                          "border-radius: 50%;"
+                                                          "font-family: Bahnschrift;"
+                                                          "font-size: 25px; font-weight: 600;")
         self.left_gauge_units_label.setText(units)
         
     def right_gauge_option_changed(self):
         right_gauge_option = self.right_gauge_options.currentText()
         if right_gauge_option == "RPM":
             units = "RPM"
+            self.right_gauge_value_label.setText(str(self.RPM))
+            if self.RPM < 50:
+                self.right_gauge_value_label.setStyleSheet("background-color: rgb(0, 206, 151); color: white; "
+                                                           "border-radius: 50%;"
+                                                           "font-family: Bahnschrift; "
+                                                           "font-size: 25px; font-weight: 600;")
+            elif self.RPM < 100:
+                self.right_gauge_value_label.setStyleSheet("background-color: rgb(255, 165, 0); color: black; "
+                                                           "border-radius: 50%;"
+                                                           "font-family: Bahnschrift; "
+                                                           "font-size: 25px; font-weight: 600;")
+            else:
+                self.right_gauge_value_label.setStyleSheet("background-color: rgb(128, 0, 0); color: white; "
+                                                           "border-radius: 50%;"
+                                                           "font-family: Bahnschrift;"
+                                                           "font-size: 25px; font-weight: 600;")
         elif right_gauge_option == "Speed":
             units = "Km/h"
+            self.right_gauge_value_label.setText(str(self.Speed))
+            if self.Speed < 50:
+                self.right_gauge_value_label.setStyleSheet("background-color: rgb(0, 206, 151); color: white; "
+                                                           "border-radius: 50%;"
+                                                           "font-family: Bahnschrift; "
+                                                           "font-size: 25px; font-weight: 600;")
+            elif self.Speed < 100:
+                self.right_gauge_value_label.setStyleSheet("background-color: rgb(255, 165, 0); color: black; "
+                                                           "border-radius: 50%;"
+                                                           "font-family: Bahnschrift; "
+                                                           "font-size: 25px; font-weight: 600;")
+            else:
+                self.right_gauge_value_label.setStyleSheet("background-color: rgb(128, 0, 0); color: white; "
+                                                           "border-radius: 50%;"
+                                                           "font-family: Bahnschrift;"
+                                                           "font-size: 25px; font-weight: 600;")
         elif right_gauge_option == "Acceleration":
             units = "m/s*s"
+            self.right_gauge_value_label.setText(str(self.Acc))
+            if self.Acc < 50:
+                self.right_gauge_value_label.setStyleSheet("background-color: rgb(0, 206, 151); color: white; "
+                                                           "border-radius: 50%;"
+                                                           "font-family: Bahnschrift; "
+                                                           "font-size: 25px; font-weight: 600;")
+            elif self.Acc < 100:
+                self.right_gauge_value_label.setStyleSheet("background-color: rgb(255, 165, 0); color: black; "
+                                                           "border-radius: 50%;"
+                                                           "font-family: Bahnschrift; "
+                                                           "font-size: 25px; font-weight: 600;")
+            else:
+                self.right_gauge_value_label.setStyleSheet("background-color: rgb(128, 0, 0); color: white; "
+                                                           "border-radius: 50%;"
+                                                           "font-family: Bahnschrift;"
+                                                           "font-size: 25px; font-weight: 600;")
         self.right_gauge_units_label.setText(units)
 
     # Metodo para leer el slider
