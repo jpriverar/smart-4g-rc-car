@@ -77,7 +77,8 @@ class RemoteController(InputDevice):
         self.control_client.sendto(command)
 
     def a_btn_handler(self, value):
-        if value: print("A button pressed")
+        if value: 
+            self.send_command("IC000\n".encode())
 
     def b_btn_handler(self, value):
         if value:

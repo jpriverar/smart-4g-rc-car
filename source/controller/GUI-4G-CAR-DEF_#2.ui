@@ -593,7 +593,7 @@ font: 87 15pt &quot;Bahnschrift SemiBold SemiConden&quot;;
 color: &quot;Black&quot;;</string>
                          </property>
                          <property name="text">
-                          <string>GUI_valor_1</string>
+                          <string>0</string>
                          </property>
                          <property name="alignment">
                           <set>Qt::AlignCenter</set>
@@ -682,7 +682,7 @@ font: 87 15pt &quot;Bahnschrift SemiBold SemiConden&quot;;
 color: &quot;Black&quot;;</string>
                          </property>
                          <property name="text">
-                          <string>GUI_valor_2</string>
+                          <string>0</string>
                          </property>
                          <property name="alignment">
                           <set>Qt::AlignCenter</set>
@@ -3757,7 +3757,7 @@ QSpinBox QAbstractItemView{
                         <number>180</number>
                        </property>
                        <property name="singleStep">
-                        <number>20</number>
+                        <number>1</number>
                        </property>
                       </widget>
                      </item>
@@ -4097,7 +4097,7 @@ QSpinBox QAbstractItemView{
                         <number>180</number>
                        </property>
                        <property name="singleStep">
-                        <number>20</number>
+                        <number>1</number>
                        </property>
                       </widget>
                      </item>
@@ -4437,7 +4437,7 @@ QSpinBox QAbstractItemView{
                         <number>180</number>
                        </property>
                        <property name="singleStep">
-                        <number>20</number>
+                        <number>1</number>
                        </property>
                       </widget>
                      </item>
@@ -5223,7 +5223,7 @@ QSpinBox QAbstractItemView{
                         <number>180</number>
                        </property>
                        <property name="singleStep">
-                        <number>20</number>
+                        <number>1</number>
                        </property>
                       </widget>
                      </item>
@@ -5563,7 +5563,7 @@ QSpinBox QAbstractItemView{
                         <number>180</number>
                        </property>
                        <property name="singleStep">
-                        <number>20</number>
+                        <number>1</number>
                        </property>
                       </widget>
                      </item>
@@ -5903,7 +5903,7 @@ QSpinBox QAbstractItemView{
                         <number>180</number>
                        </property>
                        <property name="singleStep">
-                        <number>20</number>
+                        <number>1</number>
                        </property>
                       </widget>
                      </item>

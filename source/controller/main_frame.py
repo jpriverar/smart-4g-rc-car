@@ -84,8 +84,8 @@ class GUI(QMainWindow):
 
         # Tilt Camera
         self.tilt_max_spinbox.valueChanged.connect(self.spinTILT_MAX_valueChange)
-        self.tilt_max_spinbox.valueChanged.connect(self.spinTILT_CENTER_valueChange)
-        self.tilt_max_spinbox.valueChanged.connect(self.spinTILT_MIN_valueChange)
+        self.tilt_center_spinbox.valueChanged.connect(self.spinTILT_CENTER_valueChange)
+        self.tilt_min_spinbox.valueChanged.connect(self.spinTILT_MIN_valueChange)
 
         # To update wigets when a new mqtt message is received
         self.mqtt_msg_signal.connect(self.widget_setter)
@@ -114,8 +114,7 @@ class GUI(QMainWindow):
         self.packet_size_value_label.setText(str(self.video_streamer.packet_size))
 
     def init_remote_control(self, remote_host, control_port):
-        self.controller = RemoteController(
-            remote_host, control_port, dev_path="auto", mqtt_publisher=self.mqtt_client.publish)
+        self.controller = RemoteController(remote_host, control_port, dev_path="auto", mqtt_publisher=self.mqtt_client.publish)
         self.controller.start()
 
     def init_MQTT(self, broker_address):
@@ -145,9 +144,9 @@ class GUI(QMainWindow):
         widget_type, widget_name = topic.split("/")[-2:]
 
         if widget_type == "DATA":
-            #print("Not implemented:", widget_name)
-            pass
-
+            if widget_name == "RPM":
+                gear, rpm = msg.split(",")
+                self.left_gauge_value_label.setText(rpm)
         elif widget_type == "CONFIG":
             self.mqtt_msg_signal.emit(widget_name, int(msg))
 
@@ -220,6 +219,7 @@ class GUI(QMainWindow):
 
         # Changing power percentage to 8-bit integer representation
         value = int(int(value)*255/100)
+        print(value)
         self.controller.send_command(f"DM{value}\n".encode())
 
     # Metodos para leer los radio buttons
