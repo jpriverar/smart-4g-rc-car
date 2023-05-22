@@ -65,10 +65,6 @@ class GUI(QMainWindow):
         self.left_gauge_option_changed()
         self.right_gauge_option_changed()
 
-        # NUEVO Inicializar el valor de los gauges
-        self.left_gauge_value_label.setText(str(self.Vel))
-        self.right_gauge_value_label.setText(str(self.RPM))
-
         # Leer el valor del slider
         self.max_power_slider.valueChanged.connect(self.slider_one)
 
