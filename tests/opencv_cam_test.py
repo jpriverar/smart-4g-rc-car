@@ -10,7 +10,7 @@ import socket
 # Creating and configuring the camera object
 cam = Picamera2()
 print(cam.camera_controls)
-config = cam.create_preview_configuration(main={"size": (640, 480), "format":"RGB888"}, controls={"FrameRate":25, "Sharpness":5.0, "AwbEnable":True})
+config = cam.create_preview_configuration(main={"size": (640, 480), "format":"RGB888"}, lores={"size": (320, 240), "format": "YUV420"}, controls={"FrameRate":25, "Sharpness":5.0, "AwbEnable":True})
 cam.align_configuration(config)
 cam.configure(config)
 
@@ -22,7 +22,7 @@ encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
 # Start reading the video stream
 cam.start()
 while True:
-    frame = cam.capture_array("main")
+    frame = cam.capture_array("lores")
     print(frame.shape)
     
     # Encoding and serializing the frame

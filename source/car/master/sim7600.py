@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 import time
 import serial
 import threading
-from utils import transform_gps_coordinates
+from gps import GPS
 
 class SIM7600(serial.Serial):
     def __init__(self, serial_dev_path, baud_rate, power_key):
@@ -83,9 +83,7 @@ class SIM7600(serial.Serial):
     def get_gps_coordinates(self):
         self.send_at('AT+CGPSINFO', expected="OK", timeout=1)
         raw_coordinates = self.recv_buffer[11:]
-        return transform_gps_coordinates(raw_coordinates)
-        
-        
+        return GPS.transform_coordinates(raw_coordinates)
 
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BCM)

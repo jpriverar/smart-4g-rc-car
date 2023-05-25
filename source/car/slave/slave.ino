@@ -40,7 +40,7 @@ double IMU_updateTime = 500;
 // Speed control variables
 bool followReference = false;
 double PID_lastSample;
-double PID_samplePeriod = 1000/2.5465; //2.5465 Hz
+double PID_samplePeriod = 1000/3.5014; //3.5014 Hz
 double currTime;
 
 void setup() {
@@ -140,7 +140,7 @@ void loop() {
 }
 
 void parse_message(String msg){
-  int16_t input_value = -1;
+  uint16_t input_value;
   char component = msg[0];
   char action = msg[1];
   
@@ -256,15 +256,16 @@ void performCamTiltAction(char action, uint16_t value){
 }
 
 void performDriveAction(char action, uint16_t value){
+  followReference = false;
   switch(action){
     case 'P':
-      followReference = false; changeDrivePower(value); break;
+      changeDrivePower(value); break;
     case 'I':
       incrementDrivePower(value); break;
     case 'D':
       incrementDrivePower(-value); break;
     case 'S':
-      followReference = false; stopDrive(); break;
+      stopDrive(); break;
     case 'C':
       changeDriveDirection(value); break;
     case 's':
@@ -291,11 +292,12 @@ void performVelocityAction(char action, uint16_t value){
 }
 
 void performFrontUSSAction(char action, uint16_t value){
+  /*
   switch(action){
     case 'O':
       USSensorData data = measureFrontDistance(); sendUSSensorData(data); break;
     case 'C':
-      frontUsReading = true; break;
+      sendDebug("here"); frontUsReading = true; break;
     case 'S':
       frontUsReading = false; break;
     case 'T':
@@ -309,9 +311,19 @@ void performFrontUSSAction(char action, uint16_t value){
     case 'd':
       frontStopDist = value; break;
   }
+  */
+  if (action == 'O'){USSensorData data = measureFrontDistance(); sendUSSensorData(data);}
+  else if (action == 'C'){frontUsReading = true;}
+  else if (action == 'S'){frontUsReading = false;}
+  else if (action == 'T'){frontUS_readTime = value; frontUS_lastMeasure = millis();}
+  else if (action == 'U'){frontUS_updateTime = value; frontUS_lastMeasure = millis();}
+  else if (action == 'E'){frontCollision = true;}
+  else if (action == 'D'){frontCollision = false;}
+  else if (action == 'd'){frontStopDist = value;}
 }
 
 void performBackUSSAction(char action, uint16_t value){
+  /*
   switch(action){
     case 'O':
       USSensorData data = measureBackDistance(); sendUSSensorData(data); break;
@@ -329,20 +341,41 @@ void performBackUSSAction(char action, uint16_t value){
       backCollision = false; break;
     case 'd':
       backStopDist = value; break;
+      
   }
+  */
+  if (action == 'O'){USSensorData data = measureBackDistance(); sendUSSensorData(data);}
+  else if (action == 'C'){backUsReading = true;}
+  else if (action == 'S'){backUsReading = false;}
+  else if (action == 'T'){backUS_readTime = value; backUS_lastMeasure = millis();}
+  else if (action == 'U'){backUS_updateTime = value; backUS_lastMeasure = millis();}
+  else if (action == 'E'){backCollision = true;}
+  else if (action == 'D'){backCollision = false;}
+  else if (action == 'd'){backStopDist = value;}
 }
 
 void performIMUAction(char action, uint16_t value){
+  /*
+  sendDebug("IMU action received: " + String(action));
+  if (action == 'C') sendDebug("Got in");
   switch(action){
     case 'O':
-      IMUData data = compute6dof(); sendIMUData(data); break;
+      sendDebug("enabling IMU"); IMUData data = compute6dof(); sendIMUData(data); break;
     case 'C':
-      readIMU = true; break;
+      sendDebug("enabling IMU"); readIMU = true; break;
     case 'S':
-      readIMU = false; break;
+      sendDebug("disabling IMU"); readIMU = false; break;
     case 'T':
-      IMU_readTime = value; IMU_lastMeasure = millis(); break;
+      sendDebug("time change IMU"); IMU_readTime = value; IMU_lastMeasure = millis(); break;
     case 'U':
-      IMU_updateTime = value; IMU_lastUpdate = millis(); break;
+      sendDebug("update time change IMU"); IMU_updateTime = value; IMU_lastUpdate = millis(); break;
   }
+  sendDebug("Out of IMU actions");
+  */
+
+  if (action == 'O'){IMUData data = compute6dof(); sendIMUData(data);}
+  else if (action == 'C'){readIMU = true;}
+  else if (action == 'S'){readIMU = false;}
+  else if (action == 'T'){IMU_readTime = value; IMU_lastMeasure = millis();}
+  else if (action == 'U'){IMU_updateTime = value; IMU_lastUpdate = millis();}
 }

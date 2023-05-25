@@ -10,7 +10,7 @@ double ref= 0;
 
 // Values found with experimentation of pwm and rpms for the motor at half capacity
 double input_norm_ref = 100;
-double output_norm_ref = 5000;
+double output_norm_ref = 7000;
 
 // Variables for PID controller
 double r = 0;
@@ -61,7 +61,7 @@ void updatePIDReference(){
   
   else{
     // Regular decay
-    new_ref = 0.8*ref;
+    new_ref = 0.95*ref;
   }
 
   ref = new_ref;
@@ -76,7 +76,7 @@ void updatePIDOutput(){
   e = r - y;
   
   // Compute the required input to the system
-  u = 2.0448*e - 0.41325408*e1 - 0.08112*e2 + u1;// Ecuacion en diferencias
+  u = 1.1835*e + 0.056441*e1 - 0.000497*e2 + u1;// Ecuacion en diferencias
 
   // Change value from normalized to PWM
   double input_val = u*input_norm_ref; // from 0 to 255
