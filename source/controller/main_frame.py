@@ -11,7 +11,6 @@ from video_receiver import UDPVideoThread
 sys.path.append("../common")
 from mqtt_client import MQTT_Client
 
-
 class GUI(QMainWindow):
     mqtt_msg_signal = pyqtSignal(str, int)
 
@@ -152,7 +151,7 @@ class GUI(QMainWindow):
         self.packet_size_value_label.setText(str(self.video_streamer.packet_size))
 
     def init_remote_control(self, remote_host, control_port):
-        self.controller = RemoteController(remote_host, control_port, dev_path="auto", mqtt_publisher=self.mqtt_client.publish)
+        self.controller = RemoteController(remote_host, control_port, dev_path="/dev/input/event12", mqtt_publisher=self.mqtt_client.publish)
         self.controller.start()
 
     def init_MQTT(self, broker_address):
@@ -185,6 +184,7 @@ class GUI(QMainWindow):
             if widget_name == "RPM":
                 gear, rpm = msg.split(",")
                 self.left_gauge_value_label.setText(rpm)
+
         elif widget_type == "CONFIG":
             self.mqtt_msg_signal.emit(widget_name, int(msg))
 

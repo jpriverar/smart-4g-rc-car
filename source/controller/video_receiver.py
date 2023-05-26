@@ -40,18 +40,21 @@ class UDPVideoThread(QThread):
             frame = cv2.imdecode(np.frombuffer(buffer, dtype=np.uint8), cv2.IMREAD_COLOR)
             #frame = cv2.cvtColor(frame, cv2.COLOR_YUV420P2RGB)
 
-            # Convert the image to QImage and emit the signal
-            height, width, channel = frame.shape
-            bytesPerLine = channel * width
-            qImg = QImage(frame.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
-            self.change_pixmap.emit(qImg)
+            try: 
+                # Convert the image to QImage and emit the signal
+                height, width, channel = frame.shape
+                bytesPerLine = channel * width
+                qImg = QImage(frame.data, width, height, bytesPerLine, QImage.Format_RGB888).rgbSwapped()
+                self.change_pixmap.emit(qImg)
 
-            # Updating fps
-            if self.frame_counter%20 == 0:
-                self.fps = self.frame_counter/(time.time() - frame_time)
-                frame_time = time.time()
-                self.frame_counter = 0
+                # Updating fps
+                if self.frame_counter%20 == 0:
+                    self.fps = self.frame_counter/(time.time() - frame_time)
+                    frame_time = time.time()
+                    self.frame_counter = 0
 
+            except Exception as e:
+                print(str(e))
 
 class TCPVideoThread(QThread):
     change_pixmap = pyqtSignal(QImage)

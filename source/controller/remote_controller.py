@@ -184,8 +184,9 @@ class RemoteController(InputDevice):
             self.state_values["right_yjoy"] = value
 
     def right_trig_handler(self, value):
-        value = int((value/1023)*100)
-        self.send_command(f"DP{value}\n".encode())
+        #value = int((value/1023)*100)
+        #self.send_command(f"DP{value}\n".encode())
+        self.send_command(f"VG{value}\n".encode())
 
         self.state_values["right_trig"] = value
 
