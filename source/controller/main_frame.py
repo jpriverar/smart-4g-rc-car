@@ -151,7 +151,7 @@ class GUI(QMainWindow):
         self.packet_size_value_label.setText(str(self.video_streamer.packet_size))
 
     def init_remote_control(self, remote_host, control_port):
-        self.controller = RemoteController(remote_host, control_port, dev_path="/dev/input/event12", mqtt_publisher=self.mqtt_client.publish)
+        self.controller = RemoteController(remote_host, control_port, dev_path="auto", mqtt_publisher=self.mqtt_client.publish)
         self.controller.start()
 
     def init_MQTT(self, broker_address):
