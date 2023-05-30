@@ -711,6 +711,25 @@ color: &quot;Black&quot;;</string>
                    </property>
                   </spacer>
                  </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_gps">
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>200</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>200</width>
+                     <height>200</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </item>
@@ -1065,7 +1084,7 @@ QSlider::handle:horizontal{
                       <widget class="QSpinBox" name="steering_max_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -1384,7 +1403,7 @@ QSpinBox QAbstractItemView{
                       <widget class="QSpinBox" name="steering_center_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -1697,7 +1716,7 @@ QSpinBox QAbstractItemView{
                       <widget class="QSpinBox" name="steering_min_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -2332,7 +2351,7 @@ border: 5px solid #111111;
                       <widget class="QSpinBox" name="front_collision_distance_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -2645,7 +2664,7 @@ QSpinBox QAbstractItemView{
                       <widget class="QSpinBox" name="back_collision_distance_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -3016,7 +3035,7 @@ QSpinBox QAbstractItemView{
                     <widget class="QComboBox" name="left_gauge_options">
                      <property name="minimumSize">
                       <size>
-                       <width>168</width>
+                       <width>132</width>
                        <height>100</height>
                       </size>
                      </property>
@@ -3093,7 +3112,7 @@ QComboBox QAbstractItemView{
                     <widget class="QComboBox" name="right_gauge_options">
                      <property name="minimumSize">
                       <size>
-                       <width>168</width>
+                       <width>132</width>
                        <height>100</height>
                       </size>
                      </property>
@@ -3168,6 +3187,19 @@ QComboBox QAbstractItemView{
             </widget>
             <widget class="QWidget" name="page_CAMERA">
              <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
               <item>
                <widget class="QFrame" name="frame_PAN">
                 <property name="styleSheet">
@@ -3303,7 +3335,7 @@ border-radius: 10px;
                       <widget class="QSpinBox" name="pan_max_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -3622,7 +3654,7 @@ QSpinBox QAbstractItemView{
                       <widget class="QSpinBox" name="pan_center_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -3935,7 +3967,7 @@ QSpinBox QAbstractItemView{
                       <widget class="QSpinBox" name="pan_min_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -4248,7 +4280,7 @@ QSpinBox QAbstractItemView{
                       <widget class="QSpinBox" name="compression_quality_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -4543,6 +4575,19 @@ QSpinBox QAbstractItemView{
                </widget>
               </item>
               <item>
+               <spacer name="horizontalSpacer_8">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QFrame" name="frame_TILT">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(61,61,61);
@@ -4667,7 +4712,7 @@ border-radius: 10px;</string>
                       <widget class="QSpinBox" name="tilt_max_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -4980,7 +5025,7 @@ QSpinBox QAbstractItemView{
                       <widget class="QSpinBox" name="tilt_center_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -5293,7 +5338,7 @@ QSpinBox QAbstractItemView{
                       <widget class="QSpinBox" name="tilt_min_spinbox">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -5606,7 +5651,7 @@ QSpinBox QAbstractItemView{
                       <widget class="QComboBox" name="image_resolution_options">
                        <property name="minimumSize">
                         <size>
-                         <width>168</width>
+                         <width>132</width>
                          <height>100</height>
                         </size>
                        </property>
@@ -5660,6 +5705,19 @@ QComboBox QAbstractItemView{
                  </item>
                 </layout>
                </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </widget>

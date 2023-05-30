@@ -1,6 +1,8 @@
+import io
 import sys
+import requests
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHeaderView
-from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, pyqtSignal, QSize
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve, pyqtSignal, QSize, Qt
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.uic import loadUi
@@ -12,7 +14,7 @@ sys.path.append("../common")
 from mqtt_client import MQTT_Client
 
 class GUI(QMainWindow):
-    mqtt_msg_signal = pyqtSignal(str, int)
+    mqtt_msg_signal = pyqtSignal(str, str)
 
     def __init__(self):
         super(GUI, self).__init__()
@@ -29,7 +31,8 @@ class GUI(QMainWindow):
                                    "TILT_MIN": self.set_tilt_min,
                                    "DRIVE_MAX_POWER": self.set_drive_max_power,
                                    "FPS": self.set_fps,
-                                   "PACKET_SIZE":self.set_packet_size}
+                                   "PACKET_SIZE": self.set_packet_size,
+                                   "POS": self.update_gps_image}
 
         # Ejemplo de los valores que pueden llegar a los gauges
         self.RPM = 10
@@ -45,14 +48,22 @@ class GUI(QMainWindow):
         self.label_video.stackUnder(self.frame_BarraConfig)
         # Stack label_video under frame_Contenido
         self.label_video.stackUnder(self.frame_Contenido)
+        # Stack label_video under label_gps
+        # self.label_video.stackUnder(self.label_gps)
 
         # Conexion entre botones
-        self.config_button.clicked.connect(lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_settings))
-        self.car_settings_button.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_car))
-        self.gui_settings_button.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_GUI))
-        self.camera_settings_button.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_CAMERA))
-        self.close_settings_button.clicked.connect(lambda: self.stacked_Contenido.setCurrentWidget(self.page_video))
-        self.close_settings_button.clicked.connect(lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_config))
+        self.config_button.clicked.connect(
+            lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_settings))
+        self.car_settings_button.clicked.connect(
+            lambda: self.stacked_Contenido.setCurrentWidget(self.page_car))
+        self.gui_settings_button.clicked.connect(
+            lambda: self.stacked_Contenido.setCurrentWidget(self.page_GUI))
+        self.camera_settings_button.clicked.connect(
+            lambda: self.stacked_Contenido.setCurrentWidget(self.page_CAMERA))
+        self.close_settings_button.clicked.connect(
+            lambda: self.stacked_Contenido.setCurrentWidget(self.page_video))
+        self.close_settings_button.clicked.connect(
+            lambda: self.stacked_BarraConfig.setCurrentWidget(self.page_config))
 
         # Conectar la señal currentTextChanged del QComboBox a la función actualizar_texto
         self.left_gauge_options.currentTextChanged.connect(self.left_gauge_option_changed)
@@ -143,7 +154,8 @@ class GUI(QMainWindow):
 
         # Set a fixed size for the label equal to frame_video's size
         self.label_video.setFixedSize(self.frame_Global.size())
-        scaled_pixmap = pixmap.scaled(self.frame_Global.size(), QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
+        scaled_pixmap = pixmap.scaled(self.frame_Global.size(
+        ), QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
         self.label_video.setPixmap(scaled_pixmap)
 
         # Update tranmission data
@@ -151,7 +163,8 @@ class GUI(QMainWindow):
         self.packet_size_value_label.setText(str(self.video_streamer.packet_size))
 
     def init_remote_control(self, remote_host, control_port):
-        self.controller = RemoteController(remote_host, control_port, dev_path="auto", mqtt_publisher=self.mqtt_client.publish)
+        self.controller = RemoteController(
+            remote_host, control_port, dev_path="auto", mqtt_publisher=self.mqtt_client.publish)
         self.controller.start()
 
     def init_MQTT(self, broker_address):
@@ -184,9 +197,11 @@ class GUI(QMainWindow):
             if widget_name == "RPM":
                 gear, rpm = msg.split(",")
                 self.left_gauge_value_label.setText(rpm)
+            elif widget_name == "POS":
+                self.mqtt_msg_signal.emit(widget_name, msg)
 
         elif widget_type == "CONFIG":
-            self.mqtt_msg_signal.emit(widget_name, int(msg))
+            self.mqtt_msg_signal.emit(widget_name, msg)
 
     def widget_setter(self, widget_name, value):
         self.widget_setter_func[widget_name](value)
@@ -194,39 +209,51 @@ class GUI(QMainWindow):
     def set_pan_max(self, value):
         self.pan_max_spinbox.setValue(value)
 
+
     def set_pan_center(self, value):
-        self.pan_center_spinbox.setValue(value)
+        self.pan_center_spinbox.setValue(int(value))
 
     def set_pan_min(self, value):
-        self.pan_min_spinbox.setValue(value)
+        self.pan_min_spinbox.setValue(int(value))
 
     def set_tilt_max(self, value):
-        self.tilt_max_spinbox.setValue(value)
+        self.tilt_max_spinbox.setValue(int(value))
 
     def set_tilt_center(self, value):
-        self.tilt_center_spinbox.setValue(value)
+        self.tilt_center_spinbox.setValue(int(value))
 
     def set_tilt_min(self, value):
-        self.tilt_min_spinbox.setValue(value)
+        self.tilt_min_spinbox.setValue(int(value))
 
     def set_steering_max(self, value):
-        self.steering_max_spinbox.setValue(value)
+        self.steering_max_spinbox.setValue(int(value))
 
     def set_steering_center(self, value):
-        self.steering_center_spinbox.setValue(value)
+        self.steering_center_spinbox.setValue(int(value))
 
     def set_steering_min(self, value):
-        self.steering_min_spinbox.setValue(value)
+        self.steering_min_spinbox.setValue(int(value))
 
     def set_drive_max_power(self, value):
-        self.max_power_slider.setValue(value)
-        self.max_power_value_label.setText(str(value))
+        self.max_power_slider.setValue(int(value))
+        self.max_power_value_label.setText(value)
 
     def set_fps(self, value):
-        self.fps_value_label.setValue(value)
+        self.fps_value_label.setValue(int(value))
 
     def set_packet_size(self, value):
-        self.packet_size_value_label.set_value(value)
+        self.packet_size_value_label.set_value(int(value))
+
+    def update_gps_image(self, value):
+        lat, lng = value.split(',')
+        api_key = 'AIzaSyCL2aUwan1zXwaqlYAeasRS7CPK-uJ73i0'
+        url = f'https://maps.googleapis.com/maps/api/staticmap?center={lat},{lng}&zoom=16&size=200x200&maptype=roadmap&markers=color:red%7Clabel:C%7C{lat},{lng}&key={api_key}'
+        image_data = requests.get(url).content
+        pixmap = QPixmap()
+        pixmap.loadFromData(io.BytesIO(image_data).read())
+        self.label_gps.setScaledContents(True)
+        self.label_gps.setPixmap(pixmap.scaled(self.label_gps.size(),
+                                 Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
 
     def left_gauge_option_changed(self):
         # Obtener el texto seleccionado del QComboBox
@@ -287,7 +314,7 @@ class GUI(QMainWindow):
                                                           "font-family: Bahnschrift;"
                                                           "font-size: 25px; font-weight: 600;")
         self.left_gauge_units_label.setText(units)
-        
+
     def right_gauge_option_changed(self):
         right_gauge_option = self.right_gauge_options.currentText()
         if right_gauge_option == "RPM":
@@ -419,7 +446,7 @@ class GUI(QMainWindow):
         value = self.tilt_min_spinbox.value()
         self.controller.send_command(f"Tm{value}\n".encode())
 
-    #Metodos imagen
+    # Metodos imagen
     def spin_COMPRESSION_valueChange(self):
         value = self.compression_quality_spinbox.value()
         print('El valor del TILT MIN es:', value)
@@ -450,6 +477,6 @@ if __name__ == '__main__':
     gui.init_MQTT(HOST)
     gui.init_remote_control(HOST, CONTROL_PORT)
     gui.init_video_stream(HOST, VIDEO_PORT)
-    #gui.showMaximized()
+    # gui.showMaximized()
     gui.show()
     sys.exit(app.exec_())
