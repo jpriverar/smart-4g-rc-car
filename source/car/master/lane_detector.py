@@ -22,7 +22,7 @@ class LaneDetector:
         self.traslation_vecs = calibration_params[3]
 
     def undistort_frame(self, frame):
-        h, w = frame.shape[:2]
+        w,h = frame.shape[:2]
         new_cam_matrix, roi = cv2.getOptimalNewCameraMatrix(self.cam_matrix, self.distortion_coef, (w,h), 1, (w,h))
 
         undistorted = cv2.undistort(frame, self.cam_matrix, self.distortion_coef, None, new_cam_matrix)

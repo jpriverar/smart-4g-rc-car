@@ -207,8 +207,7 @@ class GUI(QMainWindow):
         self.widget_setter_func[widget_name](value)
 
     def set_pan_max(self, value):
-        self.pan_max_spinbox.setValue(value)
-
+        self.pan_max_spinbox.setValue(int(value))
 
     def set_pan_center(self, value):
         self.pan_center_spinbox.setValue(int(value))
