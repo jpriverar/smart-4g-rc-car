@@ -1,1 +1,13 @@
-/etc/systemd/system/UDP_main_relay.service
+[Unit]
+Description=Control UDP Socket Relay Service
+After=network.target
+
+[Service]
+User=ubuntu
+Type=simple
+ExecStart=/home/ubuntu/smart-4g-rc-car/source/remote_server/socket_UDP_relay.py --car 8485 --controller 8486
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
