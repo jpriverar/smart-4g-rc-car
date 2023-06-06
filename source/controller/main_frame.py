@@ -162,8 +162,14 @@ class GUI(QMainWindow):
         widget_type, widget_name = topic.split("/")[-2:]
 
         if widget_type == "DATA":
+            left_gauge_option = self.left_gauge_options.currentText()
+            right_gauge_option = self.right_gauge_options.currentText()
+
             if widget_name == "RPM":
-                self.left_gauge_value_label.setText(msg)
+                if left_gauge_option == "RPM":
+                    self.left_gauge_value_label.setText(msg)
+                if left_gauge_option == "RPM":
+                    self.right_gauge_value_label.setText(msg)
 
                 rpm = int(msg)
                 if rpm < 1500: color = (0, 206, 151)
@@ -174,14 +180,17 @@ class GUI(QMainWindow):
                                                           "border-radius: 50%;"
                                                           "font-family: Bahnschrift; "
                                                           "font-size: 25px; font-weight: 600;")
-                
+
                 self.right_gauge_value_label.setStyleSheet(f"background-color: rgb{color}; color: white; "
                                                           "border-radius: 50%;"
                                                           "font-family: Bahnschrift; "
                                                           "font-size: 25px; font-weight: 600;")
                 
             elif widget_name == "SPEED":
-                self.right_gauge_value_label.setText(msg[:5])
+                if left_gauge_option == "Speed":
+                    self.left_gauge_value_label.setText(msg[:5])
+                if right_gauge_option == "Speed":
+                    self.right_gauge_value_label.setText(msg[:5])
 
             elif widget_name == "POS":
                 self.mqtt_msg_signal.emit(widget_name, msg)
