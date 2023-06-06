@@ -34,6 +34,7 @@ class RemoteController(InputDevice):
                              "right_xjoy": 0,
                              "right_yjoy": 0,
                              "right_trig": 0,
+                             "a_button":0,
                              "y_button": 0}
         
         # Handler functions for all buttons
@@ -78,7 +79,12 @@ class RemoteController(InputDevice):
 
     def a_btn_handler(self, value):
         if value: 
-            self.send_command("IC000\n".encode())
+            if not self.state_values["a_button"]:
+                payload = "auto"
+            else: 
+                payload = "manual"
+            self.publish_mqtt(topic="RCCAR/CMD/MODE", payload=payload, qos=1)
+            self.state_values["a_button"] ^= 1
 
     def b_btn_handler(self, value):
         if value:
@@ -151,9 +157,13 @@ class RemoteController(InputDevice):
         pass
 
     def left_trig_handler(self, value):
-        self.send_command(f"VB{value}\n".encode())
-        
-        self.state_values["left_trig"] = value
+        if self.state_values["right_trig"] == 0: 
+            if self.state_values["left_trig"] == 0:
+                self.send_command("DC0\n".encode())
+
+            value = int((value/1023)*255)
+            self.send_command(f"DP{value}\n".encode())
+            self.state_values["left_trig"] = value
 
     def right_xjoy_handler(self, value):
         if abs(value - self.state_values["right_xjoy"]) >= 200:
@@ -184,11 +194,13 @@ class RemoteController(InputDevice):
             self.state_values["right_yjoy"] = value
 
     def right_trig_handler(self, value):
-        #value = int((value/1023)*100)
-        #self.send_command(f"DP{value}\n".encode())
-        self.send_command(f"VG{value}\n".encode())
+        if self.state_values["left_trig"] == 0: 
+            if self.state_values["right_trig"] == 0:
+                self.send_command("DC1\n".encode())
 
-        self.state_values["right_trig"] = value
+            value = int((value/1023)*255)
+            self.send_command(f"DP{value}\n".encode())
+            self.state_values["right_trig"] = value
 
     def x_arrow_handler(self, value):
         if value == 1:
