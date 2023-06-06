@@ -38,10 +38,8 @@ void imuInit(){
   pinMode(MPU_INTERRUPT_PIN, INPUT);
 
   // verify MPU connection
-  //Serial.println(F("Testing device connections..."));
   Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
-
-  // load and configure the MPU DMP
+  
   Serial.println(F("Initializing DMP..."));
   devStatus = mpu.dmpInitialize();
 
@@ -59,14 +57,9 @@ void imuInit(){
       //mpu.CalibrateAccel(6);
       //mpu.CalibrateGyro(6);
       mpu.PrintActiveOffsets();
-      // turn on the DMP, now that it's ready
-      //Serial.println(F("Enabling DMP..."));
       mpu.setDMPEnabled(true);
 
       // enable Arduino interrupt detection
-      //Serial.print(F("Enabling interrupt detection (Arduino external interrupt "));
-      //Serial.print(digitalPinToInterrupt(MPU_INTERRUPT_PIN));
-      //Serial.println(F(")..."));
       attachInterrupt(digitalPinToInterrupt(MPU_INTERRUPT_PIN), dmpDataReady, RISING);
       mpuIntStatus = mpu.getIntStatus();
 
@@ -77,10 +70,6 @@ void imuInit(){
       // get expected DMP packet size for later comparison
       packetSize = mpu.dmpGetFIFOPacketSize();
   } else {
-      // ERROR!
-      // 1 = initial memory load failed
-      // 2 = DMP configuration updates failed
-      // (if it's going to break, usually the code will be 1)
       Serial.print(F("DMP Initialization failed (code "));
       Serial.print(devStatus);
       Serial.println(F(")"));

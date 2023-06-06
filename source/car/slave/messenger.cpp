@@ -38,34 +38,34 @@ void sendText(uint8_t type, String data){
   Serial.write(type);
   
   byte lenBytes[2];
-  lenBytes[0] = dataLength & 0xFF; // low byte
-  lenBytes[1] = (dataLength >> 8) & 0xFF; // high byte
-  Serial.write(lenBytes[0]);
+  lenBytes[0] = (uint8_t)dataLength; // low byte
+  lenBytes[1] = (uint8_t)(dataLength >> 8); // high byte
   Serial.write(lenBytes[1]);
+  Serial.write(lenBytes[0]);
   
   Serial.println(data);
 }
 
 void sendResponse(uint8_t data){
   Message msg;
-  msg.messageType = 0x03;
+  msg.messageType = 0x04;
   msg.payloadLength = 1;
   msg.payload = &data;
   sendMsg(&msg);
 }
 
 void sendError(String errorText){
-  uint8_t type = 0x04;
+  uint8_t type = 0x05;
   sendText(type, errorText);
 }
 
 void sendLog(String logText){
-  uint8_t type = 0x05;
+  uint8_t type = 0x06;
   sendText(type, logText);
 }
 
 void sendDebug(String debugText){
-  uint8_t type = 0x06;
+  uint8_t type = 0x07;
   sendText(type, debugText);
 }
 
@@ -87,7 +87,7 @@ void sendMsg(Message* msg) {
 
 void sendUSSensorData(USSensorData data){
   Message msg;
-  msg.messageType = 0x01;
+  msg.messageType = 0x02;
   msg.payloadLength = sizeof(data);
   msg.payload = &data;
   sendMsg(&msg);
@@ -95,7 +95,7 @@ void sendUSSensorData(USSensorData data){
 
 void sendIMUData(IMUData data){
   Message msg;
-  msg.messageType = 0x02;
+  msg.messageType = 0x03;
   msg.payloadLength = sizeof(data);
   msg.payload = &data;
   sendMsg(&msg);
@@ -104,6 +104,14 @@ void sendIMUData(IMUData data){
 void sendRPM(RPMData data){
   Message msg;
   msg.messageType = 0x00;
+  msg.payloadLength = sizeof(data);
+  msg.payload = &data;
+  sendMsg(&msg);
+}
+
+void sendSpeed(SpeedData data){
+  Message msg;
+  msg.messageType = 0x01;
   msg.payloadLength = sizeof(data);
   msg.payload = &data;
   sendMsg(&msg);

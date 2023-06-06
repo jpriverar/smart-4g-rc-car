@@ -3,9 +3,8 @@
 #define SPEEDOMETER_INT_PIN 3
 
 // Starting reference and sampling period
-uint16_t gasPedal;
-uint16_t breakPedal;
 double rpm = 0;
+double speed = 0;
 double ref= 0;
 
 // Values found with experimentation of pwm and rpms for the motor at half capacity
@@ -29,42 +28,9 @@ void speedometerInit() {
   attachInterrupt(digitalPinToInterrupt(SPEEDOMETER_INT_PIN), increaseCount, RISING);
 }
 
-void setGasPedal(uint16_t value){
-  value = max(value, 0);
-  value = min(value, 1023);
-  gasPedal = value;
-}
-
-void setBreakPedal(uint16_t value){
-  value = max(value, 0);
-  value = min(value, 1023);
-  breakPedal = value;
-}
-
 void setPIDReference(double value){
   value = max(value, 0);
   ref = value;
-}
-
-void updatePIDReference(){
-  double new_ref;
-  if (breakPedal > 0){
-    new_ref = ref - ((double)breakPedal/1023)*3000;
-  }
-
-  else if (gasPedal > 0){
-    int max_rpm = getMaxRPM();
-    int min_rpm = getMinRPM();
-    
-    new_ref = ((double)gasPedal/1023)*(max_rpm-min_rpm) + min_rpm; 
-  }
-  
-  else{
-    // Regular decay
-    new_ref = 0.95*ref;
-  }
-
-  ref = new_ref;
 }
 
 void updatePIDOutput(){
@@ -103,7 +69,13 @@ RPMData computeRPM(double period_ms) {
   RPMData data;
   rpm = (A_count * (60000/period_ms))/100;  // sensor pulse / 100 = 1 motor revolution  
   data.rpm = rpm;
-  data.gear = getGear();
+  return data;
+}
+
+SpeedData computeSpeed(){
+  SpeedData data;
+  speed = (rpm*2*3.14159265*0.043*3.6)/(60*3.65*2);
+  data.speed = speed;
   return data;
 }
 

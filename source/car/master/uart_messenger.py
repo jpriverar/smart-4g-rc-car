@@ -9,10 +9,8 @@ class UARTMessenger(serial.Serial):
         super().__init__(device, baud_rate, timeout=1)
         self.reset_input_buffer()
         
-        self.msg_types = ["RPM", "USS", "IMU", "RES", "ERR", "LOG", "DBG"]
-        self.is_text_msg = [0,0,0,0,1,1,1]
+        self.is_text_msg = [0,0,0,0,0,1,1,1]
         self.response_queue = queue.Queue()
-        
                 
     def get_msg(self):
         if self.in_waiting > 3: #Header for each message is 3 bytes
@@ -36,40 +34,40 @@ class UARTMessenger(serial.Serial):
             payload = self.read(payload_length)
         return msg_type, payload
     
-    def parse(self, msg_type, payload):
-        topic = self.msg_types[msg_type]
-        
+    def parse(self, msg_type, payload):        
         if msg_type == 0x00: # RPM measurement
-            gear, rpm = struct.unpack("<Bf", payload)
-            return topic, (gear,  int(rpm))
+            rpm = struct.unpack("<f", payload)[0]
+            return "RPM", int(rpm)
+        
+        if msg_type == 0x01: # Speed measurement
+            speed = struct.unpack("<f", payload)[0]
+            return "SPEED", speed
             
-        elif msg_type == 0x01: # Ultrasonic sensor measurement
-            sensor_data = struct.unpack("<Bf", payload)
-            side, distance = sensor_data
-            topic_sufix = "F" if side else "B"
-            topic += topic_sufix
-            return topic, [distance]
+        elif msg_type == 0x02: # Ultrasonic sensor measurement
+            side, distance = struct.unpack("<Bf", payload)
+            topic = "FUSS" if side else "BUSS"
+            return topic, distance
             
-        elif msg_type == 0x02: # IMU measurement
+        elif msg_type == 0x03: # IMU measurement
             sensor_data = struct.unpack("<6f", payload)
-            yaw, pitch, roll, ax, ay, az = sensor_data
-            return topic, sensor_data
+            #print(sensor_data)
+            return "IMU", sensor_data
             
-        elif msg_type == 0x03: # Command response
+        elif msg_type == 0x04: # Command response
             response = struct.unpack("<B", payload)
             self.response_queue.put(response[0])
             
-        elif msg_type == 0x04: # Error message
+        elif msg_type == 0x05: # Error message
             error = payload.decode("utf-8").strip()
-            print(f"({topic})->{error}")
+            print(f"(ERROR)->{error}")
             
-        elif msg_type == 0x05: # Log message
+        elif msg_type == 0x06: # Log message
             log = payload.decode("utf-8").strip()
-            print(f"({topic})->{log}")
+            print(f"(LOG)->{log}")
             
-        elif msg_type == 0x06: # Debug message
+        elif msg_type == 0x07: # Debug message
             debug = payload.decode("utf-8").strip()
-            print(f"({topic})->{debug}")
+            print(f"(DEBUG)->{debug}")
             
         else:
             print(f"Unknown message type")

@@ -8,8 +8,12 @@ uint8_t MAX_POWER = 255;
 double drivePower = 0;
 uint8_t onDrive = FPWM; // Forward direction first on
 uint8_t offDrive = BPWM; 
+bool forwardLocked = false;
+bool backwardsLocked = false;
 
 void changeDrivePower(uint16_t power){
+  bool lock = checkDriveLocked();
+  if (lock) return;
   if (power > MAX_POWER){power = MAX_POWER;}
 
   // Saving the angle in the steer_angle variable
@@ -18,6 +22,10 @@ void changeDrivePower(uint16_t power){
   // Updating the angle
   analogWrite(onDrive, power);
   analogWrite(offDrive, 0);
+}
+
+bool checkDriveLocked(){
+  return ((forwardLocked && onDrive == FPWM) || (backwardsLocked && onDrive == BPWM));
 }
 
 void incrementDrivePower(uint16_t power){
@@ -63,4 +71,21 @@ void driveInit(){
 
   changeDriveDirection(1); // Forward- default starting direction
   changeDrivePower(0);
+}
+
+void lockForwardDrive(){
+  forwardLocked = true;
+}
+
+void unlockForwardDrive(){
+  forwardLocked = false;
+}
+
+void lockBackwardsDrive(){
+  backwardsLocked = true;
+}
+
+
+void unlockBackwardsDrive(){
+  backwardsLocked = false;
 }

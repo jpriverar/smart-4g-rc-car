@@ -1,4 +1,5 @@
 import numpy as np
+from picamera2 import Picamera2
 import cv2
 import shutil
 import os
@@ -17,9 +18,13 @@ def capture_images(cam_index, pattern_size, image_directory):
             color = (0,255,0)
         return color
 
-    cap = cv2.VideoCapture(cam_index)
-    while cap.isOpened():
-        ret, frame = cap.read()
+    cam = Picamera2()
+    config = cam.create_preview_configuration(main={"size": (640, 480), "format":"RGB888"})
+    cam.configure(config)
+    cam.start()
+    
+    while True:
+        frame = cam.capture_array("main")
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -65,15 +70,10 @@ def get_calibration_points(path, pattern_size):
     print(f"Extracted {len(obj_points)}/{len(images)} sets of calibration points")
     return size, obj_points, img_points
 
-def save_calibration_data(file_path, calibration_data):
+def save_camera_params(file_path, calibration_data):
     with open(file_path, "wb") as file:
         pickle.dump(calibration_data, file)
     print("Saved calibration data!")
-
-def load_calibration_data(file_path):
-    with open(file_path, "rb") as file:
-        loaded_data = pickle.load(file)
-    return loaded_data
 
 def generate_object_points(pattern_size, square_size=1):
     m, n = pattern_size
@@ -82,24 +82,32 @@ def generate_object_points(pattern_size, square_size=1):
     return objp
 
 def extract_image_points(img, pattern_size):
-    improved_corners = None
-    found, corners = cv2.findChessboardCorners(img, pattern_size, None)
+    subpix_criteria = (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+    
+    found, corners = cv2.findChessboardCorners(img, pattern_size, cv2.CALIB_CB_ADAPTIVE_THRESH+cv2.CALIB_CB_FAST_CHECK+cv2.CALIB_CB_NORMALIZE_IMAGE)
     if found:
-        termination_criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-        improved_corners = cv2.cornerSubPix(img, corners, (11,11), (-1,-1), termination_criteria)
-    return found, improved_corners
+        cv2.cornerSubPix(img, corners, (11,11), (-1,-1), subpix_criteria)
+    return found, corners
 
 
 if __name__ == "__main__":
 
-    path = "/home/jprivera/Scripts/smart_4g_car/source/car/master/camera_calibration/pictures"
+    path = "/home/jp/Projects/smart-4g-rc-car/source/car/master/camera_calibration/pictures"
     PATTERN_SIZE = (9,6)
 
     #capture_images(cam_index=2, pattern_size=PATTERN_SIZE, image_directory=path)
     size, obj_points, img_points = get_calibration_points(path, PATTERN_SIZE)
+    obj_points = np.expand_dims(np.asarray(obj_points), -2)
     
-    calibration_params = cv2.calibrateCamera(obj_points, img_points, size[::-1], None, None)
-    if calibration_params[0]:
-        save_calibration_data("camera_calibration_params.pckl", calibration_params[1:])
+    K = np.zeros((3, 3), dtype=np.float64)
+    D = np.zeros((4, 1), dtype=np.float64)
+    rvecs = [np.zeros((1, 1, 3), dtype=np.float64) for i in range(len(obj_points))]
+    tvecs = [np.zeros((1, 1, 3), dtype=np.float64) for i in range(len(obj_points))]
+    calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC + cv2.fisheye.CALIB_CHECK_COND + cv2.fisheye.CALIB_FIX_SKEW
+    
+    ret,_,_,_,_ = cv2.fisheye.calibrate(obj_points, img_points, size[::-1], K, D, rvecs, tvecs, calibration_flags, (cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6))
+    
+    if ret:
+        save_camera_params("camera_calibration_params.pckl", (K, D, rvecs, tvecs))
 
 

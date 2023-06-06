@@ -4,7 +4,6 @@
 #include "camera.h"
 #include "steer.h"
 #include "imu.h"
-#include "gearbox.h"
 #include "drive.h"
 
 #define LIGHT_PIN A0
@@ -49,7 +48,6 @@ void setup() {
   waitForConnection();
 
   // Initializing all car components
-  gearboxInit();
   speedometerInit();
   driveInit();
   steerInit();
@@ -86,7 +84,13 @@ void loop() {
     
     // Collision detection
     if (frontCollision){
-      if ((data.distance < frontStopDist) && (data.distance > 0)) stopDrive();
+      if ((data.distance < frontStopDist) && (data.distance > 2)) {
+        stopDrive();
+        lockForwardDrive();
+      } else {
+        unlockForwardDrive();
+      }
+      
     }
     
     frontUS_lastMeasure = millis();
@@ -104,7 +108,12 @@ void loop() {
 
     // Collision detection
     if (backCollision){
-      if ((data.distance < backStopDist) && (data.distance > 0)) stopDrive();
+      if ((data.distance < backStopDist) && (data.distance > 2)) {
+        stopDrive();
+        lockBackwardsDrive();
+      } else {
+        unlockBackwardsDrive();
+      }
     }
     
     backUS_lastMeasure = millis();
@@ -125,14 +134,16 @@ void loop() {
 
   // RPM MEASUREMENT
   if (currTime - PID_lastSample >= PID_samplePeriod){
-    RPMData data = computeRPM(currTime - PID_lastSample);
-    sendRPM(data);
+    RPMData rpmData = computeRPM(currTime - PID_lastSample);
+    sendRPM(rpmData);
+
+    SpeedData speedData = computeSpeed();
+    sendSpeed(speedData);
 
     // Updating PID output
-    if (followReference){
-      updatePIDReference();
+    bool driveLocked = checkDriveLocked();
+    if ((followReference) && !(driveLocked))
       updatePIDOutput();    
-    }
     
     PID_lastSample = millis();
     resetCount();
@@ -159,8 +170,6 @@ void parse_message(String msg){
       performCamTiltAction(action, input_value); break;
     case 'D':
       performDriveAction(action, input_value); break;
-    case 'V':
-      performVelocityAction(action, input_value); break;
     case 'F':
       performFrontUSSAction(action, input_value); break;
     case 'B':
@@ -258,6 +267,8 @@ void performCamTiltAction(char action, uint16_t value){
 void performDriveAction(char action, uint16_t value){
   followReference = false;
   switch(action){
+    case 'R':
+      followReference = true; setPIDReference(value); break;
     case 'P':
       changeDrivePower(value); break;
     case 'I':
@@ -275,43 +286,7 @@ void performDriveAction(char action, uint16_t value){
   }
 }
 
-void performVelocityAction(char action, uint16_t value){
-  followReference = true;
-  switch(action){
-    case 'R':
-      setPIDReference(value); break;
-    case 'G':
-      setGasPedal(value); break;
-    case 'B':
-      setBreakPedal(value); break;
-    case 'U':
-      shiftGearUp(); break;
-    case 'D':
-      shiftGearDown(); break;
-  }
-}
-
 void performFrontUSSAction(char action, uint16_t value){
-  /*
-  switch(action){
-    case 'O':
-      USSensorData data = measureFrontDistance(); sendUSSensorData(data); break;
-    case 'C':
-      sendDebug("here"); frontUsReading = true; break;
-    case 'S':
-      frontUsReading = false; break;
-    case 'T':
-      frontUS_readTime = value; frontUS_lastMeasure = millis(); break;
-    case 'U':
-      frontUS_updateTime = value; frontUS_lastUpdate = millis(); break;
-    case 'E':
-      frontCollision = true; break;
-    case 'D':
-      frontCollision = false; break;
-    case 'd':
-      frontStopDist = value; break;
-  }
-  */
   if (action == 'O'){USSensorData data = measureFrontDistance(); sendUSSensorData(data);}
   else if (action == 'C'){frontUsReading = true;}
   else if (action == 'S'){frontUsReading = false;}
@@ -323,27 +298,6 @@ void performFrontUSSAction(char action, uint16_t value){
 }
 
 void performBackUSSAction(char action, uint16_t value){
-  /*
-  switch(action){
-    case 'O':
-      USSensorData data = measureBackDistance(); sendUSSensorData(data); break;
-    case 'C':
-      backUsReading = true; break;
-    case 'S':
-      backUsReading = false; break;
-    case 'T':
-      backUS_readTime = value; frontUS_lastMeasure = millis(); break;
-    case 'U':
-      backUS_updateTime = value; frontUS_lastUpdate = millis(); break;
-    case 'E':
-      backCollision = true; break;
-    case 'D':
-      backCollision = false; break;
-    case 'd':
-      backStopDist = value; break;
-      
-  }
-  */
   if (action == 'O'){USSensorData data = measureBackDistance(); sendUSSensorData(data);}
   else if (action == 'C'){backUsReading = true;}
   else if (action == 'S'){backUsReading = false;}
@@ -355,24 +309,6 @@ void performBackUSSAction(char action, uint16_t value){
 }
 
 void performIMUAction(char action, uint16_t value){
-  /*
-  sendDebug("IMU action received: " + String(action));
-  if (action == 'C') sendDebug("Got in");
-  switch(action){
-    case 'O':
-      sendDebug("enabling IMU"); IMUData data = compute6dof(); sendIMUData(data); break;
-    case 'C':
-      sendDebug("enabling IMU"); readIMU = true; break;
-    case 'S':
-      sendDebug("disabling IMU"); readIMU = false; break;
-    case 'T':
-      sendDebug("time change IMU"); IMU_readTime = value; IMU_lastMeasure = millis(); break;
-    case 'U':
-      sendDebug("update time change IMU"); IMU_updateTime = value; IMU_lastUpdate = millis(); break;
-  }
-  sendDebug("Out of IMU actions");
-  */
-
   if (action == 'O'){IMUData data = compute6dof(); sendIMUData(data);}
   else if (action == 'C'){readIMU = true;}
   else if (action == 'S'){readIMU = false;}

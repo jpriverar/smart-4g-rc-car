@@ -10,5 +10,10 @@ void changeDrivePower(uint16_t power);
 void incrementDrivePower(uint16_t power);
 void stopDrive();
 void changeDriveDirection(uint16_t dir);
+void lockForwardDrive();
+void unlockForwardDrive();
+void lockBackwardsDrive();
+void unlockBackwardsDrive();
+bool checkDriveLocked();
 
 #endif /*DRIVE_H_*/

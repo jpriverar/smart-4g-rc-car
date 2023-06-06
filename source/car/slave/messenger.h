@@ -10,8 +10,11 @@ struct Message{
 };
 
 struct RPMData{
-  uint8_t gear;
   double rpm;
+};
+
+struct SpeedData{
+  double speed;
 };
 
 struct USSensorData{
@@ -40,5 +43,6 @@ void sendResponse(uint8_t data);
 void sendUSSensorData(USSensorData data);
 void sendIMUData(IMUData data);
 void sendRPM(RPMData data);
+void sendSpeed(SpeedData data);
 
 #endif /*MESSENGER_H_*/
