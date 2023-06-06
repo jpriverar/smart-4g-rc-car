@@ -32,7 +32,9 @@ class GUI(QMainWindow):
                                    "DRIVE_MAX_POWER": self.set_drive_max_power,
                                    "FPS": self.set_fps,
                                    "PACKET_SIZE": self.set_packet_size,
-                                   "POS": self.update_gps_image}
+                                   "POS": self.update_gps_image,
+                                   "FUSS": self.set_fuss,
+                                   "BUSS": self.set_buss}
 
         # Ejemplo de los valores que pueden llegar a los gauges
         self.RPM = 0
@@ -154,6 +156,9 @@ class GUI(QMainWindow):
         self.mqtt_client.subscribe("RCCAR/CONFIG/TILT_CENTER")
         self.mqtt_client.subscribe("RCCAR/CONFIG/TILT_MIN")
         self.mqtt_client.subscribe("RCCAR/CONFIG/DRIVE_MAX_POWER")
+        self.mqtt_client.subscribe("RCCAR/CONFIG/FUSS")
+        self.qtt_client.subscribe("RCCAR/CONFIG/BUSS")
+
 
         # Setting on the led in dashboard
         self.mqtt_client.publish(topic="CONTROLLER/STATUS", payload="ON", qos=1, retain=True)
@@ -237,6 +242,18 @@ class GUI(QMainWindow):
 
     def set_packet_size(self, value):
         self.packet_size_value_label.set_value(int(value))
+
+    def set_fuss(self, value):
+        if value == 1:
+            self.front_collision_detection_button.setChecked(True)
+        else:
+            self.front_collision_detection_button.setChecked(False)
+
+    def set_buss(self, value):
+        if value == 1:
+            self.back_collision_detection_button.setChecked(True)
+        else:
+            self.back_collision_detection_button.setChecked(False)
 
     def update_gps_image(self, value):
         return
