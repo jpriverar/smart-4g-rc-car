@@ -1,1 +1,13 @@
-/etc/systemd/system/UDP_video_relay.service
+[Unit]
+Description=Video UDP Socket Relay Service
+After=network.target
+
+[Service]
+User=ubuntu
+Type=simple
+ExecStart=/home/ubuntu/smart-4g-rc-car/source/remote_server/socket_UDP_relay.py --car 8487 --controller 8488
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

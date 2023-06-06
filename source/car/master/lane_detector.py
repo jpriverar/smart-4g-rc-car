@@ -15,7 +15,6 @@ class LaneDetector:
         self.window_width = window_width
         self.lane_fit = [False, False]
         self.lane_points = [None, None]
-        
         self.center_x_points = []
         self.center_y_points = []
         
