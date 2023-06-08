@@ -131,7 +131,7 @@ class GUI(QMainWindow):
 
     def init_remote_control(self, remote_host, control_port):
         self.controller = RemoteController(
-            remote_host, control_port, dev_path="/dev/input/event8", mqtt_publisher=self.mqtt_client.publish)
+            remote_host, control_port, dev_path="/dev/input/event18", mqtt_publisher=self.mqtt_client.publish)
         self.controller.start()
 
     def init_MQTT(self, broker_address):
@@ -370,7 +370,7 @@ class GUI(QMainWindow):
 
 if __name__ == '__main__':
 
-    HOST = "192.168.1.2"
+    HOST = "192.168.1.7"
     CONTROL_PORT = 8486
     VIDEO_PORT = 8488
 
